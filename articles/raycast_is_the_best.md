@@ -75,6 +75,8 @@ Raycastは、窓の言語処理脳力も非常に高いのが特徴です。
 ![JSTからUTC](/images/raycast_is_the_best/jst_to_utc.png =600x)
 
 ### 電卓
+Alfredと同様に電卓機能も備えています。
+![電卓](/images/raycast_is_the_best/calculator.png =600x)
 
 ## 拡張機能
 ### Bookmark検索
