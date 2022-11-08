@@ -45,6 +45,17 @@ Clipyとの違いはなんといっても、コピー履歴から検索まで出
 特にスニペットは、「あれなんて登録したっけ？」となりがちなので、この検索機能は非常にありがたいですね！
 
 ### ウィンドウのリサイズ・画面分割
+現在アクティブなウィンドウをリサイズして配置出来る機能です。
+
+筆者は、[こちらの記事](https://dev.classmethod.jp/articles/eetann-used-raycast/) を参考に「3分割」なら1/3、左側ならl、中央ならc、右側ならrのような法則でエイリアスをつけています。
+| Name	               |  Alias  | 
+|:--------------------|:-------:|
+| First Third         | 	1/3 l  |
+| Center Third        | 	1/3 c  |
+| Last Third          | 	1/3 r  |
+| Bottom Center Sixth | 	1/6 bc |
+| Bottom Half         | 	1/2 b  |
+
 ### Floating Notesで軽いメモを取る
 ### カレンダーの予定確認
 ### 言語処理能力
