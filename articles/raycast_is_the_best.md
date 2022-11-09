@@ -85,6 +85,13 @@ Raycastは、Bookmark検索を拡張機能として備えています。
 https://www.raycast.com/raycast/browser-bookmarks
 
 ### Google Chromeのタブ検索
+開いているGoogle Chromeのタブを検索できる機能です。
+
+皆さん、Macを使ってる時にタブを開きすぎて、「あのタブどこいっちゃったっけ？」ってなることよくありませんか？（筆者だけかも笑）
+
+筆者と同じような方は、これを使えば間違いなく、普段の作業の生産性が上がります。
+https://www.raycast.com/Codely/google-chrome
+
 ### Githubの操作
 ### Notionの検索
 ### Jet Brains製品の最近起動したプロジェクトを開く
