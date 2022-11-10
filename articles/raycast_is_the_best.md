@@ -103,7 +103,15 @@ https://www.raycast.com/Codely/google-chrome
 https://www.raycast.com/raycast/github
 
 ### Notionの検索
-### Jet Brains製品の最近起動したプロジェクトを開く
+[数日前に日本語版を正式リリースした](https://twitter.com/NotionJP/status/1590283053594603520?s=20&t=pIundfDkS6Kw9nfsHPfiuQ)、Notionのページ検索もRaycastで行えます。
+
+Notionは、アプリ内でページ検索が行えるので、
+1. Raycastで、Notionを立ち上げる
+2. Notionのアプリでページ検索
+
+でも良いのですが、筆者はそれすらも手間なのでコマンド一発で検索できるようにしています。
+
+https://www.raycast.com/reckoning-dev/search-notion
 
 # 筆者のホットキー
 ランチャーツールで何人かの人が陥りがちなのが、 大して使わない機能にもホットキーを設定することです。
