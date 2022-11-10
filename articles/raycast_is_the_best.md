@@ -153,11 +153,13 @@ https://www.raycast.com/gdsmith/jetbrains
 | リマインダー作成         |  ^⌥R  |
 | Floating Notes作成 |  ^⌥N  |
 
-筆者はこれ以外の機能にキーボードを割り当てていません。
-ウィンドウのリサイズも割り当てようかなと思ったことはありましたが、ウィンドウのリサイズは（人によりますが笑）そんな頻繁に使用する機能ではありません。
-上で紹介したその他の機能も同様です。便利機能は多くありますが、必要な機能は必要な時に、Raycastから直接呼び出してあげれば良いのです。
+# その他の便利設定
+## Auto-switch Input Source
+Raycast起動時に、デフォルトでONになる入力ソースを選択出来ます。
 
-# その他の設定
+これを `Romaji` にすることで、Raycastの起動時に必ずローマ字入力になります。（地味に便利）
+
+![JSTからUTC](/images/raycast_is_the_best/auto_switch_input_source.png =600x)
 
 # 最後に
 最後までお読みいただきありがとうございます。
