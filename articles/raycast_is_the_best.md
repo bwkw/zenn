@@ -92,10 +92,16 @@ https://www.raycast.com/raycast/browser-bookmarks
 
 皆さん、Macを使ってる時にタブを開きすぎて、「あのタブどこいっちゃったっけ？」ってなることよくありませんか？（筆者だけかも笑）
 
-筆者と同じような方は、これを使えば間違いなく、普段の作業の生産性が上がります。
+筆者と同じような方は、これを使えば間違いなく普段の仕事の生産性が上がります。
 https://www.raycast.com/Codely/google-chrome
 
 ### Githubの操作
+連携したGithubアカウントへの様々な操作を行える機能です。
+
+筆者は、リポジトリ検索・Pull Request検索を特に使っています。
+
+https://www.raycast.com/raycast/github
+
 ### Notionの検索
 ### Jet Brains製品の最近起動したプロジェクトを開く
 
