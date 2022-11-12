@@ -87,10 +87,11 @@ Alfredと同様に電卓機能も備えています。
 
 ## 拡張機能
 ### Bookmark検索
+https://www.raycast.com/raycast/browser-bookmarks
 Raycastは、Bookmark検索を拡張機能として備えています。
 
 よく使うサイトは、Bookmarkに入れておいて、これで即座に起動する事ができます。
-https://www.raycast.com/raycast/browser-bookmarks
+![floating_notes](/images/raycast_is_the_best/bookmark.png)
 
 ### Google Chromeのタブ検索
 開いているGoogle Chromeのタブを検索できる機能です。
