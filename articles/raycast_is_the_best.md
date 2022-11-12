@@ -133,9 +133,13 @@ Raycastは、Jet Brains製品にも対応しています。
 
 ![Jet Brains](/images/raycast_is_the_best/jetbrains.png)
 噂では、VsCode版も存在するようなので、興味ある方は是非調べてみてください。
-噂では、VsCode版も存在するようなので、興味ある方は是非調べてみてください。
 
-https://www.raycast.com/gdsmith/jetbrains
+## 自作拡張機能
+Raycastで自分が使いたい拡張機能がなかった場合、自分で作ることも出来ます。
+
+Developer向けに、この拡張機能の作り方のリファレンスがあるので、これを参考に自作することをオススメします。
+言語は、React + TypeScript なので比較的とっつきやすいと思います。
+https://developers.raycast.com/
 
 # 筆者のホットキー
 ランチャーツールで何人かの人が陥りがちなのが、 大して使わない機能にもホットキーを設定することです。 これではせっかく、生産性を上げるためにツールを導入しているにも関わらず、考えること（覚えること）が多くなり、かえって逆効果です。
