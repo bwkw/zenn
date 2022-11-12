@@ -91,15 +91,17 @@ https://www.raycast.com/raycast/browser-bookmarks
 Raycastは、Bookmark検索を拡張機能として備えています。
 
 よく使うサイトは、Bookmarkに入れておいて、これで即座に起動する事ができます。
-![floating_notes](/images/raycast_is_the_best/bookmark.png)
+![Bookmark](/images/raycast_is_the_best/bookmark.png)
 
 ### Google Chromeのタブ検索
+https://www.raycast.com/Codely/google-chrome
+
 開いているGoogle Chromeのタブを検索できる機能です。
 
 皆さん、Macを使ってる時にタブを開きすぎて、「あのタブどこいっちゃったっけ？」ってなることよくありませんか？（筆者だけかも笑）
 
 筆者と同じような方は、これを使えば間違いなく普段の仕事の生産性が上がります。
-https://www.raycast.com/Codely/google-chrome
+![Google Chromeのタブ検索](/images/raycast_is_the_best/chrome_tab.png)
 
 ### Githubの操作
 連携したGithubアカウントへの様々な操作を行える機能です。
