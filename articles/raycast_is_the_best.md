@@ -103,10 +103,13 @@ https://www.raycast.com/Codely/google-chrome
 筆者と同じような方は、これを使えば間違いなく普段の仕事の生産性が上がります。
 ![Google Chromeのタブ検索](/images/raycast_is_the_best/chrome_tab.png)
 
-### Githubの操作
-連携したGithubアカウントへの様々な操作を行える機能です。
+### Githubへの操作
+https://www.raycast.com/raycast/github
+
+連携したGithubアカウントへ、様々な操作を行える機能です。
 
 筆者は、リポジトリ検索・Pull Request検索を特に使っています。
+![Githubのリポジトリ検索](/images/raycast_is_the_best/github_repository.png)
 
 https://www.raycast.com/raycast/github
 
