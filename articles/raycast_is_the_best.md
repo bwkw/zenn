@@ -52,7 +52,7 @@ Clipyとの違いはなんといっても、コピー履歴から検索まで出
 
 ### ウィンドウのリサイズ・画面分割
 現在アクティブなウィンドウをリサイズして配置出来る機能です。
-
+![window_resize](/images/raycast_is_the_best/window_resize.gif)
 筆者は、[こちらの記事](https://dev.classmethod.jp/articles/eetann-used-raycast/) を参考に「3分割」なら1/3、左側ならl、中央ならc、右側ならrのような法則でエイリアスをつけています。
 | Name	               |  Alias  | 
 |:--------------------|:-------:|
