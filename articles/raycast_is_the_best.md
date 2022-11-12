@@ -111,9 +111,9 @@ https://www.raycast.com/raycast/github
 筆者は、リポジトリ検索・Pull Request検索を特に使っています。
 ![Githubのリポジトリ検索](/images/raycast_is_the_best/github_repository.png)
 
-https://www.raycast.com/raycast/github
+### Notionのページ検索
+https://www.raycast.com/reckoning-dev/search-notion
 
-### Notionの検索
 [数日前に日本語版を正式リリースした](https://twitter.com/NotionJP/status/1590283053594603520?s=20&t=pIundfDkS6Kw9nfsHPfiuQ)、Notionのページ検索もRaycastで行えます。
 
 Notionは、アプリ内でページ検索が行えるので、
@@ -121,8 +121,7 @@ Notionは、アプリ内でページ検索が行えるので、
 2. Notionのアプリでページ検索
 
 でも良いのですが、筆者はそれすらも手間なのでコマンド一発で検索できるようにしています。
-
-https://www.raycast.com/reckoning-dev/search-notion
+![Notionのページ検索](/images/raycast_is_the_best/notion.png)
 
 ### Jet Brains製品で最近起動したプロジェクトの検索
 Raycastは、Jet Brains製品にも対応しています。
