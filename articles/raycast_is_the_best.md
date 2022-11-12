@@ -77,12 +77,12 @@ Clipyとの違いはなんといっても、コピー履歴から検索まで出
 ### 言語処理能力
 Raycastは、窓の言語処理脳力も非常に高いのが特徴です。
 
-簡単なドル円計算はもちろん、複雑なJST(日本標準時)からUTC(協定世界時)への計算も行ってくれます。
-![JSTからUTC](/images/raycast_is_the_best/jst_to_utc.png =600x)
+簡単なドル円計算はもちろん、複雑なUTC(協定世界時)からJST(日本標準時)への計算なども行ってくれます。
+![UTCからJST](/images/raycast_is_the_best/utc_to_jst.png)
 
 ### 電卓
 Alfredと同様に電卓機能も備えています。
-![電卓](/images/raycast_is_the_best/calculator.png =600x)
+![電卓](/images/raycast_is_the_best/calculator.png)
 
 ## 拡張機能
 ### Bookmark検索
