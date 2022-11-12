@@ -125,11 +125,13 @@ Notionは、アプリ内でページ検索が行えるので、
 でも良いのですが、筆者はそれすらも手間なのでコマンド一発で検索できるようにしています。
 ![Notionのページ検索](/images/raycast_is_the_best/notion.png)
 
-### Jet Brains製品で最近起動したプロジェクトの検索
+### Jet Brains製品で開いたプロジェクト検索
+https://www.raycast.com/gdsmith/jetbrains
 Raycastは、Jet Brains製品にも対応しています。
 
 これを使えば、Jet Brains製品ですぐにプロジェクトを開く事が出来るので、Jet Brains製品で開発しているエンジニアには必須の機能です。
 
+![Jet Brains](/images/raycast_is_the_best/jetbrains.png)
 噂では、VsCode版も存在するようなので、興味ある方は是非調べてみてください。
 噂では、VsCode版も存在するようなので、興味ある方は是非調べてみてください。
 
