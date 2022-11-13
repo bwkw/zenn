@@ -1,9 +1,9 @@
 ---
-title: "Raycastを使って誰よりも早く帰りたいあなたへ"
+title: "誰よりも早く仕事を終わらせたいあなたに捧げるRaycastのススメ"
 emoji: "🔧"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["raycast"]
-published: false
+published: true
 ---
 
 # TL;DR
@@ -24,9 +24,10 @@ https://www.alfredapp.com/
 # Alfredより優れている所
 既に有名なAlfredより、Raycastはどこが優れているのでしょうか？
 
-それは、**無料で多くの機能を使える点**、これに限ります。なんだ、大したことなさそうと思った方、もう少しお付き合いくださいませ。
+それは、**無料で多くの機能を使える点**、これに限ります。
+なんだ、大したことなさそうと思った方、もう少しお付き合いくださいませ。
 
-ここから、詳しくRaycastで使える機能を見ていきましょう！
+ここから、詳しくRaycastで使える機能を見ていきます。
 
 # Raycastで何が出来るのか？
 ## デフォルト機能
@@ -49,7 +50,7 @@ Clipyとの違いはなんといっても、コピー履歴から検索まで出
 先程と同様に、Clipyを使えばスニペットの作成は出来ますが、スニペットの検索は出来ません。
 特にスニペットは、「あれなんて登録したっけ？」となりがちなので、スニペットの検索機能は非常にありがたいですね！
 
-筆者は、よく使う「よろしくお願い致します🙇‍♂️」を `yoro` でスニペット登録しています笑（怒られそう
+筆者は、よく使う「ありがとうございます！️」を `ari` でスニペット登録しています笑（怒られそう
 ![スニペット](/images/raycast_is_the_best/snippet.png)
 
 ### ウィンドウのリサイズ・画面分割
@@ -75,7 +76,6 @@ Clipyとの違いはなんといっても、コピー履歴から検索まで出
 
 さらに、予定にGoogle Meetのリンクがあった場合、**Enterキー** でMeetに入ることが出来ます。（下画像の `Meeting`の一番右にビデオのアイコンがあります。このアイコンは、Google Meetのリンクがあることを指します。）
 ![スケジュール](/images/raycast_is_the_best/schedule.png)
-些細な機能に思えますが、この便利さは使うと抜け出せません笑
 
 ### 言語処理能力
 Raycastは、窓の言語処理脳力も非常に高いのが特徴です。
@@ -125,13 +125,13 @@ Notionは、アプリ内でページ検索が行えるので、
 でも良いのですが、筆者はそれすらも手間なのでコマンド一発で検索できるようにしています。
 ![Notionのページ検索](/images/raycast_is_the_best/notion.png)
 
-### Jet Brains製品で開いたプロジェクト検索
+### JetBrains製品で開いたプロジェクト検索
 https://www.raycast.com/gdsmith/jetbrains
-Raycastは、Jet Brains製品にも対応しています。
+Raycastは、JetBrains製品にも対応しています。
 
-これを使えば、Jet Brains製品ですぐにプロジェクトを開く事が出来るので、Jet Brains製品で開発しているエンジニアには必須の機能です。
+これを使えば、JetBrains製品ですぐにプロジェクトを開く事が出来るので、JetBrains製品で開発しているエンジニアには必須の機能です。
 
-![Jet Brains](/images/raycast_is_the_best/jetbrains.png)
+![JetBrains](/images/raycast_is_the_best/jetbrains.png)
 噂では、VsCode版も存在するようなので、興味ある方は是非調べてみてください。
 
 ## 自作拡張機能
@@ -158,8 +158,8 @@ https://developers.raycast.com/
 | Bookmark検索              |  ⌥B   |
 | Google Chromeのタブ検索      |  ⌥C   |
 | Githubのリポジトリ検索          |  ⌥R   |
-| GithubのPullRequest検索    |  ⌥P   |
-| Notion検索                |  ⌥N   |
+| GithubのPull Request検索   |  ⌥P   |
+| Notionのページ検索            |  ⌥N   |
 | JetBrains製品で開いたプロジェクト検索 |  ⌥J   |
 
 ## 作成関連
@@ -182,10 +182,8 @@ Raycast起動時に、デフォルトでONになる入力ソースを選択出�
 # 最後に
 最後までお読みいただきありがとうございます。
 
-Raycastはいかがでしたでしょうか？
-少しでもその魅力は伝わりましたでしょうか？
-
-もし、少しでも興味を持っていただけたら、実際にインストールして触ってみてください。
+Raycastの魅力は伝わりましたでしょうか？
+少しでもRaycastに興味を持っていただけたら、実際にインストールして触ってみてください。
 必ずや、あなたの生産性の向上の手助けとなってくれるハズです。
 
 それでは、良いRaycastライフを！
