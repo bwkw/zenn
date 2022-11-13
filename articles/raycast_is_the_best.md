@@ -1,5 +1,5 @@
 ---
-title: "誰よりも早く仕事を終わらせたいあなたに捧げるRaycastのススメ"
+title: "早く仕事を終わらせたいあなたに捧げるRaycastのススメ"
 emoji: "🔧"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["raycast"]
