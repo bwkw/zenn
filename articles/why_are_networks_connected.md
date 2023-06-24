@@ -12,3 +12,11 @@ published: false
 - ブラウザにURLを入力してからホームページが表示されるまで、何が起きているのかを説明できない方は必読👀
 
 ![tour](/images/why_are_networks_connected/tour.png)
+
+# はじめに
+
+# 概要
+
+# 実践
+
+# 最後に
