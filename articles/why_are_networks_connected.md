@@ -2,7 +2,7 @@
 title: 'ネットワークの学習法に困っているそこのあなたへ'
 emoji: '🤷‍♂️'
 type: 'tech'
-topics: ['ネットワーク','初心者','学習法']
+topics: ['ネットワーク','初心者']
 published: true
 published_at: 2023-06-28 08:00
 ---
