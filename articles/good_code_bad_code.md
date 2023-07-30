@@ -100,3 +100,57 @@ class UserController extends Controller {
     }
 }
 ```
+
+## 3. さまざまな悪魔を招きやすいデータクラス
+
+### 問題のコード
+
+データクラスとは、データの格納と取得のみを行うクラスを指します。これらのクラスがビジネスロジックを持たないために起こる問題は、そのデータを操作するためのロジックがクラス外部に散在してしまう可能性があるという点です。
+
+例えば、以下のようなコードを考えてみましょう。
+
+```php
+class User {
+    public $name;
+    public $email;
+}
+
+class UserService {
+    public function changeEmail(User $user, $newEmail) {
+        // メールアドレスの形式検証
+        if (!filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
+            throw new Exception('Invalid email format');
+        }
+
+        $user->email = $newEmail;
+    }
+}
+```
+
+### 改良されたコード
+
+このコードでは、`User` クラスは単にデータを保持するだけのデータクラスで、それを操作するためのロジックは`UserService` クラスに存在します。これにより、`User`クラスがそのデータの整合性を自身で保証することができなくなり、全ての操作が `UserService` を通じて行われることが必ずしも保証されていないため、データの不整合が発生するリスクがあります。
+
+これらの問題を解決するためには、開発者がデータとそのデータを操作するロジックを一緒に持つようにクラスを設計する必要があります。
+
+```php
+class User {
+    public $name;
+    public $email;
+
+    public function __construct($name, $email) {
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new Exception('Invalid email format');
+        }
+        $this->name = $name;
+        $this->email = $email;
+    }
+
+    public function changeEmail($newEmail) {
+        if (!filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
+            throw new Exception('Invalid email format');
+        }
+        $this->email = $newEmail;
+    }
+}
+```
