@@ -207,3 +207,54 @@ echo $user->getEmail(); // john@example.com
 ```
 
 上記の修正後のコードでは、コンストラクタは全てのフィールド（`$name`と`$email`）を初期化します。したがって、新しい`User`オブジェクトを作成した直後に`$email`にアクセスしても、未初期化の状態を返すことはありません。これによりオブジェクトの生存期間中における状態の予測可能性が向上します。
+
+## 5. 不正値の混入
+
+### 問題のコード
+
+不正値の混入とは、制約を満たさない値がプログラム中に混入し、その結果、エラーを引き起こしたり、予期しない動作を引き起こしたりする状況を指します。
+
+以下のようなコードを例に考えてみましょう。
+
+```php
+class User {
+    public $name;
+    public $age;
+
+    public function __construct($name, $age) {
+        $this->name = $name;
+        $this->age = $age;
+    }
+}
+
+$user = new User('John Doe', -1);
+```
+
+### 改良されたコード
+
+上記のコードでは、年齢がマイナスの値となってしまいます。このような値は、一般的なビジネスロジックでは許容されません。
+
+この問題を解決するために、クラスに不正な値が設定されないようにバリデーションを追加します。
+
+```php
+class User {
+    public $name;
+    public $age;
+
+    public function __construct($name, $age) {
+        if ($age < 0) {
+            throw new InvalidArgumentException('Age cannot be negative');
+        }
+        $this->name = $name;
+        $this->age = $age;
+    }
+}
+
+try {
+    $user = new User('John Doe', -1);
+} catch (InvalidArgumentException $e) {
+    echo $e->getMessage();
+}
+```
+
+この改良版のコードでは、コンストラクタが年齢の値がマイナスになることを防ぐバリデーションを行っています。これにより、年齢として不適切な値が`User`クラスに設定されることを防ぎます。
