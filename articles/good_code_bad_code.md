@@ -272,39 +272,62 @@ try {
 ```php
 class UserController extends Controller
 {
-    public function index()
+    public function update(Request $request, User $user)
     {
-        $users = User::all();
-        foreach ($users as $user) {
-            $user->age = Carbon::createFromFormat('Y-m-d', $user->birthdate)->diff(Carbon::now())->format('%y');
-        }
-        return view('user.index', compact('users'));
+        $request->validate([
+            'name' => 'required|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+        ]);
+
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->save();
+
+        return redirect()->route('users.show', $user);
     }
 }
 ```
 
-このコードでは、全てのユーザーの年齢を計算しています。しかし、この年齢計算のロジックが直接 index メソッド内に記述されているため、その意図を理解するのが難しく、再利用も困難です。
+ここで問題なのは、バリデーションロジックがコントローラに混在しているため、コードの見通しが悪くなり、再利用性やテスト性も損なわれていることです。
+
+### 改良されたコード
+
+これを改善するために、`FormRequest`クラスを使ってバリデーションロジックを切り離します。
 
 ```php
 class UserController extends Controller
 {
-    public function index()
+    public function update(UpdateUserRequest $request, User $user)
     {
-        $users = User::all();
-        foreach ($users as $user) {
-            $user->age = $this->calculateAge($user->birthdate);
-        }
-        return view('user.index', compact('users'));
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->save();
+
+        return redirect()->route('users.show', $user);
+    }
+}
+
+class UpdateUserRequest extends FormRequest
+{
+    public function authorize()
+    {
+        return true; // Or implement your authorization logic
     }
 
-    // 本来、Controllerに実装するものではない
-    private function calculateAge($birthdate)
+    public function rules()
     {
-        return Carbon::createFromFormat('Y-m-d', $birthdate)->diff(Carbon::now())->format('%y');
+        $userId = $this->route('user')->id;
+
+        return [
+            'name' => 'required|max:255',
+            'email' => 'required|email|unique:users,email,' . $userId,
+        ];
     }
 }
 ```
 
-改善後のコードでは、年齢計算のロジックを`calculateAge`メソッドに切り出しました。これにより、コードの意図がより明確になり、再利用も容易になりました。また、このメソッドは個別にテストすることも可能になります。
+これにより、コントローラのコードがスッキリとし、再利用性やテスト性が向上します。また、バリデーションロジックが一箇所にまとまっているため、修正や保守が容易になります。
 
-このように、適切にメソッド化を行うことでコードの可読性と保守性を向上させ、再利用やテストも容易になります。
+## 2. 関係し合うデータとロジックをクラスにまとめる
+
+### 問題のコード
