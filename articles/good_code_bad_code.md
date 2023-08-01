@@ -436,3 +436,130 @@ class UserController extends Controller
 
 改良後のコードでは、依存性の注入を利用して`UserService`を`UserController`に提供します。これにより、`UserController`が`UserService`の具体的な実装に依存しなくなり、コードのテストやメンテナンスが容易になります。また、異なる`UserService`の実装を容易に切り替えることも可能になります。
 このように、クラスはそれ自体で完結するよう設計し、依存性を外部から注入することで、テスト性と保守性を向上させることができます。
+
+## 2. 成熟したクラスへ成長させる設計術
+
+### 問題のコード
+
+以下のコードは、ユーザーの生年月日から年齢を計算するシンプルな設計です。ユーザーの生年月日と現在日を格納し、それらを元に年齢を計算するクラスがそれぞれ定義されています。
+
+```php
+class User
+{
+    public $birthdate;
+    public $today;
+
+    public function setBirthdate($birthdate)
+    {
+        $this->birthdate = $birthdate;
+    }
+
+    public function setToday($today)
+    {
+        $this->today = $today;
+    }
+
+    public function getBirthdate()
+    {
+        return $this->birthdate;
+    }
+
+    public function getToday()
+    {
+        return $this->today;
+    }
+}
+
+class AgeCalculator
+{
+    public function calculateAge($birthdate, $today)
+    {
+        return Carbon::createFromFormat('Y-m-d', $birthdate)->diff(Carbon::createFromFormat('Y-m-d', $today))->format('%y');
+    }
+}
+```
+
+しかしながら、このコードでは、以下の問題が存在します。
+
+- コンストラクタが実装されていないため、初期化されていないプロパティが利用される可能性がある
+- 計算ロジックがデータ保持側に存在しない
+- インスタンス変数とメソッド引数が不変でないため、値の変更が発生しやすい
+- 生年月日と現在の日付のように、特定の形式や規則を必要とする値について、間違った形式の値が渡される可能性があります
+
+### 改良されたコード
+
+そこで、以下のように修正します。
+
+```php
+class Birthdate
+{
+    private $value;
+
+    public function __construct($value)
+    {
+        if (!preg_match('/\d{4}-\d{2}-\d{2}/', $value)) {
+            throw new InvalidArgumentException('Invalid birthdate format. It should be YYYY-MM-DD');
+        }
+        $this->value = $value;
+    }
+
+    public function getValue()
+    {
+        return $this->value;
+    }
+}
+
+class Today
+{
+    private $value;
+
+    public function __construct($value)
+    {
+        if (!preg_match('/\d{4}-\d{2}-\d{2}/', $value)) {
+            throw new InvalidArgumentException('Invalid date format for today. It should be YYYY-MM-DD');
+        }
+        $this->value = $value;
+    }
+
+    public function getValue()
+    {
+        return $this->value;
+    }
+}
+
+class User
+{
+    private $birthdate;
+    private $today;
+
+    public function __construct(Birthdate $birthdate, Today $today)
+    {
+        $this->birthdate = $birthdate;
+        $this->today = $today;
+    }
+
+    public function getBirthdate()
+    {
+        return $this->birthdate->getValue();
+    }
+
+    public function getToday()
+    {
+        return $this->today->getValue();
+    }
+
+    public function calculateAge()
+    {
+        return Carbon::createFromFormat('Y-m-d', $this->birthdate->getValue())->diff(Carbon::createFromFormat('Y-m-d', $this->today->getValue()))->format('%y');
+    }
+}
+```
+
+上記の改善後のコードでは、以下のように問題が解決されています。
+
+- コンストラクタを使用して、プロパティを適切に初期化しています
+- User クラスにデータとその計算ロジックをまとめ、一貫性を保てるようにしました
+- プロパティを不変に保つために、`private`で宣言し、外部からの直接アクセスを防ぐために Getter メソッドを使用しています
+- 生年月日と現在の日付のように、特定の形式や規則を持つ値については、値オブジェクト（Value Object）を作成することで値の誤りを防ぐことが可能です
+
+以上のように、各クラスが単体で正常に動作し、それぞれが持つべきデータとロジックを適切に配置することで、コードの可読性や保守性を向上させることができます。
