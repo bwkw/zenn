@@ -258,3 +258,53 @@ try {
 ```
 
 この改良版のコードでは、コンストラクタが年齢の値がマイナスになることを防ぐバリデーションを行っています。これにより、年齢として不適切な値が`User`クラスに設定されることを防ぎます。
+
+# 第 2 章　設計の初歩
+
+## 1. ベタ書きせず、意味のあるまとまりでメソッド化
+
+### 問題のコード
+
+コードの中に長いベタ書きのロジックがあると、その部分の意図が理解しにくく、また再利用やテストも難しくなります。
+
+以下にそのようなコードの例を示します。
+
+```php
+class UserController extends Controller
+{
+    public function index()
+    {
+        $users = User::all();
+        foreach ($users as $user) {
+            $user->age = Carbon::createFromFormat('Y-m-d', $user->birthdate)->diff(Carbon::now())->format('%y');
+        }
+        return view('user.index', compact('users'));
+    }
+}
+```
+
+このコードでは、全てのユーザーの年齢を計算しています。しかし、この年齢計算のロジックが直接 index メソッド内に記述されているため、その意図を理解するのが難しく、再利用も困難です。
+
+```php
+class UserController extends Controller
+{
+    public function index()
+    {
+        $users = User::all();
+        foreach ($users as $user) {
+            $user->age = $this->calculateAge($user->birthdate);
+        }
+        return view('user.index', compact('users'));
+    }
+
+    // 本来、Controllerに実装するものではない
+    private function calculateAge($birthdate)
+    {
+        return Carbon::createFromFormat('Y-m-d', $birthdate)->diff(Carbon::now())->format('%y');
+    }
+}
+```
+
+改善後のコードでは、年齢計算のロジックを`calculateAge`メソッドに切り出しました。これにより、コードの意図がより明確になり、再利用も容易になりました。また、このメソッドは個別にテストすることも可能になります。
+
+このように、適切にメソッド化を行うことでコードの可読性と保守性を向上させ、再利用やテストも容易になります。
