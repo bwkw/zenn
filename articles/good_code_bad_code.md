@@ -274,7 +274,9 @@ class UserController extends Controller
         return redirect()->route('users.show', $user);
     }
 }
+```
 
+```php
 class UpdateUserRequest extends FormRequest
 {
     public function authorize()
@@ -333,7 +335,9 @@ class User extends Model
         $this->save();
     }
 }
+```
 
+```php
 class UserController extends Controller
 {
     public function assignCompany(Request $request, User $user)
