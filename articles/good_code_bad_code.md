@@ -331,3 +331,55 @@ class UpdateUserRequest extends FormRequest
 ## 2. 関係し合うデータとロジックをクラスにまとめる
 
 ### 問題のコード
+
+以下のようなコードでは、`User`と`Company`の関係を適切に表現できていないため、ロジックが冗長になり、メンテナンスも困難になります。
+
+```php
+class UserController extends Controller
+{
+    public function assignCompany(Request $request, User $user)
+    {
+        $company = Company::find($request->companyId);
+        if (!$company) {
+            return redirect()->back()->with('error', 'Company not found');
+        }
+
+        $user->companyId = $company->id;
+        $user->save();
+
+        return redirect()->route('users.show', $user);
+    }
+}
+```
+
+このコードでは、ユーザーを企業に割り当てるロジックが`UserController`に存在しますが、ユーザーと企業の関係に関するロジックは、本来は`User`クラスまたは`Company`クラスで管理すべきです。
+
+### 改良されたコード
+
+```php
+class User extends Model
+{
+    public function assignCompany($company)
+    {
+        $this->companyId = $company->id;
+        $this->save();
+    }
+}
+
+class UserController extends Controller
+{
+    public function assignCompany(Request $request, User $user)
+    {
+        $company = Company::find($request->companyId);
+        if (!$company) {
+            return redirect()->back()->with('error', 'Company not found');
+        }
+
+        $user->assignCompany($company);
+
+        return redirect()->route('users.show', $user);
+    }
+}
+```
+
+この改善版では、ユーザーに企業を割り当てるロジックを`User`クラスに移動させました。これにより、`User`と`Company`の関係に関するロジックが一箇所にまとまり、コードの保守性と再利用性が向上します。また、`User`クラスと`Company`クラスが直接的に関係するロジックは、それぞれのクラスに含められることで、より直感的に理解できるようになります。
