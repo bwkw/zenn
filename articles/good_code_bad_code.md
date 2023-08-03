@@ -642,3 +642,72 @@ $premiumPoint = Point::createPremiumPoint();
 ```
 
 改善策としては、`Point`クラスに`private`コンストラクタを設け、ファクトリメソッド`createStandardPoint`と `createPremiumPoint` を用意します。このファクトリメソッドを使うことで、会員種別によってポイントの初期値が適切に設定されることが保証されます。つまり、初期化ロジックが一箇所にまとまり、新たなロジックを追加する際もそのファクトリメソッド内で行えばよいため、メンテナンス性が向上します。また、`Point`クラス自体の値は外部から直接変更できないようにし、`getValue`メソッドを通じてのみ取得できるようにします。これにより、`Point`クラスの値の整合性と保守性が向上します。
+
+## 2. 共通処理クラス
+
+### 問題のコード
+
+共通処理クラスとは、異なる箇所で再利用可能なコードを抽出したクラスのことを指します。ただし、共通処理クラスを作成する際には、そのクラスが担当する責任を明確にすることが重要です。
+
+```php
+class Common {
+    public function authenticate($username, $password) {
+        // authenticate user
+    }
+
+    public function sendMail($userEmail, $subject, $body) {
+        // send mail
+    }
+
+    public function calculateTax($income) {
+        // calculate tax
+    }
+
+    public function generateReport($data) {
+        // generate report
+    }
+
+    public function logError($error) {
+        // log error
+    }
+}
+```
+
+このコードの`Common`クラスは、ユーザーの認証、メールの送信、税金の計算、レポートの生成、エラーのログ記録といった、全く関連性のない 5 つの責任を持っています。これにより、各メソッドがどのように互いに影響を与えるか理解するのが難しくなり、テストや保守も一層困難になります。
+これを改善するには、各機能を独自のクラスに分割することが有効です。これにより、各クラスが一つの責任だけを持つことになり、コードの理解、テスト、保守が容易になります。また、一つのクラスが変更される理由が明確になり、予期しない副作用を防ぐことが可能になります。
+
+### 改良されたコード
+
+```php
+class Authenticator {
+    public function authenticate($username, $password) {
+        // authenticate user
+    }
+}
+
+class Mailer {
+    public function sendMail($userEmail, $subject, $body) {
+        // send mail
+    }
+}
+
+class TaxCalculator {
+    public function calculateTax($income) {
+        // calculate tax
+    }
+}
+
+class ReportGenerator {
+    public function generateReport($data) {
+        // generate report
+    }
+}
+
+class ErrorLogger {
+    public function logError($error) {
+        // log error
+    }
+}
+```
+
+このようにすることで、各クラスは単一の責任を持つことになり、コードの理解性や保守性が向上します。さらに、一つのクラスが変更される理由が明確になり、予期しない副作用も防ぐことができます。
