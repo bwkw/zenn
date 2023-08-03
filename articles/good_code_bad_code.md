@@ -11,13 +11,13 @@ published: false
 - 「良いコード/悪いコードで学ぶ設計入門」をテーマに、PHP(Laravel)を使用してプログラミング設計原則を詳解
 - 各トピックごとに「問題のコード」例と「改良されたコード」例を PHP(Laravel)で提供し、良い設計原則に従う方法を具体的に提示
 - これを読めば、設計原則の理解が深まり自身の開発に活かせるはず
-- もちろん全トピックを扱うわけではないので、気になった人はぜひ購入を
+- だいぶはしょったので、気になった人はぜひ購入を
 
 https://gihyo.jp/book/2022/978-4-297-12783-1
 
 # 第 1 章 悪しき構造の弊害を知覚する
 
-## 1. 理解を困難にする条件分岐のネスト
+## 理解を困難にする条件分岐のネスト
 
 ### 問題のコード
 
@@ -69,61 +69,7 @@ class UserController extends Controller {
 }
 ```
 
-## 2. さまざまな悪魔を招きやすいデータクラス
-
-### 問題のコード
-
-データクラスとは、データの格納と取得のみを行うクラスを指します。これらのクラスがビジネスロジックを持たないために起こる問題は、そのデータを操作するためのロジックがクラス外部に散在してしまう可能性があるという点です。
-
-例えば、以下のようなコードを考えてみましょう。
-
-```php
-class User {
-    public $name;
-    public $email;
-}
-
-class UserService {
-    public function changeEmail(User $user, $newEmail) {
-        // メールアドレスの形式検証
-        if (!filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
-            throw new Exception('Invalid email format');
-        }
-
-        $user->email = $newEmail;
-    }
-}
-```
-
-### 改良されたコード
-
-このコードでは、`User`クラスは単にデータを保持するだけのデータクラスで、それを操作するためのロジックは`UserService`クラスに存在します。これにより、`User`クラスがそのデータの整合性を自身で保証することができなくなり、全ての操作が`UserService`を通じて行われることが必ずしも保証されていないため、データの不整合が発生するリスクがあります。
-
-これらの問題を解決するためには、開発者がデータとそのデータを操作するロジックを一緒に持つようにクラスを設計する必要があります。
-
-```php
-class User {
-    public $name;
-    public $email;
-
-    public function __construct($name, $email) {
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            throw new Exception('Invalid email format');
-        }
-        $this->name = $name;
-        $this->email = $email;
-    }
-
-    public function changeEmail($newEmail) {
-        if (!filter_var($newEmail, FILTER_VALIDATE_EMAIL)) {
-            throw new Exception('Invalid email format');
-        }
-        $this->email = $newEmail;
-    }
-}
-```
-
-## 3. 未初期化状態（生焼けオブジェクト）
+## 未初期化状態（生焼けオブジェクト）
 
 ### 問題のコード
 
