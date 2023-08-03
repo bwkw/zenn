@@ -590,3 +590,55 @@ $user->name = 'Tom'; // Error: Cannot modify readonly property User::$name
 ```
 
 このコードでは、`User`クラスの`name`プロパティが`readonly`として宣言されています。これにより、値はコンストラクタで設定された後は変更することができません。そのため、意図せぬ値の変更を防ぐことができます。このように、`readonly`プロパティはクラスの状態を安全に保つための強力なツールとなります。また、クラスの不変性を強制することでコードの読みやすさも向上します。
+
+# 第 5 章 低凝集 -バラバラになったモノたち-
+
+## 1. 初期化ロジックの分散
+
+### 問題のコード
+
+コードの初期化ロジックが分散している場合、そのコードは理解しにくくなり、エラーが発生しやすくなります。また、新たな初期化ロジックを追加する際の困難さも増します。
+
+```php
+class Point {
+    public $value;
+
+    public function __construct($value) {
+        $this->value = $value;
+}
+    }
+
+$standardPoint = new Point(3000);
+$premiumPoint = new Point(10000);
+```
+
+このコードでは初期化ロジックが分散しており、理解しにくくなっています。具体的には、`Point`クラスのインスタンス作成時に初期値が直接渡されています。これにより、初期値が何を表しているのか、またなぜそのような値が設定されているのかがコードから読み取ることができません。さらに、新たな初期化ロジックを追加する際、各インスタンス作成の部分すべてを修正しなければならず、手間が増えます。
+
+### 改良されたコード
+
+```php
+class Point {
+    private $value;
+
+    private function __construct($value) {
+        $this->value = $value;
+    }
+
+    public static function createStandardPoint() {
+        return new self(3000);
+    }
+
+    public static function createPremiumPoint() {
+        return new self(10000);
+    }
+
+    public function getValue() {
+        return $this->value;
+    }
+}
+
+$standardPoint = Point::createStandardPoint();
+$premiumPoint = Point::createPremiumPoint();
+```
+
+改善策としては、`Point`クラスに`private`コンストラクタを設け、ファクトリメソッド`createStandardPoint`と `createPremiumPoint` を用意します。このファクトリメソッドを使うことで、会員種別によってポイントの初期値が適切に設定されることが保証されます。つまり、初期化ロジックが一箇所にまとまり、新たなロジックを追加する際もそのファクトリメソッド内で行えばよいため、メンテナンス性が向上します。また、`Point`クラス自体の値は外部から直接変更できないようにし、`getValue`メソッドを通じてのみ取得できるようにします。これにより、`Point`クラスの値の整合性と保守性が向上します。
