@@ -124,7 +124,7 @@ echo $user->getEmail(); // john@example.com
 
 # 第 2 章　設計の初歩
 
-## 1. ベタ書きせず、意味のあるまとまりでメソッド化
+## ベタ書きせず、意味のあるまとまりでメソッド化
 
 ### 問題のコード
 
@@ -193,7 +193,7 @@ class UpdateUserRequest extends FormRequest
 
 これにより、コントローラのコードがスッキリとし、再利用性やテスト性が向上します。また、バリデーションロジックが一箇所にまとまっているため、修正や保守が容易になります。
 
-## 2. 関係し合うデータとロジックをクラスにまとめる
+## 関係し合うデータとロジックをクラスにまとめる
 
 ### 問題のコード
 
@@ -253,58 +253,7 @@ class UserController extends Controller
 
 # 第 3 章　設計の初歩
 
-## 1. クラス単体で正常に動作するよう設計する
-
-### 問題のコード
-
-各クラスは単体で正常に動作するように設計することが重要です。そうしなければ、そのクラスは他のクラスと深く結びついてしまい、再利用やテストが難しくなります。また、クラスが他のクラスに依存している場合、その依存関係を理解しなければクラスの動作を完全に理解することは難しくなります。これにより、新たな開発者がコードを理解するのが難しくなるだけでなく、未来の自分がコードを理解するのも難しくなる可能性があります。
-
-以下にそのようなコードを示します。
-
-```php
-use App\Services\UserService;
-
-class UserController extends Controller
-{
-    public function index()
-    {
-        $userService = new UserService();
-        $users = $userService->getAllUsers();
-
-        return view('user.index', compact('users'));
-    }
-}
-```
-
-上記のコードでは、`UserController`が直接`UserService`の新しいインスタンスを生成しています。これにより、テストをする際にモックオブジェクトを使って`UserService`を置き換えることが難しくなり、`UserController`が`UserService`と密結合になってしまいます。
-
-### 改良されたコード
-
-```php
-use App\Services\UserService;
-
-class UserController extends Controller
-{
-    protected $userService;
-
-    public function __construct(UserService $userService)
-    {
-        $this->userService = $userService;
-    }
-
-    public function index()
-    {
-        $users = $this->userService->getAllUsers();
-
-        return view('user.index', compact('users'));
-    }
-}
-```
-
-改良後のコードでは、依存性の注入を利用して`UserService`を`UserController`に提供します。これにより、`UserController`が`UserService`の具体的な実装に依存しなくなり、コードのテストやメンテナンスが容易になります。また、異なる`UserService`の実装を容易に切り替えることも可能になります。
-このように、クラスはそれ自体で完結するよう設計し、依存性を外部から注入することで、テスト性と保守性を向上させることができます。
-
-## 2. 成熟したクラスへ成長させる設計術
+## 成熟したクラスへ成長させる設計術
 
 ### 問題のコード
 
