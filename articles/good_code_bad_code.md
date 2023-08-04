@@ -868,3 +868,73 @@ class ProductPrinter {
 ```
 
 このように、各製品クラスが`PricedProduct`インターフェイスを実装することで、`ProductPrinter`は単純に`print`メソッドを使って価格を出力するだけで、具体的な製品の型を知る必要はありません。これにより、形チェックでの分岐を避けて、リスコフの置換原則に従うことができます。
+
+# 第 7 章 コレクション -ネストを解消する構造化技法-
+
+##　低凝集なコレクション処理
+
+### 問題のあるコード
+
+低凝集とは、一つのクラスまたはモジュールが行うべき役割が不明確で、多岐にわたる機能を持ってしまっている状態を指します。その結果、コードの再利用性や可読性が低下し、メンテナンスが困難になることが多いです。
+
+この問題が発生する一例を以下の Laravel コードにて示します。ここでは、`UserService`と`SalesReportService`クラスが共通のコレクション処理（18 歳以上のユーザーをフィルタリングする）をそれぞれ独自に実装しています。
+
+```php
+class UserService {
+    public function getAdultUsers() {
+        $users = App\Models\User::all();
+        return $users->filter(function($user){
+            return $user->age >= 18;
+        });
+    }
+}
+
+class SalesReportService {
+    public function getAdultUsersWithPurchaseHistory() {
+        $users = App\Models\User::all();
+        return $users->filter(function($user){
+            return $user->age >= 18 && $user->purchases->count() > 0;
+        });
+    }
+}
+```
+
+このコードでは、2 つのサービスクラスが重複して同じフィルタリングロジックを持っています。この状態では、同じロジックが散らばっているため、コードの再利用性が低下し、また修正が必要となった際には複数箇所を変更する必要が出てきます。
+
+### 改良されたコード
+
+この問題の解決策として、共通のコレクション処理を一つのクラス（`UserFilter`）にまとめ、それを使用してフィルタリングを行うように改良します。
+
+```php
+class UserFilter {
+    private $users;
+
+    public function __construct($users) {
+        $this->users = $users;
+    }
+
+    public function filterAdultUsers() {
+        return $this->users->filter(function($user) {
+            return $user->age >= 18;
+        });
+    }
+}
+
+class UserService {
+    public function getAdultUsers() {
+        $users = new UserFilter(App\Models\User::all());
+        return $users->filterAdultUsers();
+    }
+}
+
+class SalesReportService {
+    public function getAdultUsersWithPurchaseHistory() {
+        $users = new UserFilter(App\Models\User::all());
+        return $users->filterAdultUsers()->filter(function($user) {
+            return $user->purchases->count() > 0;
+        });
+    }
+}
+```
+
+この改良により、フィルタリングロジックが一箇所に集まり、コードの可読性と再利用性が向上します。また、将来的にフィルタリングロジックが変更になった場合も、一箇所の修正だけで対応が可能となり、メンテナンス性が向上します。
