@@ -555,3 +555,233 @@ class ErrorLogger {
 ```
 
 このようにすることで、各クラスは単一の責任を持つことになり、コードの理解性や保守性が向上します。さらに、一つのクラスが変更される理由が明確になり、予期しない副作用も防ぐことができます。
+
+# 第 6 章 条件分岐 -迷宮化した分岐処理を解きほぐす技法-
+
+## switch 文の重複
+
+### 問題のコード
+
+一つのプログラム内で同じコードが何度も登場することはよくあります。しかし、これはプログラムの読みやすさ、保守性、拡張性を損なう可能性があるため、可能な限り避けるべきです。特に、条件分岐の中でのコードの重複は複雑性を増加させ、エラーの元になりやすいです。
+
+例えば以下のような PHP コードを考えてみましょう。
+
+```php
+class OrderController extends Controller
+{
+    public function shipOrder(Request $request, $id)
+    {
+        $order = Order::find($id);
+
+        switch ($request->input('status')) {
+            case 'processing':
+                // 処理中の注文の処理
+                break;
+            case 'shipped':
+                // 出荷された注文の処理
+                break;
+            case 'delivered':
+                // 配送済みの注文の処理
+                break;
+            default:
+                return response()->json(['status' => 'failed', 'message' => 'Invalid status'], 400);
+        }
+
+        // コード続き…
+    }
+
+    public function cancelOrder(Request $request, $id)
+    {
+        $order = Order::find($id);
+
+        switch ($request->input('status')) {
+            case 'processing':
+                // 処理中の注文のキャンセル処理
+                break;
+            case 'shipped':
+                // 出荷された注文のキャンセル処理
+                break;
+            case 'delivered':
+                // 配送済みの注文のキャンセル処理
+                break;
+            default:
+                return response()->json(['status' => 'failed', 'message' => 'Invalid status'], 400);
+        }
+
+        // コード続き…
+    }
+}
+```
+
+これらのメソッドでは、同じスイッチ文が複数の場所に記述されています。ここでは、それぞれのメソッドで注文の状態に基づいて処理を行っています。
+
+### 改良されたコード 1
+
+解決策の一つとして、注文のステータスを処理する別のクラスを以下のように作成することが考えられます。
+
+```php
+class OrderStatusHandler
+{
+    public function handle($status, Order $order)
+    {
+        switch ($status) {
+            case 'processing':
+                // 処理中の注文の処理
+                break;
+            case 'shipped':
+                // 出荷された注文の処理
+                break;
+            case 'delivered':
+                // 配送済みの注文の処理
+                break;
+            default:
+                return false;
+        }
+
+        return true;
+    }
+}
+
+class OrderController extends Controller
+{
+    protected $statusHandler;
+
+    public function __construct(OrderStatusHandler $statusHandler)
+    {
+        $this->statusHandler = $statusHandler;
+    }
+
+    public function shipOrder(Request $request, $id)
+    {
+        $order = Order::find($id);
+
+        if(!$this->statusHandler->handle($request->input('status'), $order)){
+            return response()->json(['status' => 'failed', 'message' => 'Invalid status'], 400);
+        }
+
+        // コード続き…
+    }
+
+    public function cancelOrder(Request $request, $id)
+    {
+        $order = Order::find($id);
+
+        if(!$this->statusHandler->handle($request->input('status'), $order)){
+            return response()->json(['status' => 'failed', 'message' => 'Invalid status'], 400);
+        }
+
+        // コード続き…
+    }
+}
+```
+
+これにより、注文のステータスを処理するコードが一箇所にまとまり、コードの重複が避けられます。
+
+さらに、各ステータスごとに異なる振る舞いを持つクラス（ステートパターン）を作成することで、スマートにスイッチ文の重複を解消することもできます。ただし、この解決策は問題の規模や状況によりますので、ケースバイケースで適用を検討してください。
+
+### 改良されたコード 2
+
+インターフェースを使用することで、より効果的にスイッチ文の重複を解消できます。これは、特にオブジェクト指向プログラミングのポリモーフィズム（多態性）の原則を活用する方法です。
+
+各ステータスを個別のクラスとし、それらが共通のインターフェースを実装する形にすることができます。各クラスはステータスごとの具体的な振る舞いを定義し、コントローラーではステータスに依存せずに振る舞いを呼び出すだけで良くなります。
+
+まず、注文状態を扱うインターフェースとこのインターフェースを実装した具体的な状態クラスを作成します。
+
+```php
+interface OrderStatusInterface
+{
+    public function handle(Order $order);
+}
+
+class ProcessingOrderStatus implements OrderStatusInterface
+{
+    public function handle(Order $order)
+    {
+        // 処理中の注文の処理
+    }
+}
+
+class ShippedOrderStatus implements OrderStatusInterface
+{
+    public function handle(Order $order)
+    {
+        // 出荷された注文の処理
+    }
+}
+
+class DeliveredOrderStatus implements OrderStatusInterface
+{
+    public function handle(Order $order)
+    {
+        // 配送済みの注文の処理
+    }
+}
+```
+
+このとき、状態に対応するクラスのインスタンスをマップとして定義し、それを使用して注文の処理を実行する`OrderStatusService`クラスを作成します。
+
+```php
+class OrderStatusService
+{
+    protected $statusHandlers = [
+        'processing' => ProcessingOrderStatus::class,
+        'shipped' => ShippedOrderStatus::class,
+        'delivered' => DeliveredOrderStatus::class,
+    ];
+
+    public function handle($status, Order $order)
+    {
+        if (!isset($this->statusHandlers[$status])) {
+            throw new Exception('Invalid status');
+        }
+
+        $handlerClass = $this->statusHandlers[$status];
+        $handler = new $handlerClass();
+        $handler->handle($order);
+    }
+}
+```
+
+そして、コントローラーで`OrderStatusService`クラスを使って注文を処理します。
+
+```php
+class OrderController extends Controller
+{
+    protected $statusService;
+
+    public function __construct(OrderStatusService $statusService)
+    {
+        $this->statusService = $statusService;
+    }
+
+    public function shipOrder(Request $request, $id)
+    {
+        $order = Order::find($id);
+
+        try {
+            $this->statusService->handle($request->input('status'), $order);
+        } catch (Exception $e) {
+            return response()->json(['status' => 'failed', 'message' => 'Invalid status'], 400);
+        }
+
+        // コード続き…
+    }
+
+    public function cancelOrder(Request $request, $id)
+    {
+        $order = Order::find($id);
+
+        try {
+            $this->statusService->handle($request->input('status'), $order);
+        } catch (Exception $e) {
+            return response()->json(['status' => 'failed', 'message' => 'Invalid status'], 400);
+        }
+
+        // コード続き…
+    }
+}
+```
+
+この方法では、新たな`OrderStatusService`クラスが登場します。ここではマッピング（連想配列）を使い、注文状態とそれに対応するクラスのインスタンスを管理しています。これにより、注文状態を追加または変更するときは、このマッピングに対応する項目を追加または変更するだけで、コントローラーを変更する必要はありません。つまり、この構成は、アプリケーションの将来の拡張性を向上させ、コードのメンテナンスを容易にします。
+
+このように、スイッチ文の重複問題は、オブジェクト指向プログラミングのポリモーフィズム原則を適用することで効果的に解消できます。それぞれのソリューションには、それぞれの適用シーンとメリットがありますので、プロジェクトの要件と目標により選択してください。
