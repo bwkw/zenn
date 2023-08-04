@@ -785,3 +785,86 @@ class OrderController extends Controller
 この方法では、新たな`OrderStatusService`クラスが登場します。ここではマッピング（連想配列）を使い、注文状態とそれに対応するクラスのインスタンスを管理しています。これにより、注文状態を追加または変更するときは、このマッピングに対応する項目を追加または変更するだけで、コントローラーを変更する必要はありません。つまり、この構成は、アプリケーションの将来の拡張性を向上させ、コードのメンテナンスを容易にします。
 
 このように、スイッチ文の重複問題は、オブジェクト指向プログラミングのポリモーフィズム原則を適用することで効果的に解消できます。それぞれのソリューションには、それぞれの適用シーンとメリットがありますので、プロジェクトの要件と目標により選択してください。
+
+## 形チェックで分岐しないこと
+
+### 問題のあるコード
+
+ここでは、`Product`という基底クラスと、そのサブクラスである`DigitalProduct`と`PhysicalProduct`を使用しています。基底クラスには`getPrice`メソッドが存在しますが、サブクラスではそれぞれ異なる方法で価格を計算します。
+
+```php
+class Product {
+    protected $price;
+
+    public function getPrice() {
+        return $this->price;
+    }
+}
+
+class DigitalProduct extends Product {
+    public function getPrice() {
+        return $this->price * 0.9;  // デジタル製品は10%引き
+    }
+}
+
+class PhysicalProduct extends Product {
+    public function getPrice() {
+        return $this->price + 10;  // 物理製品は送料として10追加
+    }
+}
+
+class ProductPrinter {
+    public function printPrice(Product $product) {
+        if ($product instanceof DigitalProduct) {
+            echo "Digital Product Price: " . $product->getPrice();
+        } elseif ($product instanceof PhysicalProduct) {
+            echo "Physical Product Price: " . $product->getPrice();
+        }
+    }
+}
+```
+
+この`ProductPrinter`クラスの printPrice メソッドは型による条件分岐を行っています。これはリスコフの置換原則を違反しています。リスコフの置換原則とは、「サブクラスはそのスーパークラスと置換可能でなければならない」という原則です。すなわち、型による条件分岐はこの原則を破る行為となります。
+
+### 改良されたコード
+
+リスコフの置換原則を適用するためには、各サブクラスでメソッドの振る舞いをオーバーライドするだけでなく、共通のインターフェイスを使用してこれらのクラスを扱うことが必要です。具体的には、サブクラスが各自の`printPrice`メソッドを実装し、それを呼び出すようにします。
+
+```php
+interface PricedProduct {
+    public function getPrice(): float;
+    public function printPrice(): void;
+}
+
+class DigitalProduct implements PricedProduct {
+    protected $price;
+
+    public function getPrice() {
+        return $this->price * 0.9;  // デジタル製品は10%引き
+    }
+
+    public function printPrice() {
+        echo "Digital Product Price: " . $this->getPrice();
+    }
+}
+
+class PhysicalProduct implements PricedProduct {
+    protected $price;
+
+    public function getPrice() {
+        return $this->price + 10;  // 物理製品は送料として10追加
+    }
+
+    public function printPrice() {
+        echo "Physical Product Price: " . $this->getPrice();
+    }
+}
+
+class ProductPrinter {
+    public function print(PricedProduct $product) {
+        $product->printPrice();
+    }
+}
+```
+
+このように、各製品クラスが`PricedProduct`インターフェイスを実装することで、`ProductPrinter`は単純に`print`メソッドを使って価格を出力するだけで、具体的な製品の型を知る必要はありません。これにより、形チェックでの分岐を避けて、リスコフの置換原則に従うことができます。
