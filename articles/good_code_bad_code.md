@@ -1044,3 +1044,94 @@ class SummerDiscount
 改良版のコードでは、割引額の管理と割引の適用が分離され、それぞれ`RegularDiscount`クラスと`SummerDiscount`クラスに一つずつの責任が与えられました。これにより単一責任の原則（SRP）が守られ、各クラスの役割が明確になりました。
 また、`RegularDiscount`クラスと`SummerDiscount`クラスは、割引を適用する対象となる価格を引数として受け取ることで、具体的なクラスに依存しない設計になっています。これにより、依存性の逆転の原則（DIP）も守られ、割引額を変更するだけでなく、割引を適用する対象となる価格の計算方法を容易に変更することも可能となりました。
 
+## 継承に絡む密結合
+
+### 問題のあるコード
+
+プログラミングにおける継承は、使用する際には注意が必要です。その理由は、継承が推奨されない場合が多いからです。以下に示す設計では`DiscountedProduct`が`Product`クラスを継承しています。`DiscountedProduct`は`Product`とほぼ同じ方法で動作しますが、割引が適用されている点が異なります。この設計により、継承による密結合が生じてしまいます。つまり、`Product`クラスに何らかの変更があると、そのすべての派生クラスも影響を受けることになります。
+
+例えば以下のような PHP コードを考えてみましょう。
+
+```php
+class Product {
+    protected $price;
+
+    public function __construct($price)
+    {
+        $this->price = $price;
+    }
+
+    public function getPrice()
+    {
+        return $this->price;
+    }
+}
+
+class DiscountedProduct extends Product {
+    private $discount;
+
+    public function __construct($price, $discount)
+    {
+        parent::__construct($price);
+        $this->discount = $discount;
+    }
+
+    public function getPrice()
+    {
+        return $this->price - $this->discount;
+    }
+}
+```
+
+### 改良されたコード
+
+この問題を解決する一つの方法は、継承よりも委譲による設計を選ぶことです。これは、コンポジション構造を採用するということになります。この設計では、各クラスが他のクラスのメソッドを利用することで、一つのクラスの変更が他の全てのクラスに影響を及ぼすという問題を避けることができます。
+
+```php
+class Product {
+    protected $price;
+
+    public function __construct($price)
+    {
+        $this->price = $price;
+    }
+
+    public function getPrice()
+    {
+        return $this->price;
+    }
+}
+
+class Discount {
+    private $discount;
+
+    public function __construct($discount)
+    {
+        $this->discount = $discount;
+    }
+
+    public function applyDiscount($price)
+    {
+        return $price - $this->discount;
+    }
+}
+
+class DiscountedProduct {
+    private $product;
+    private $discount;
+
+    public function __construct(Product $product, Discount $discount)
+    {
+        $this->product = $product;
+        $this->discount = $discount;
+    }
+
+    public function getPrice()
+    {
+        return $this->discount->applyDiscount($this->product->getPrice());
+    }
+}
+```
+
+以上のように設計を改良することで、各クラスの役割が明確になり、また一つのクラスが変更されても他のクラスに影響が出にくくなります。これにより、ソフトウェアの可読性と保守性が向上します。
+
