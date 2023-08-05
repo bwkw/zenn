@@ -1135,3 +1135,86 @@ class DiscountedProduct {
 
 以上のように設計を改良することで、各クラスの役割が明確になり、また一つのクラスが変更されても他のクラスに影響が出にくくなります。これにより、ソフトウェアの可読性と保守性が向上します。
 
+##　スマート UI
+
+### 問題のあるコード
+
+スマート UI とは、ビジネスロジックが UI 層に散らばってしまい、結果として重複したコードが生じやすい設計を指します。そのような設計は、コードの管理や保守性を低下させ、バグの発生率を高めるリスクがあります。
+
+```php
+<!-- resources/views/orders/create.blade.php -->
+
+<form method="POST" action="/orders">
+    @csrf
+    <input type="hidden" name="product_id" value="{{ $product->id }}">
+    <input type="hidden" name="user_id" value="{{ $user->id }}">
+    <input type="number" name="quantity" value="1">
+
+    <p>価格: {{ $product->price * old('quantity', 1) }}円</p>
+
+    @if ($user->country == 'Japan')
+        <p>送料: 500円</p>
+    @else
+        <p>送料: 1000円</p>
+    @endif
+
+    @if ($user->membership == 'Gold')
+        <p>割引適用後価格: {{ $product->price * old('quantity', 1) * 0.9 }}円</p>
+    @endif
+
+    <button type="submit">注文する</button>
+</form>
+```
+
+上記の問題のあるコードでは、注文の価格計算、送料計算、割引適用といったビジネスロジックがビューファイル内に存在しています。これにより、もし価格計算方法や送料の設定、割引の適用ルールが変わった場合、ビューファイルを直接修正する必要があります。その結果、コードの再利用性が低下し、管理が難しくなります。
+
+### 改良されたコード
+
+```php
+// App/Http/Controllers/OrderController.php
+
+namespace App\Http\Controllers;
+
+use App\Order;
+use Illuminate\Http\Request;
+
+class OrderController extends Controller
+{
+    public function create(Request $request)
+    {
+        $order = new Order;
+        $order->product_id = $request->product_id;
+        $order->user_id = $request->user_id;
+        $order->quantity = $request->quantity;
+        $order->price = $order->calculatePrice($request->quantity, $order->product->price);
+        $order->shipping = $order->calculateShipping($request->user->country);
+        $order->price = $order->applyDiscount($request->user->membership, $order->price);
+
+        return view('orders.create', ['order' => $order]);
+    }
+}
+```
+
+```php
+
+// resources/views/orders/create.blade.php
+
+<form method="POST" action="/orders">
+    @csrf
+    <input type="hidden" name="product_id" value="{{ $order->product_id }}">
+    <input type="hidden" name="user_id" value="{{ $order->user_id }}">
+    <input type="number" name="quantity" value="{{ $order->quantity }}">
+
+    <p>価格: {{ $order->price }}円</p>
+    <p>送料: {{ $order->shipping }}円</p>
+
+    @if ($order->user->membership == 'Gold')
+        <p>割引適用後価格: {{ $order->price }}円</p>
+    @endif
+
+    <button type="submit">注文する</button>
+</form>
+```
+
+以上のように改良したコードでは、`OrderController`内で価格計算、送料計算、割引適用といった処理を行っています。そして、ビューファイルではそれらの結果を表示するだけになっています。このようにすることで、ビジネスロジックが一箇所にまとまり、コードの再利用性と管理性が大幅に向上しています。また、ビジネスロジックが変更されても一箇所を修正すれば良いため、保守性も向上しています。
+
