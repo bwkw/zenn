@@ -877,7 +877,7 @@ class ProductPrinter {
 
 低凝集とは、一つのクラスまたはモジュールが行うべき役割が不明確で、多岐にわたる機能を持ってしまっている状態を指します。その結果、コードの再利用性や可読性が低下し、メンテナンスが困難になることが多いです。
 
-この問題が発生する一例を以下の Laravel コードにて示します。ここでは、`UserService`と`SalesReportService`クラスが共通のコレクション処理（18 歳以上のユーザーをフィルタリングする）をそれぞれ独自に実装しています。
+この問題が発生する一例を以下に示します。ここでは、`UserService`と`SalesReportService`クラスが共通のコレクション処理（18 歳以上のユーザーをフィルタリングする）をそれぞれ独自に実装しています。
 
 ```php
 class UserService {
@@ -1218,3 +1218,66 @@ class OrderController extends Controller
 
 以上のように改良したコードでは、`OrderController`内で価格計算、送料計算、割引適用といった処理を行っています。そして、ビューファイルではそれらの結果を表示するだけになっています。このようにすることで、ビジネスロジックが一箇所にまとまり、コードの再利用性と管理性が大幅に向上しています。また、ビジネスロジックが変更されても一箇所を修正すれば良いため、保守性も向上しています。
 
+# 第 9 章 設計の健全性をそこなうさまざまな悪魔たち
+
+## YAGNI 原則
+
+### 問題のあるコード
+
+YAGNI(You Aren't Gonna Need It)原則は、現時点で必要でない機能は開発しないという原則です。これは、開発者が将来的に必要になると予想される機能を先に実装しようとすると、その機能が実際には使用されない場合や、開発者が想定していた要件が変更された場合に、無駄な労力を消費する可能性があるためです。
+
+以下に、この YAGNI 原則が適用されていない例と、その問題点について見ていきましょう。
+
+```php
+// App/Http/Controllers/ProductController.php
+
+namespace App\Http\Controllers;
+
+use App\Product;
+use Illuminate\Http\Request;
+
+class ProductController extends Controller
+{
+    public function index(Request $request)
+    {
+        // 今後、商品をカテゴリ別に表示するかもしれないと予測して、
+        // カテゴリ別に商品を取得するコードを書いてしまっている
+        if ($request->has('category')) {
+            $products = Product::where('category', $request->category)->get();
+        } else {
+            $products = Product::all();
+        }
+
+        return view('products.index', ['products' => $products]);
+    }
+}
+```
+
+上記のコードでは、将来的にカテゴリ別に商品を表示する可能性があると想定し、そのためのコードを先に書いてしまっています。しかし、その機能が実際に必要になるまでは、このコードは必要ないと考えられます。
+
+### 改良されたコード
+
+```php
+// App/Http/Controllers/ProductController.php
+
+namespace App\Http\Controllers;
+
+use App\Product;
+use Illuminate\Http\Request;
+
+class ProductController extends Controller
+{
+    public function index(Request $request)
+    {
+        // 必要な機能だけを実装する
+        $products = Product::all();
+
+        return view('products.index', ['products' => $products]);
+    }
+}
+```
+
+解決策としては、現時点で必要な機能のみを実装します。つまり、全ての商品を取得するだけのコードを書きます。将来的にカテゴリ別に商品を表示する機能が必要になったとき、その時点で必要なコードを追加します。
+このように、YAGNI 原則に基づく開発を行うことで、無駄なコードを書くことなく、現時点で本当に必要な機能のみを提供することができます。
+
+## マジックナンバー
