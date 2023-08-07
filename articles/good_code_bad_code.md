@@ -1229,8 +1229,6 @@ YAGNI(You Aren't Gonna Need It)原則は、現時点で必要でない機能は�
 以下に、この YAGNI 原則が適用されていない例と、その問題点について見ていきましょう。
 
 ```php
-// App/Http/Controllers/ProductController.php
-
 namespace App\Http\Controllers;
 
 use App\Product;
@@ -1258,8 +1256,6 @@ class ProductController extends Controller
 ### 改良されたコード
 
 ```php
-// App/Http/Controllers/ProductController.php
-
 namespace App\Http\Controllers;
 
 use App\Product;
@@ -1281,3 +1277,50 @@ class ProductController extends Controller
 このように、YAGNI 原則に基づく開発を行うことで、無駄なコードを書くことなく、現時点で本当に必要な機能のみを提供することができます。
 
 ## マジックナンバー
+
+### 問題のあるコード
+
+「マジックナンバー」とはソースコード内に直接書き込まれている意図不明な数値のことを指します。これは、他の開発者がその数値の意味や目的を理解しにくく、将来的な保守や変更が困難になる要因となります。
+
+例として、次のコードを考えてみましょう。
+
+```php
+class UserController extends Controller
+{
+    public function index()
+    {
+        // ...
+
+        // マジックナンバーを使用して一覧を取得
+        $users = User::paginate(15);
+
+        // ...
+    }
+}
+```
+
+上記のコードでは、一覧表示の際に 15 件のユーザー情報を取得していますが、この「15」という数値が何を意味しているのかはコードからは明らかではありません。
+
+### 改良されたコード
+
+前述のような問題点を踏まえて、マジックナンバーを適切に扱う方法を紹介します。このような問題を解決するための一般的なアプローチは、マジックナンバーを定数に置き換えてその意味を明示することです。以下はその解決策を示す例です。
+
+```php
+class UserController extends Controller
+{
+    // 定数として一覧表示件数を定義
+    const USERS_PER_PAGE = 15;
+
+    public function index()
+    {
+        // ...
+
+        // 定数を使用して一覧を取得
+        $users = User::paginate(self::USERS_PER_PAGE);
+
+        // ...
+    }
+}
+```
+
+このように、定数**`USERS_PER_PAGE`**を使用することで、この数字が一覧表示の件数を示していることが明確になり、コードの可読性が向上します。他の開発者もこの定数の意味を理解しやすくなり、将来的な変更や保守も容易になります。
