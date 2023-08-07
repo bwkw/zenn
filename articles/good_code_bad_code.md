@@ -1324,3 +1324,93 @@ class UserController extends Controller
 ```
 
 このように、定数**`USERS_PER_PAGE`**を使用することで、この数字が一覧表示の件数を示していることが明確になり、コードの可読性が向上します。他の開発者もこの定数の意味を理解しやすくなり、将来的な変更や保守も容易になります。
+
+# 第 10 章　名前設計 -あるべき構造を見破る名前-
+
+## 悪魔を呼び寄せる名前
+
+### 問題のあるコード
+
+プログラミングにおいて、クラス名やメソッド名はその機能や役割を明確に表すものであるべきです。しかし、場合によっては名前からその役割や機能が読み取りにくい、あるいは複数の役割を持つクラスを作成してしまうことがあります。これはコードの可読性を低下させ、メンテナンスや拡張の難しさを増大させる原因となります。
+
+```php
+namespace App;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Product extends Model
+{
+    // ...
+
+    public function reserve()
+    {
+        // 商品を予約する
+    }
+
+    public function order()
+    {
+        // 商品を注文する
+    }
+
+    public function ship()
+    {
+        // 商品を発送する
+    }
+
+    public function list()
+    {
+        // 商品を出品する
+    }
+}
+```
+
+上記のコードでは、`Product`クラスが商品の予約、注文、発送、出品の 4 つの異なる責任を持っています。これはオブジェクト指向の原則の 1 つである「単一責任の原則」に違反しており、各機能の変更時やテスト時に問題が生じる可能性があります。
+
+### 改良されたコード
+
+これらの責任を持つクラスをそれぞれ分けることで、各クラスの責任を明確にし、保守性や拡張性を向上させることができます。
+
+```php
+namespace App;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Product extends Model
+{
+    // ...
+}
+
+class ReservationProduct
+{
+    public function create(Product $product)
+    {
+        // 商品を予約する
+    }
+}
+
+class OrderProduct
+{
+    public function place(Product $product)
+    {
+        // 商品を注文する
+    }
+}
+
+class ShipmentProduct
+{
+    public function execute(Product $product)
+    {
+        // 商品を発送する
+    }
+}
+
+class ListingProduct
+{
+    public function publish(Product $product)
+    {
+        // 商品を出品する
+    }
+}
+```
+
+このようにクラスを再編成することで、それぞれのクラスが持つ責任が明確になり、他の開発者も理解しやすくなります。また、将来的な機能の追加や変更も柔軟に行うことができるようになります。
