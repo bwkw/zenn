@@ -1414,3 +1414,51 @@ class ListingProduct
 ```
 
 このようにクラスを再編成することで、それぞれのクラスが持つ責任が明確になり、他の開発者も理解しやすくなります。また、将来的な機能の追加や変更も柔軟に行うことができるようになります。
+
+## 形容詞で区別が必要なときはクラス化のチャンス
+
+### 問題のあるコード
+
+オブジェクト指向プログラミングにおいて、あるクラスが多様な状態やタイプを持っている場合、そのクラスの責任は多すぎる可能性が高まります。特に、それらの状態やタイプに基づいて異なる処理が行われる場合、クラスの可読性や保守性が低下する危険があります。
+
+一つのクラスや関数が異なる状態やタイプを扱っているとき、その状態やタイプを表す形容詞が存在し、それに基づいて処理が別れている場合、それぞれを別クラスに分けるべきだという原則です。
+
+```php
+class Car {
+    private $type;
+
+    public function __construct($type) {
+        $this->type = $type;
+    }
+
+    public function getTopSpeed() {
+        if($this->type === "sport") {
+            return 200;
+        } elseif($this->type === "truck") {
+            return 80;
+        }
+    }
+}
+```
+
+### 改良されたコード
+
+このコードでは、`Car`クラスが`sport`や`truck`などの形容詞に基づいて動作を変えています。このような場合、異なる振る舞いを持つオブジェクトは別々のクラスに分けるべきです。
+
+```php
+abstract class Car {
+    abstract public function getTopSpeed();
+}
+
+class SportCar extends Car {
+    public function getTopSpeed() {
+        return 200;
+    }
+}
+
+class TruckCar extends Car {
+    public function getTopSpeed() {
+        return 80;
+    }
+}
+```
