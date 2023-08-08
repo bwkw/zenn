@@ -1506,3 +1506,68 @@ class ProductController {
 ```
 
 改良例では、メソッド名を`isProductExists`として、具体的に何を確認するのかを名前だけで伝えるようにしました。これにより、コメントに頼らずともその目的や機能を理解することが可能となります。
+
+## 意図や仕様変更時の注意点を読み手に伝えること
+
+### 問題のあるコード
+
+プログラムの可読性を保つためには、コードの背後にある意図や仕様の変更点に関する注意をコメントとして伝えることが重要です。特に、他の開発者が後にそのコードを参照する場合、明確なガイダンスは作業の効率化や誤解の防止に役立ちます。
+
+```php
+class ProductController extends Controller
+{
+    /**
+     * 商品に割引を適用する。
+     *
+     * @param  int  $productId
+     * @param  float  $discount
+     * @return Response
+     */
+    public function applyDiscount($productId, $discount)
+    {
+        $discount = min($discount, 50);
+
+        $product = Product::find($productId);
+
+        $product->price -= $product->price * ($discount / 100);
+        $product->save();
+
+        return response()->json($product);
+    }
+}
+```
+
+現在のコードでは、割引の最大限度に関するビジネスルールが明示されていません。このような状況では、他の開発者がコードを見たときに混乱を引き起こす可能性があります。
+
+### 改良されたコード
+
+現状だと、 `$discount = min($discount, 50);` の真意がわかりません。そこで、`applyDiscount`メソッドにコメントを付けています。このコメントはメソッドの目的を明確にし、パラメータの説明を提供し、さらに重要なビジネスルール（割引は 50%を超えてはならない）を指摘しています。これにより、他の開発者がこのメソッドを使用または変更する際に、その挙動と制限を正しく理解できます。
+
+```php
+class ProductController extends Controller
+{
+    /**
+     * 商品に割引を適用する。
+     *
+     * @param  int  $productId
+     * @param  float  $discount
+     * @return Response
+     */
+    public function applyDiscount($productId, $discount)
+    {
+        // 商品が不採算になるため、割引率は50%を超えないようにしてください。
+				// 割引率が50%以上の場合は、50%に設定されます。
+        $discount = min($discount, 50);
+
+        $product = Product::find($productId);
+
+        // 割引を適用する
+        $product->price -= $product->price * ($discount / 100);
+        $product->save();
+
+        return response()->json($product);
+    }
+}
+```
+
+このように、コメントとして意図や仕様変更時の注意点を書くと、読み手により明確なガイダンスを提供することができます。
