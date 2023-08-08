@@ -1323,7 +1323,7 @@ class UserController extends Controller
 }
 ```
 
-このように、定数**`USERS_PER_PAGE`**を使用することで、この数字が一覧表示の件数を示していることが明確になり、コードの可読性が向上します。他の開発者もこの定数の意味を理解しやすくなり、将来的な変更や保守も容易になります。
+このように、定数`USERS_PER_PAGE`を使用することで、この数字が一覧表示の件数を示していることが明確になり、コードの可読性が向上します。他の開発者もこの定数の意味を理解しやすくなり、将来的な変更や保守も容易になります。
 
 # 第 10 章　名前設計 -あるべき構造を見破る名前-
 
@@ -1571,3 +1571,79 @@ class ProductController extends Controller
 ```
 
 このように、コメントとして意図や仕様変更時の注意点を書くと、読み手により明確なガイダンスを提供することができます。
+
+# 第 12 章 メソッド -良きクラスには良きメソッドあり-
+
+## 必ず自身のクラスのインスタンス変数を使うこと
+
+### 問題のあるコード
+
+クラスの設計時には、そのクラスが持つべき情報をインスタンス変数として適切に管理することが重要です。この方法は、クラスのコンセプトや設計の一貫性を保つため、また外部からの不適切なアクセスを避けるために役立ちます。
+
+```php
+class Rectangle {
+    private $width;
+    private $height;
+
+    public function setWidth($width) {
+        $this->width = $width;
+    }
+
+    public function setHeight($height) {
+        $this->height = $height;
+    }
+
+    public function getArea($width, $height) {
+        return $width * $height;
+    }
+}
+
+$rectangle = new Rectangle;
+$rectangle->setWidth(5);
+$rectangle->setHeight(4);
+echo $rectangle->getArea(5, 4);  // 20
+```
+
+上記のコードでは、`getArea`メソッドが幅と高さを引数として受け取るようになっています。このアプローチは、クラス内部でその情報を適切に管理するという原則に反しています。
+
+### 改良されたコード
+
+`getArea`メソッドが幅と高さを直接使用するように改良すれば、より適切なオブジェクト指向の設計を持つことができます。以下はその修正後のコードです。
+
+```php
+class Rectangle {
+    private $width;
+    private $height;
+
+    public function setWidth($width) {
+        $this->width = $width;
+    }
+
+    public function setHeight($height) {
+        $this->height = $height;
+    }
+
+    public function getArea() {
+        return $this->width * $this->height;
+    }
+}
+
+$rectangle = new Rectangle;
+$rectangle->setWidth(5);
+$rectangle->setHeight(4);
+echo $rectangle->getArea();  // 20
+```
+
+この改良を行うことで、クラスが持つべき情報を正しく内部で管理することが可能になり、外部からの不要な干渉や誤った情報の供給を防ぐことができます。また、このような設計はクラスの再利用や拡張も容易にし、長期的な保守性を向上させます。
+
+## 不変をベースに予期せぬ動作を防ぐ関数にすること
+
+### 問題のあるコード
+
+### 改良されたコード
+
+## コマンド・クエリ分離
+
+### 問題のあるコード
+
+### 改良されたコード
