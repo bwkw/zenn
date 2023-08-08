@@ -1462,3 +1462,47 @@ class TruckCar extends Car {
     }
 }
 ```
+
+# 第 11 章　 コメント -保守と変更の正確性を高める書き方-
+
+## コメントで命名をごまかす
+
+### 問題のあるコード
+
+プログラムの保守性や可読性を高めるためには、適切な命名が非常に重要です。名前だけで機能や目的を理解できるコードは、他の開発者が読んだり、将来の自分が読み返したりする際に大きな助けとなります。
+
+```php
+class ProductController {
+    //...
+
+    // PIDチェック: PIDが存在しなければfalseを返す
+    public function check($pid) {
+        $product = Product::find($pid);
+        return $product ? true : false;
+    }
+
+    //...
+}
+```
+
+このコードでは、メソッド名 `check`が何を示しているのかが一目でわからないため、コメントを頼りにしています。しかし、このようなアプローチは、長期的に見ると保守性の低下や混乱の原因となる可能性があります。
+
+### 改良されたコード
+
+コメントに依存するような名前付けは、そのコードが自己説明的でないことを示しており、保守性を下げる可能性があります。
+そこで以下のように命名を見直します。
+
+```php
+class ProductController {
+    //...
+
+    public function isProductExists($productId) {
+        $product = Product::find($productId);
+        return $product ? true : false;
+    }
+
+    //...
+}
+```
+
+改良例では、メソッド名を`isProductExists`として、具体的に何を確認するのかを名前だけで伝えるようにしました。これにより、コメントに頼らずともその目的や機能を理解することが可能となります。
