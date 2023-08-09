@@ -1683,4 +1683,54 @@ $product->price = 50;  // This will cause an error
 
 ### 問題のあるコード
 
+コマンド・クエリ分離（Command Query Separation, CQS）はオブジェクト指向設計の原則の一つであり、メソッドが状態を変更するコマンドであるか、情報を返すクエリであるかのどちらか一方のみを行うべきだという考え方です。
+
+しかし、現実のコード上ではこの原則が破られることがしばしばあります。
+
+以下のコードがその例です。
+
+```php
+class User extends Model {
+    public function getOrCreateToken() {
+        $token = $this->tokens()->first();
+
+        if (!$token) {
+            $token = $this->tokens()->create([
+                'token' => bin2hex(random_bytes(30)),
+            ]);
+        }
+
+        return $token;
+    }
+}
+```
+
+この`getOrCreateToken`メソッドは、コマンド（トークンを作成する）とクエリ（既存のトークンを取得する）の両方の動作を一つのメソッド内で行っています。このようなメソッドは、状態を変更するかどうかがその実行結果によって変わるため、予測が難しく、結果としてバグの原因となりやすいです。
+
 ### 改良されたコード
+
+この問題を解決する最もシンプルな方法は、コマンドとクエリを明確に分離することです。以下のようにメソッドを分けることで、各メソッドが一つの責任だけを持つように設計することができます。
+
+```php
+$token = $user->getToken();
+
+if (!$token) {
+    $token = $user->createToken();
+}
+```
+
+```php
+class User extends Model {
+    public function getToken() {
+        return $this->tokens()->first();
+    }
+
+    public function createToken() {
+        return $this->tokens()->create([
+            'token' => bin2hex(random_bytes(30)),
+        ]);
+    }
+}
+```
+
+この改良により、各メソッドはコマンドまたはクエリのどちらか一方だけを行うようになり、コマンド・クエリ分離の原則に則った設計となります。このような設計は、コードの可読性と予測性を向上させ、結果としてバグの発生を減少させる効果が期待できます。
