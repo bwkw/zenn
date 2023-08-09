@@ -1734,3 +1734,122 @@ class User extends Model {
 ```
 
 この改良により、各メソッドはコマンドまたはクエリのどちらか一方だけを行うようになり、コマンド・クエリ分離の原則に則った設計となります。このような設計は、コードの可読性と予測性を向上させ、結果としてバグの発生を減少させる効果が期待できます。
+
+# 第 13 章 モデリング -クラス設計の土台-
+
+## 邪悪な構造に陥りがちな User クラス
+
+### 問題のあるコード
+
+Laravel におけるクラスの"邪悪な構造"とは何でしょうか？ その答えの一つは、あるクラスが大量のインスタンス変数やインスタンス関数を持つ場合、それが該当する可能性が高いです。これはクラスが多すぎる責任を持っているという意味で、これは「単一責任の原則」（SRP）に違反しています。この原則は、ソフトウェアの設計原則の一つで、各クラスは 1 つの責任だけを持つべきだと提唱されています。
+
+"邪悪な構造"の具体例として、User クラスが多数のインスタンス変数とインスタンス関数を持つ場合を見てみましょう。
+
+```php
+class User extends Authenticatable
+{
+    protected $fillable = ['name', 'email', 'password', 'birthdate', 'phone', 'address', 'avatar', 'isAdmin', 'isPremiumMember', 'biography'];
+
+    public function calculateAge()
+    {
+        // 何かの処理
+    }
+
+    public function validateEmail()
+    {
+        // 何かの処理
+    }
+
+    public function validatePhone()
+    {
+        // 何かの処理
+    }
+
+    public function sendVerificationEmail()
+    {
+        // 何かの処理
+    }
+
+    public function changePassword()
+    {
+        // 何かの処理
+    }
+
+    public function updateAvatar()
+    {
+        // 何かの処理
+    }
+
+    public function upgradeMembership()
+    {
+        // 何かの処理
+    }
+
+    public function downgradeMembership()
+    {
+        // 何かの処理
+    }
+    // その他多数のメソッド...
+}
+```
+
+この User クラスは、ユーザー関連のさまざまな責務（例：バリデーション、電子メールの送信、パスワードの変更など）を一手に担っています。この結果、クラスが過大になり、コードの可読性やメンテナンス性、そして再利用性が低下するリスクが増えます。
+
+### 改良されたコード
+
+このような問題の解決策の一つは、特定の役割ごとにクラスを細分化することです。これにより、各クラスはその名の通り、単一の責務を持つようになります。
+
+```php
+class User extends Authenticatable
+{
+    protected $fillable = ['name', 'email', 'password', 'birthdate', 'phone', 'address', 'avatar'];
+
+    public function changePassword()
+    {
+        // 何かの処理
+    }
+
+    public function updateAvatar()
+    {
+        // 何かの処理
+    }
+}
+
+class UserValidator
+{
+    public function validateEmail($email)
+    {
+        // 何かの処理
+    }
+
+    public function validatePhone($phone)
+    {
+        // 何かの処理
+    }
+}
+
+class UserNotifier
+{
+    public function sendVerificationEmail($email)
+    {
+        // 何かの処理
+    }
+}
+
+class MembershipManager
+{
+    public function upgradeMembership($user)
+    {
+        // 何かの処理
+    }
+
+    public function downgradeMembership($user)
+    {
+        // 何かの処理
+    }
+}
+```
+
+上記のリファクタリング例において、User クラスはユーザーの基本情報とそれに関わる基本的な動作を担当しています。一方で、バリデーションや通知の送信、そしてメンバーシップの管理などの専門的なタスクは、それぞれ専門のクラスが担当しています。
+
+このような分割によって、各クラスの役割が明確になり、コードの整理や再利用が容易になります。また、将来的な変更や機能の追加もスムーズに行えるようになります。
