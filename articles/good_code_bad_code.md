@@ -1640,7 +1640,44 @@ echo $rectangle->getArea();  // 20
 
 ### 問題のあるコード
 
+多くのプログラミング言語やフレームワークにおいて、データの不変性は重要な概念として取り扱われています。不変性を持たせることで、データが予期せぬタイミングや方法で変更されるのを防ぐことができます。
+
+```php
+class Product {
+    public $price;
+
+    public function setPrice($price) {
+        $this->price = $price;
+    }
+}
+
+$product = new Product;
+$product->setPrice(100);
+
+$product->price = 50;  // price is changed after it was set
+```
+
+このコードでは、`$product->price`の価格を一度設定した後でも、外部から直接変更が可能となっています。
+
 ### 改良されたコード
+
+PHP 8.1 以降、`readonly`修飾子を用いることでプロパティを不変に保つことが可能です。`readonly`修飾子が付与されたプロパティは、オブジェクトが初期化される際のみ値を設定することができ、その後の変更は許されません。
+
+```php
+class Product {
+    public readonly int $price;
+
+    public function __construct(int $price) {
+        $this->price = $price;
+    }
+}
+
+$product = new Product(100);
+
+$product->price = 50;  // This will cause an error
+```
+
+このコードでは、`$price`プロパティに`readonly`修飾子を付けて、一度設定されたらその後変更できないようにしています。これにより`$price`は不変となり、予期せぬ価格変更を防ぐことができます。
 
 ## コマンド・クエリ分離
 
