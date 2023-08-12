@@ -1,5 +1,5 @@
 ---
-title: ""
+title: "悪いコードから知る保守性の真価"
 emoji: "👻"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["Laravel", "設計", "品質", "ミノ駆動本"]
