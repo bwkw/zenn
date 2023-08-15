@@ -85,8 +85,10 @@ ISO/IEC 25010 には、以下のような品質特性と品質副特性が定義
 以下に、このネストした条件分岐の問題を具体的に示すコード例を示します。
 
 ```php
-class UserController extends Controller {
-    public function show($id) {
+class UserController extends Controller
+{
+    public function show($id)
+    {
         $user = User::find($id);
 
         if ($user) {
@@ -111,8 +113,10 @@ class UserController extends Controller {
 以下に、ガード節を使用して改善したコードを示します。
 
 ```php
-class UserController extends Controller {
-    public function show($id) {
+class UserController extends Controller
+{
+    public function show($id)
+    {
         $user = User::find($id);
 
         if (!$user) {
@@ -139,11 +143,13 @@ class UserController extends Controller {
 以下に、未初期化状態の問題を示す Laravel のサンプルコードを示します。
 
 ```php
-class User {
+class User
+{
     public $name;
     public $email;
 
-    public function __construct($name) {
+    public function __construct($name)
+    {
         $this->name = $name;
     }
 }
@@ -159,20 +165,24 @@ echo $user->email; // null
 このような問題を解決するためには、コンストラクタで全ての必要なフィールドを初期化すべきです。
 
 ```php
-class User {
+class User
+{
     private $name;
     private $email;
 
-    public function __construct($name, $email) {
+    public function __construct($name, $email)
+    {
         $this->name = $name;
         $this->email = $email;
     }
 
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
 
-    public function getEmail() {
+    public function getEmail()
+    {
         return $this->email;
     }
 }
@@ -386,13 +396,15 @@ class User
 コードの初期化ロジックが分散している場合、そのコードは理解しにくくなり、エラーが発生しやすくなります。また、新たな初期化ロジックを追加する際の困難さも増します。
 
 ```php
-class Point {
+class Point
+{
     public $value;
 
-    public function __construct($value) {
+    public function __construct($value)
+    {
         $this->value = $value;
-}
     }
+}
 
 $standardPoint = new Point(3000);
 $premiumPoint = new Point(10000);
@@ -403,22 +415,27 @@ $premiumPoint = new Point(10000);
 ### 改良されたコード
 
 ```php
-class Point {
+class Point
+{
     private $value;
 
-    private function __construct($value) {
+    private function __construct($value)
+    {
         $this->value = $value;
     }
 
-    public static function createStandardPoint() {
+    public static function createStandardPoint()
+    {
         return new self(3000);
     }
 
-    public static function createPremiumPoint() {
+    public static function createPremiumPoint()
+    {
         return new self(10000);
     }
 
-    public function getValue() {
+    public function getValue()
+    {
         return $this->value;
     }
 }
@@ -436,24 +453,30 @@ $premiumPoint = Point::createPremiumPoint();
 共通処理クラスとは、異なる箇所で再利用可能なコードを抽出したクラスのことを指します。ただし、共通処理クラスを作成する際には、そのクラスが担当する責任を明確にすることが重要です。
 
 ```php
-class Common {
-    public function authenticate($username, $password) {
+class Common
+{
+    public function authenticate($username, $password)
+    {
         // authenticate user
     }
 
-    public function sendMail($userEmail, $subject, $body) {
+    public function sendMail($userEmail, $subject, $body)
+    {
         // send mail
     }
 
-    public function calculateTax($income) {
+    public function calculateTax($income)
+    {
         // calculate tax
     }
 
-    public function generateReport($data) {
+    public function generateReport($data)
+    {
         // generate report
     }
 
-    public function logError($error) {
+    public function logError($error)
+    {
         // log error
     }
 }
@@ -465,32 +488,42 @@ class Common {
 ### 改良されたコード
 
 ```php
-class Authenticator {
-    public function authenticate($username, $password) {
+class Authenticator
+{
+    public function authenticate($username, $password)
+    {
         // authenticate user
     }
 }
 
-class Mailer {
-    public function sendMail($userEmail, $subject, $body) {
+class Mailer
+{
+    public function sendMail($userEmail, $subject, $body)
+    {
         // send mail
     }
 }
 
-class TaxCalculator {
-    public function calculateTax($income) {
+class TaxCalculator
+{
+    public function calculateTax($income)
+    {
         // calculate tax
     }
 }
 
-class ReportGenerator {
-    public function generateReport($data) {
+class ReportGenerator
+{
+    public function generateReport($data)
+    {
         // generate report
     }
 }
 
-class ErrorLogger {
-    public function logError($error) {
+class ErrorLogger
+{
+    public function logError($error)
+    {
         // log error
     }
 }
@@ -628,12 +661,12 @@ class OrderController extends Controller
 まず、注文状態を扱うインターフェースとこのインターフェースを実装した具体的な状態クラスを作成します。
 
 ```php
-interface OrderStatusInterface
+interface IOrderStatus
 {
     public function handle(Order $order);
 }
 
-class ProcessingOrderStatus implements OrderStatusInterface
+class ProcessingOrderStatus implements IOrderStatus
 {
     public function handle(Order $order)
     {
@@ -641,7 +674,7 @@ class ProcessingOrderStatus implements OrderStatusInterface
     }
 }
 
-class ShippedOrderStatus implements OrderStatusInterface
+class ShippedOrderStatus implements IOrderStatus
 {
     public function handle(Order $order)
     {
@@ -649,7 +682,7 @@ class ShippedOrderStatus implements OrderStatusInterface
     }
 }
 
-class DeliveredOrderStatus implements OrderStatusInterface
+class DeliveredOrderStatus implements IOrderStatus
 {
     public function handle(Order $order)
     {
@@ -733,28 +766,36 @@ class OrderController extends Controller
 ここでは、`Product`という基底クラスと、そのサブクラスである`DigitalProduct`と`PhysicalProduct`を使用しています。基底クラスには`getPrice`メソッドが存在しますが、サブクラスではそれぞれ異なる方法で価格を計算します。
 
 ```php
-class Product {
+class Product
+{
     protected $price;
 
-    public function getPrice() {
+    public function getPrice()
+    {
         return $this->price;
     }
 }
 
-class DigitalProduct extends Product {
-    public function getPrice() {
+class DigitalProduct extends Product
+{
+    public function getPrice()
+    {
         return $this->price * 0.9;  // デジタル製品は10%引き
     }
 }
 
-class PhysicalProduct extends Product {
-    public function getPrice() {
+class PhysicalProduct extends Product
+{
+    public function getPrice()
+    {
         return $this->price + 10;  // 物理製品は送料として10追加
     }
 }
 
-class ProductPrinter {
-    public function printPrice(Product $product) {
+class ProductPrinter
+{
+    public function printPrice(Product $product)
+    {
         if ($product instanceof DigitalProduct) {
             echo "Digital Product Price: " . $product->getPrice();
         } elseif ($product instanceof PhysicalProduct) {
@@ -771,43 +812,52 @@ class ProductPrinter {
 リスコフの置換原則を適用するためには、各サブクラスでメソッドの振る舞いをオーバーライドするだけでなく、共通のインターフェイスを使用してこれらのクラスを扱うことが必要です。具体的には、サブクラスが各自の`printPrice`メソッドを実装し、それを呼び出すようにします。
 
 ```php
-interface PricedProduct {
+interface IPricedProduct
+{
     public function getPrice(): float;
     public function printPrice(): void;
 }
 
-class DigitalProduct implements PricedProduct {
+class DigitalProduct implements IPricedProduct
+{
     protected $price;
 
-    public function getPrice() {
+    public function getPrice()
+    {
         return $this->price * 0.9;  // デジタル製品は10%引き
     }
 
-    public function printPrice() {
+    public function printPrice()
+    {
         echo "Digital Product Price: " . $this->getPrice();
     }
 }
 
-class PhysicalProduct implements PricedProduct {
+class PhysicalProduct implements IPricedProduct
+{
     protected $price;
 
-    public function getPrice() {
+    public function getPrice()
+    {
         return $this->price + 10;  // 物理製品は送料として10追加
     }
 
-    public function printPrice() {
+    public function printPrice()
+    {
         echo "Physical Product Price: " . $this->getPrice();
     }
 }
 
-class ProductPrinter {
-    public function print(PricedProduct $product) {
+class ProductPrinter
+{
+    public function print(IPricedProduct $product)
+    {
         $product->printPrice();
     }
 }
 ```
 
-このように、各製品クラスが`PricedProduct`インターフェイスを実装することで、`ProductPrinter`は単純に`print`メソッドを使って価格を出力するだけで、具体的な製品の型を知る必要はありません。これにより、形チェックでの分岐を避けて、リスコフの置換原則に従うことができます。
+このように、各製品クラスが`IPricedProduct`インターフェイスを実装することで、`ProductPrinter`は単純に`print`メソッドを使って価格を出力するだけで、具体的な製品の型を知る必要はありません。これにより、形チェックでの分岐を避けて、リスコフの置換原則に従うことができます。
 
 ## 低凝集なコレクション処理
 
@@ -818,8 +868,10 @@ class ProductPrinter {
 この問題が発生する一例を以下に示します。ここでは、`UserService`と`SalesReportService`クラスが共通のコレクション処理（18 歳以上のユーザーをフィルタリングする）をそれぞれ独自に実装しています。
 
 ```php
-class UserService {
-    public function getAdultUsers() {
+class UserService
+{
+    public function getAdultUsers()
+    {
         $users = App\Models\User::all();
         return $users->filter(function($user){
             return $user->age >= 18;
@@ -827,8 +879,10 @@ class UserService {
     }
 }
 
-class SalesReportService {
-    public function getAdultUsersWithPurchaseHistory() {
+class SalesReportService
+{
+    public function getAdultUsersWithPurchaseHistory()
+    {
         $users = App\Models\User::all();
         return $users->filter(function($user){
             return $user->age >= 18 && $user->purchases->count() > 0;
@@ -844,29 +898,36 @@ class SalesReportService {
 この問題の解決策として、共通のコレクション処理を一つのクラス（`UserFilter`）にまとめ、それを使用してフィルタリングを行うように改良します。
 
 ```php
-class UserFilter {
+class UserFilter
+{
     private $users;
 
-    public function __construct($users) {
+    public function __construct($users)
+    {
         $this->users = $users;
     }
 
-    public function filterAdultUsers() {
+    public function filterAdultUsers()
+    {
         return $this->users->filter(function($user) {
             return $user->age >= 18;
         });
     }
 }
 
-class UserService {
-    public function getAdultUsers() {
+class UserService
+{
+    public function getAdultUsers()
+    {
         $users = new UserFilter(App\Models\User::all());
         return $users->filterAdultUsers();
     }
 }
 
-class SalesReportService {
-    public function getAdultUsersWithPurchaseHistory() {
+class SalesReportService
+{
+    public function getAdultUsersWithPurchaseHistory()
+    {
         $users = new UserFilter(App\Models\User::all());
         return $users->filterAdultUsers()->filter(function($user) {
             return $user->purchases->count() > 0;
@@ -972,7 +1033,8 @@ class SummerDiscount implements IDiscount
 例えば以下のような PHP コードを考えてみましょう。
 
 ```php
-class Product {
+class Product
+{
     protected $price;
 
     public function __construct($price)
@@ -986,7 +1048,8 @@ class Product {
     }
 }
 
-class DiscountedProduct extends Product {
+class DiscountedProduct extends Product
+{
     private $discount;
 
     public function __construct($price, $discount)
@@ -1007,7 +1070,8 @@ class DiscountedProduct extends Product {
 この問題を解決する一つの方法は、継承よりも委譲による設計を選ぶことです。これは、コンポジション構造を採用するということになります。この設計では、各クラスが他のクラスのメソッドを利用することで、一つのクラスの変更が他の全てのクラスに影響を及ぼすという問題を避けることができます。
 
 ```php
-class Product {
+class Product
+{
     protected $price;
 
     public function __construct($price)
@@ -1021,7 +1085,8 @@ class Product {
     }
 }
 
-class Discount {
+class Discount
+{
     private $discount;
 
     public function __construct($discount)
@@ -1035,7 +1100,8 @@ class Discount {
     }
 }
 
-class DiscountedProduct {
+class DiscountedProduct
+{
     private $product;
     private $discount;
 
@@ -1090,8 +1156,6 @@ class DiscountedProduct {
 ### 改良されたコード
 
 ```php
-// App/Http/Controllers/OrderController.php
-
 namespace App\Http\Controllers;
 
 use App\Order;
@@ -1115,7 +1179,6 @@ class OrderController extends Controller
 ```
 
 ```php
-
 // resources/views/orders/create.blade.php
 
 <form method="POST" action="/orders">
@@ -1337,11 +1400,13 @@ class ListingProduct
 プログラムの保守性や可読性を高めるためには、適切な命名が非常に重要です。名前だけで機能や目的を理解できるコードは、他の開発者が読んだり、将来の自分が読み返したりする際に大きな助けとなります。
 
 ```php
-class ProductController {
+class ProductController
+{
     //...
 
     // PIDチェック: PIDが存在しなければfalseを返す
-    public function check($pid) {
+    public function check($pid)
+    {
         $product = Product::find($pid);
         return $product ? true : false;
     }
@@ -1358,10 +1423,12 @@ class ProductController {
 そこで以下のように命名を見直します。
 
 ```php
-class ProductController {
+class ProductController
+{
     //...
 
-    public function isProductExists($productId) {
+    public function isProductExists($productId)
+    {
         $product = Product::find($productId);
         return $product ? true : false;
     }
@@ -1444,19 +1511,23 @@ class ProductController extends Controller
 クラスの設計時には、そのクラスが持つべき情報をインスタンス変数として適切に管理することが重要です。この方法は、クラスのコンセプトや設計の一貫性を保つため、また外部からの不適切なアクセスを避けるために役立ちます。
 
 ```php
-class Rectangle {
+class Rectangle
+{
     private $width;
     private $height;
 
-    public function setWidth($width) {
+    public function setWidth($width)
+    {
         $this->width = $width;
     }
 
-    public function setHeight($height) {
+    public function setHeight($height)
+    {
         $this->height = $height;
     }
 
-    public function getArea($width, $height) {
+    public function getArea($width, $height)
+    {
         return $width * $height;
     }
 }
@@ -1474,19 +1545,23 @@ echo $rectangle->getArea(5, 4);  // 20
 `getArea`メソッドが幅と高さを直接使用するように改良すれば、より適切なオブジェクト指向の設計を持つことができます。以下はその修正後のコードです。
 
 ```php
-class Rectangle {
+class Rectangle
+{
     private $width;
     private $height;
 
-    public function setWidth($width) {
+    public function setWidth($width)
+    {
         $this->width = $width;
     }
 
-    public function setHeight($height) {
+    public function setHeight($height)
+    {
         $this->height = $height;
     }
 
-    public function getArea() {
+    public function getArea()
+    {
         return $this->width * $this->height;
     }
 }
@@ -1506,10 +1581,12 @@ echo $rectangle->getArea();  // 20
 多くのプログラミング言語やフレームワークにおいて、データの不変性は重要な概念として取り扱われています。不変性を持たせることで、データが予期せぬタイミングや方法で変更されるのを防ぐことができます。
 
 ```php
-class Product {
+class Product
+{
     public $price;
 
-    public function setPrice($price) {
+    public function setPrice($price)
+    {
         $this->price = $price;
     }
 }
@@ -1527,10 +1604,12 @@ $product->price = 50;  // price is changed after it was set
 PHP 8.1 以降、`readonly`修飾子を用いることでプロパティを不変に保つことが可能です。`readonly`修飾子が付与されたプロパティは、オブジェクトが初期化される際のみ値を設定することができ、その後の変更は許されません。
 
 ```php
-class Product {
+class Product
+{
     public readonly int $price;
 
-    public function __construct(int $price) {
+    public function __construct(int $price)
+    {
         $this->price = $price;
     }
 }
@@ -1553,8 +1632,10 @@ $product->price = 50;  // This will cause an error
 以下のコードがその例です。
 
 ```php
-class User extends Model {
-    public function getOrCreateToken() {
+class User extends Model
+{
+    public function getOrCreateToken()
+    {
         $token = $this->tokens()->first();
 
         if (!$token) {
@@ -1575,20 +1656,15 @@ class User extends Model {
 この問題を解決する最もシンプルな方法は、コマンドとクエリを明確に分離することです。以下のようにメソッドを分けることで、各メソッドが一つの責任だけを持つように設計することができます。
 
 ```php
-$token = $user->getToken();
-
-if (!$token) {
-    $token = $user->createToken();
-}
-```
-
-```php
-class User extends Model {
-    public function getToken() {
+class User extends Model
+{
+    public function getToken()
+    {
         return $this->tokens()->first();
     }
 
-    public function createToken() {
+    public function createToken()
+    {
         return $this->tokens()->create([
             'token' => bin2hex(random_bytes(30)),
         ]);
