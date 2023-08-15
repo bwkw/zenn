@@ -2,15 +2,15 @@
 title: "悪いコードから知る変更容易性の真価"
 emoji: "👻"
 type: "tech" # tech: 技術記事 / idea: アイデア
-topics: ["Laravel", "設計", "品質", "ミノ駆動本"]
+topics: ["Laravel", "設計", "品質", "変更容易性", "ミノ駆動本"]
 published: false
 ---
 
 # TL;DR
 
 - システム・ソフトウェア製品における品質特性の中でもコードの変更容易性に興味ある人は是非！興味ない人はまたの機会に 👋
-- 「良いコード/悪いコードで学ぶ設計入門」をテーマに、PHP(Laravel)を使用して変更容易性を深掘りします 👨‍💻
-- 各トピックごとに「問題のあるコード」例と「改良されたコード」例を提供し、良い設計原則に従う方法を具体的に提示します 🔨
+- 「良いコード/悪いコードで学ぶ設計入門」をテーマに、PHP(Laravel)を使用して変更容易性を深掘りします
+- 各トピックごとに「問題のあるコード」例と「改良されたコード」例を提供し、良い設計原則に従う方法を具体的に提示します
 - とても学びのある本ですので、気になった方は是非購入を！
 
 https://gihyo.jp/book/2022/978-4-297-12783-1
@@ -250,88 +250,6 @@ class UpdateUserRequest extends FormRequest
 ```
 
 これにより、コントローラのコードがスッキリとし、再利用性やテスト性が向上します。また、バリデーションロジックが一箇所にまとまっているため、修正や保守が容易になります。
-
-## 関係し合うデータとロジックをクラスにまとめる
-
-### 問題のあるコード
-
-多くの開発者が初めてアプリケーションを開発する際に、すべてのロジックやデータの操作をコントローラに集約させがちです。しかし、これはスケーラビリティや保守性の観点から最適ではありません。以下は、そのような典型的な問題を抱えたコードの例です。
-
-```php
-namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
-
-class ProductController extends Controller
-{
-    public function calculateTotal(Request $request)
-    {
-        $price = $request->input('price');
-        $quantity = $request->input('quantity');
-        $total = $price * $quantity;
-        return response()->json(['total' => $total]);
-    }
-}
-
-```
-
-この方法は、`Controller`内に直接計算ロジックを書いてしまうため、コードが冗長になり、再利用性やテストのしやすさが低下します。
-
-### 改良されたコード
-
-そこで、問題点を解消するために、計算ロジックを専用のモデルクラスに分離するアプローチを取ります。
-
-```php
-namespace App\Models;
-
-class Product
-{
-    protected $price;
-    protected $quantity;
-
-    public function __construct($price, $quantity)
-    {
-        $this->price = $price;
-        $this->quantity = $quantity;
-    }
-
-    public function getTotal()
-    {
-        return $this->price * $this->quantity;
-    }
-}
-
-```
-
-```php
-namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
-use App\Models\Product;
-
-class ProductController extends Controller
-{
-    public function calculateTotal(Request $request)
-    {
-        $price = $request->input('price');
-        $quantity = $request->input('quantity');
-
-        $product = new Product($price, $quantity);
-        $total = $product->getTotal();
-
-        return response()->json(['total' => $total]);
-    }
-}
-
-```
-
-この改良により、以下の利点が得られます。
-
-- `Product`の計算ロジックが再利用可能になります
-- テストがしやすくなります。特に、`Product`クラスの`getTotal`メソッドは単体でテストできるようになりました
-- コードの読みやすさと保守性が向上します
-
-Laravel の中心的な設計思想は、このようにロジックやデータを適切なクラスやコンポーネントにまとめ、疎結合な設計を心がけることです。
 
 ## 成熟したクラスへ成長させる設計術
 
