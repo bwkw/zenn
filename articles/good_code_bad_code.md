@@ -255,59 +255,83 @@ class UpdateUserRequest extends FormRequest
 
 ### 問題のあるコード
 
-以下のようなコードでは、`User`と`Company`の関係を適切に表現できていないため、ロジックが冗長になり、メンテナンスも困難になります。
+多くの開発者が初めてアプリケーションを開発する際に、すべてのロジックやデータの操作をコントローラに集約させがちです。しかし、これはスケーラビリティや保守性の観点から最適ではありません。以下は、そのような典型的な問題を抱えたコードの例です。
 
 ```php
-class UserController extends Controller
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+class ProductController extends Controller
 {
-    public function assignCompany(Request $request, User $user)
+    public function calculateTotal(Request $request)
     {
-        $company = Company::find($request->companyId);
-        if (!$company) {
-            return redirect()->back()->with('error', 'Company not found');
-        }
-
-        $user->companyId = $company->id;
-        $user->save();
-
-        return redirect()->route('users.show', $user);
+        $price = $request->input('price');
+        $quantity = $request->input('quantity');
+        $total = $price * $quantity;
+        return response()->json(['total' => $total]);
     }
 }
+
 ```
 
-このコードでは、ユーザーを企業に割り当てるロジックが`UserController`に存在しますが、ユーザーと企業の関係に関するロジックは、本来は`User`クラスまたは`Company`クラスで管理すべきです。
+この方法は、`Controller`内に直接計算ロジックを書いてしまうため、コードが冗長になり、再利用性やテストのしやすさが低下します。
 
 ### 改良されたコード
 
+そこで、問題点を解消するために、計算ロジックを専用のモデルクラスに分離するアプローチを取ります。
+
 ```php
-class User extends Model
+namespace App\Models;
+
+class Product
 {
-    public function assignCompany($company)
+    protected $price;
+    protected $quantity;
+
+    public function __construct($price, $quantity)
     {
-        $this->companyId = $company->id;
-        $this->save();
+        $this->price = $price;
+        $this->quantity = $quantity;
+    }
+
+    public function getTotal()
+    {
+        return $this->price * $this->quantity;
     }
 }
+
 ```
 
 ```php
-class UserController extends Controller
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\Product;
+
+class ProductController extends Controller
 {
-    public function assignCompany(Request $request, User $user)
+    public function calculateTotal(Request $request)
     {
-        $company = Company::find($request->companyId);
-        if (!$company) {
-            return redirect()->back()->with('error', 'Company not found');
-        }
+        $price = $request->input('price');
+        $quantity = $request->input('quantity');
 
-        $user->assignCompany($company);
+        $product = new Product($price, $quantity);
+        $total = $product->getTotal();
 
-        return redirect()->route('users.show', $user);
+        return response()->json(['total' => $total]);
     }
 }
+
 ```
 
-この改善版では、ユーザーに企業を割り当てるロジックを`User`クラスに移動させました。これにより、`User`と`Company`の関係に関するロジックが一箇所にまとまり、コードの保守性と再利用性が向上します。また、`User`クラスと`Company`クラスが直接的に関係するロジックは、それぞれのクラスに含められることで、より直感的に理解できるようになります。
+この改良により、以下の利点が得られます。
+
+- `Product`の計算ロジックが再利用可能になります。
+- テストがしやすくなります。特に、`Product`クラスの`getTotal`メソッドは単体でテストできるようになりました。
+- コードの読みやすさと保守性が向上します。
+
+Laravel の中心的な設計思想は、このようにロジックやデータを適切なクラスやコンポーネントにまとめ、疎結合な設計を心がけることです。
 
 ## 成熟したクラスへ成長させる設計術
 
