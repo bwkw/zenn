@@ -897,11 +897,9 @@ class Discount
         $this->discountAmount = 300;
     }
 
-    public function applyDiscount($price)
+    public function getDiscountAmount()
     {
-        $discountedPrice = $this->calculateDiscountedPrice($price);
-
-        return max($discountedPrice, 0);
+        return $this->discountAmount;
     }
 }
 
@@ -916,69 +914,54 @@ class SummerDiscount
 
     public function calculateDiscountedPrice($price)
     {
-        return $price - $this->discount->applyDiscount();
+        return $price - $this->discount->getDiscountAmount();
     }
 }
+
 ```
 
 この設計には複数の問題が存在します。
 
-1 つ目は単一責任の原則（Single Responsibility Principle, SRP）の違反です。`Discount`クラスは割引額の管理と割引の適用、という 2 つの責任を持っています。これにより、このクラスの役割が不明瞭になり、コードの理解と保守が困難になる可能性があります。
-2 つ目は依存性の逆転の原則（Dependency Inversion Principle, DIP）の違反です。`SummerDiscount`クラスが具体的な`Discount`クラスに依存しています。そのため、異なる割引額を適用したいときに、`SummerDiscount`クラス自体を修正する必要があります。これは、クラス間の結合度が高くなり、コードの再利用性や柔軟性を阻害します。
+- 単一責任の原則の違反: `Discount`クラスは割引額の管理を主な責任としています。一方、`SummerDiscount`クラスも割引の適用という責任を持ちつつ、`Discount`クラスの割引額を直接使用しています。この構造は`SummerDiscount`クラスに二つの責任を持たせており、単一責任の原則に違反しています。クラスの役割が不明瞭になることで、コードの理解と保守が困難になる可能性があります。
+- 依存性の逆転の原則の違反: `SummerDiscount`クラスは具体的な`Discount`クラスに依存しています。新しい種類の割引を追加する場合、`SummerDiscount`クラス自体を修正する必要が出てきます。これは、コードの再利用性や柔軟性を阻害する要因となります。
 
 ### 改良されたコード
 
-この問題を解決するための一つの解決策は、値オブジェクトとしての`RegularPrice`クラスを導入し、各割引クラスがこの値オブジェクトに依存するように設計を改良することです。このアプローチを採用することで、各クラスの責任が明確になり、拡張性や再利用性も向上します。
+割引の仕組みを拡張性を持たせるために、以下のように設計を改良します。
 
 ```php
-<?php
-
 namespace App\Discounts;
 
-class RegularPrice
+interface IDiscount
 {
-    private $price;
-
-    public function __construct($price)
-    {
-        $this->price = $price;
-    }
-
-    public function calculateFinalPrice()
-    {
-        return $this->price;
-    }
+    public function calculateDiscountedPrice($price): float;
 }
 
-class RegularDiscount
+class RegularDiscount implements IDiscount
 {
     private $discountAmount = 300;
 
-    public function calculateDiscountedPrice(RegularPrice $priceObj)
+    public function calculateDiscountedPrice($price)
     {
-        $price = $priceObj->calculateFinalPrice();
-        $discountedPrice = $price - $this->discountAmount;
-
-        return max($discountedPrice, 0);
+        return max($price - $this->discountAmount, 0);
     }
 }
 
-class SummerDiscount
+class SummerDiscount implements IDiscount
 {
     private $discountAmount = 400;
 
-    public function calculateDiscountedPrice(RegularPrice $priceObj)
+    public function calculateDiscountedPrice($price)
     {
-        $price = $priceObj->calculateFinalPrice();
-        $discountedPrice = $price - $this->discountAmount;
-
-        return max($discountedPrice, 0);
+        return max($price - $this->discountAmount, 0);
     }
 }
 ```
 
-改良版のコードでは、割引額の管理と割引の適用が分離され、それぞれ`RegularDiscount`クラスと`SummerDiscount`クラスに一つずつの責任が与えられました。これにより単一責任の原則（SRP）が守られ、各クラスの役割が明確になりました。
-また、`RegularDiscount`クラスと`SummerDiscount`クラスは、割引を適用する対象となる価格を引数として受け取ることで、具体的なクラスに依存しない設計になっています。これにより、依存性の逆転の原則（DIP）も守られ、割引額を変更するだけでなく、割引を適用する対象となる価格の計算方法を容易に変更することも可能となりました。
+改良版のコードでは
+
+- 明確な単一責任: `RegularDiscount`と`SummerDiscount`クラスは、それぞれの割引額に基づいて価格を割り引くという単一の責任を持っています。
+- 依存性の逆転の原則の適用: これらの割引クラスは`IDiscount`インターフェースに依存しており、具体的なクラスの実装ではなく、このインターフェースの定義に従っています。これにより、新しい種類の割引を追加する際も、既存のクラスを修正することなく、新しいクラスを追加するだけで済むようになりました。
 
 ## 継承に絡む密結合
 
