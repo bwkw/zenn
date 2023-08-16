@@ -4,7 +4,7 @@ emoji: "👻"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["Laravel", "設計", "品質", "変更容易性", "ミノ駆動本"]
 published: true
-published_at: 2023-08-15 08:00
+published_at: 2023-08-16 08:00
 ---
 
 # TL;DR
