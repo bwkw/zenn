@@ -671,8 +671,6 @@ interface IProductProcessor
 }
 ```
 
-次に、各商品タイプに対応するクラス（`DigitalProductProcessor`や`PhysicalProductProcessor`）を実装します。これらのクラスは前述の`IProductProcessor`インターフェースを実装し、商品の処理や支払い処理を具体的に定義します。
-
 ```php
 class DigitalProductProcessor implements IProductProcessor
 {
