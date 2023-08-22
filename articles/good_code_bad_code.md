@@ -531,6 +531,245 @@ class ErrorLogger
 
 このようにすることで、各クラスは単一の責任を持つことになり、コードの理解性や保守性が向上します。さらに、一つのクラスが変更される理由が明確になり、予期しない副作用も防ぐことができます。
 
+## switch 文の重複
+
+### 問題のあるコード
+
+多くのアプリケーション開発で遭遇する問題の一つは、コードの重複です。特に、条件分岐のロジックが複数の箇所に散らばっている場合、保守性や拡張性が低下するリスクが高まります。switch 文はその代表的な例で、以下のようなケースが考えられます。
+
+```php
+class OrderController extends Controller
+{
+    public function execute($type)
+    {
+        switch ($type) {
+            case 'digital':
+                // デジタル商品の注文処理
+                break;
+            case 'physical':
+                // 実物商品の注文処理
+                break;
+            default:
+                // その他の注文処理
+                break;
+        }
+    }
+}
+
+class PaymentController extends Controller
+{
+    public function execute($type)
+    {
+        switch ($type) {
+            case 'digital':
+                // デジタル商品の支払い処理
+                break;
+            case 'physical':
+                // 実物商品の支払い処理
+                break;
+            default:
+                // その他の支払い処理
+                break;
+        }
+    }
+}
+```
+
+上記のコードを見ると、`OrderController`と`PaymentController`には、商品のタイプに基づく処理を行うための switch 文がそれぞれに存在しています。このような実装は、コードの重複や拡張性の低下を引き起こす可能性があります。
+
+### 改良されたコード 1
+
+そこで、コードの重複を避けるため、`TypeProcessor`という新しいクラスを導入し、`OrderController`と`PaymentController`はこのクラスの`process`メソッドを使用して、各処理を行うようにします。このようにすることで、商品タイプに基づく処理が一箇所に集約され、管理がしやすくなります。
+
+```php
+class OrderController extends Controller
+{
+    private $typeProcessor;
+
+    public function __construct(TypeProcessor $typeProcessor)
+    {
+        $this->typeProcessor = $typeProcessor;
+    }
+
+    public function execute($type)
+    {
+        try {
+            $this->typeProcessor->execute($type, 'order');
+            // 他の処理（例: レスポンスの返却）
+        } catch (\InvalidArgumentException $e) {
+            // エラーレスポンスの返却
+        }
+    }
+}
+
+class PaymentController extends Controller
+{
+    protected $typeProcessor;
+
+    public function __construct(TypeProcessor $typeProcessor)
+    {
+        $this->typeProcessor = $typeProcessor;
+    }
+
+    public function execute($type)
+    {
+        try {
+            $this->typeProcessor->execute($type, 'payment');
+            // 他の処理（例: レスポンスの返却）
+        } catch (\InvalidArgumentException $e) {
+            // エラーレスポンスの返却
+        }
+    }
+}
+```
+
+```php
+class TypeProcessor
+{
+    public function execute($type, $action)
+    {
+        switch ($type) {
+            case 'digital':
+                if ($action === 'order') {
+                    // デジタル商品の注文処理
+                } elseif ($action === 'payment') {
+                    // デジタル商品の支払い処理
+                } else {
+                    throw new \InvalidArgumentException('Invalid action');
+                }
+                break;
+            case 'physical':
+                if ($action === 'order') {
+                    // 実物商品の注文処理
+                } elseif ($action === 'payment') {
+                    // 実物商品の支払い処理
+                } else {
+                    throw new \InvalidArgumentException('Invalid action');
+                }
+                break;
+            default:
+                throw new \InvalidArgumentException('Invalid type');
+                break;
+        }
+    }
+}
+```
+
+しかし、このアプローチには一つの大きな欠点があります。それは、`TypeProcessor`の`execute`メソッドが 2 つの引数（`$type`と`$action`）を受け取ることで、このメソッドは複数の責任を持つことになったことです。複数のフラグ引数の存在は、関数やメソッドが複数の動作を行うことを示唆しており、これは一般的に良くない設計とされています。
+
+### 改良されたコード 2
+
+さて、前述の複数のフラグ引数の問題をよりエレガントに解決するための改善策として、インターフェースを使用した設計を採用します。
+
+まず、`IProductProcessor`というインターフェースを定義します。これにより、全ての商品処理クラスが持つべきメソッド（`processOrder`と`processPayment`）を明確にします。具体的な商品の処理は各クラスに委譲され、`DigitalProductProcessor`クラスや`PhysicalProductProcessor`クラスといった具体的な実装がこのインターフェースを実装します。
+
+```php
+interface IProductProcessor
+{
+    public function processOrder();
+    public function processPayment();
+}
+```
+
+次に、各商品タイプに対応するクラス（`DigitalProductProcessor`や`PhysicalProductProcessor`）を実装します。これらのクラスは前述の`IProductProcessor`インターフェースを実装し、商品の処理や支払い処理を具体的に定義します。
+
+```php
+class DigitalProductProcessor implements IProductProcessor
+{
+    public function processOrder()
+    {
+        // digital product order processing
+    }
+
+    public function processPayment()
+    {
+        // digital product payment processing
+    }
+}
+
+class PhysicalProductProcessor implements IProductProcessor
+{
+    public function processOrder()
+    {
+        // physical product order processing
+    }
+
+    public function processPayment()
+    {
+        // physical product payment processing
+    }
+}
+
+```
+
+このアーキテクチャにより、新しい商品タイプが追加された場合でも、新しい商品処理クラスを追加するだけで対応が可能となります。
+そして、これらのクラスのインスタンスを生成するための`ProcessorFactory`クラスを用意します。このファクトリクラスを使用することで、コントローラは具体的な商品処理クラスを意識することなく、適切な処理クラスのインスタンスを取得することができます。
+
+```php
+class ProcessorFactory
+{
+    public function create($type)
+    {
+        switch ($type) {
+            case 'digital':
+                return new DigitalProductProcessor();
+            case 'physical':
+                return new PhysicalProductProcessor();
+            default:
+                throw new \InvalidArgumentException('Invalid type');
+        }
+    }
+}
+```
+
+ここまで実装できれば、後はコントローラからファクトリを呼び出せば実装完了です。
+
+```php
+class OrderController extends Controller
+{
+    private $processFactory;
+
+    public function __construct(ProcessorFactory $processFactory)
+    {
+        $this->processFactory = $processFactory;
+    }
+
+    public function execute($type)
+    {
+        try {
+            $processor = $this->processFactory->create($type);
+            $processor->processOrder();
+            // 他の処理（例: レスポンスの返却）
+        } catch (\InvalidArgumentException $e) {
+            // エラーレスポンスの返却
+        }
+    }
+}
+
+class PaymentController extends Controller
+{
+    private $processFactory;
+
+    public function __construct(ProcessorFactory $processFactory)
+    {
+        $this->processFactory = $processFactory;
+    }
+
+    public function execute($type)
+    {
+        try {
+            $processor = $this->processFactory->create($type);
+            $processor->processPayment();
+            // 他の処理（例: レスポンスの返却）
+        } catch (\InvalidArgumentException $e) {
+            // エラーレスポンスの返却
+        }
+    }
+}
+```
+
+以上の設計により、各コントローラは商品の具体的な処理を意識することなく、`ProcessorFactory`を通じて必要な商品処理クラスを簡単に呼び出すことができるようになりました。これにより、コードの拡張性と保守性が向上します。新しい商品タイプや処理方法を追加する際も、適切なクラスを追加し、ファクトリクラスにその情報を追記するだけで容易に対応できるため、システム全体の変更を最小限に抑えることが可能となります。このような設計思考は、ソフトウェア開発において柔軟性とスケーラビリティを追求する際の良い例と言えるでしょう。
+
 ## 形チェックで分岐しないこと
 
 ### 問題のあるコード
@@ -1260,7 +1499,7 @@ class ProductController extends Controller
     public function applyDiscount($productId, $discount)
     {
         // 商品が不採算になるため、割引率は50%を超えないようにしてください。
-				// 割引率が50%以上の場合は、50%に設定されます。
+        // 割引率が50%以上の場合は、50%に設定されます。
         $discount = min($discount, 50);
 
         $product = Product::find($productId);
