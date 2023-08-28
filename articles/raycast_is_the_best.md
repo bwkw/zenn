@@ -1,8 +1,8 @@
 ---
-title: '早く仕事を終わらせたいあなたに捧げるRaycastのススメ'
-emoji: '🔧'
-type: 'tech' # tech: 技術記事 / idea: アイデア
-topics: ['raycast']
+title: "早く仕事を終わらせたいあなたに捧げるRaycastのススメ"
+emoji: "🛠"
+type: "tech" # tech: 技術記事 / idea: アイデア
+topics: ["raycast"]
 published: true
 ---
 
