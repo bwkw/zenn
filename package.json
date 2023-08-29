@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "format": "prettier -w articles/**/*.md",
     "lint:text": "textlint --cache $(git diff main --name-only) -f pretty-error",
     "lint:text:fix": "textlint --cache $(git diff main --name-only) --fix",
     "lint:text:full": "textlint --cache README.md \"articles/**/*.md\" -f pretty-error",
@@ -16,6 +17,8 @@
     "zenn-cli": "^0.1.144"
   },
   "devDependencies": {
+    "prettier": "^2.8.8",
+    "prettier-plugin-md-nocjsp": "^1.5.1",
     "textlint": "^13.3.3",
     "textlint-rule-preset-ja-technical-writing": "^8.0.0",
     "textlint-rule-preset-jtf-style": "^2.3.13",
