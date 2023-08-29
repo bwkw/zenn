@@ -4,12 +4,20 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint:text": "textlint --cache $(git diff main --name-only) -f pretty-error",
+    "lint:text:fix": "textlint --cache $(git diff main --name-only) --fix",
+    "lint:text:full": "textlint --cache README.md \"articles/**/*.md\" -f pretty-error",
+    "lint:text:full:fix": "textlint --cache README.md \"articles/**/*.md\" --fix"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "zenn-cli": "^0.1.144"
+  },
+  "devDependencies": {
+    "textlint": "^13.3.3",
+    "textlint-rule-preset-ja-technical-writing": "^8.0.0",
+    "textlint-rule-preset-jtf-style": "^2.3.13"
   }
 }
