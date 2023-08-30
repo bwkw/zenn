@@ -8,31 +8,31 @@ published: true
 
 # TL;DR
 
-- Raycast は、Mac で使用可能なランチャーツール
-- Raycast は、アプリ/ファイル検索・過去のコピー履歴の呼び出し/検索・Google Chrome のタブ検索・Github の操作等が行える、とにかく多機能なツール
-- Raycast を使いこなせたら、かっこいいし生産性は上がるしで悪いことが見つからない
+- Raycastは、Macで使用可能なランチャーツール
+- Raycastは、アプリ/ファイル検索・過去のコピー履歴の呼び出し/検索・Google Chromeのタブ検索・Githubの操作等が行える、とにかく多機能なツール
+- Raycastを使いこなせたら、かっこいいし生産性は上がるしで悪いことが見つからない
 
 https://www.raycast.com/
 
 # はじめに
 
-Raycast は、Mac で使用可能なランチャーツールです。
+Raycastは、Macで使用可能なランチャーツールです。
 
-Mac のランチャーツールといえば、[Alfred](https://www.alfredapp.com/) が有名どころでしょうか。
+Macのランチャーツールといえば、[Alfred](https://www.alfredapp.com/) が有名どころでしょうか。
 https://www.alfredapp.com/
 
-読者の方には、この記事を通して、Raycast の凄まじさを感じてもらい、有効活用することで、仕事において**鬼の生産性**を実現していただけると幸いです。
+読者の方には、この記事を通してRaycastの凄まじさを感じてもらい、有効活用することで、仕事において**鬼の生産性**を実現していただけると幸いです。
 
 # Alfred より優れている所
 
-既に有名な Alfred より、Raycast はどこが優れているのでしょうか？
+既に有名なAlfredより、Raycastはどこが優れているのでしょうか？
 
 それは、**無料で多くの機能を使える点**、これに限ります。
 なんだ、大したことなさそうと思った方、もう少しお付き合いくださいませ。
 
-ここから、詳しく Raycast で使える機能を見ていきます。
+ここから、詳しくRaycastで使える機能を見ていきます。
 
-# Raycast で何が出来るのか？
+# Raycast で何ができるのか？
 
 ## デフォルト機能
 
@@ -40,39 +40,42 @@ https://www.alfredapp.com/
 
 ランチャーツールで一番標準に備わっている、アプリ検索機能です。
 
-Raycast の窓から、検索したいアプリ名を入力し、すぐに開くことが出来ます。
+Raycastの窓から、検索したいアプリ名を入力し、すぐに開くことが出来ます。
 ![slack](/images/raycast_is_the_best/slack.png)
 
 ### ファイル検索
 
-自分のパソコンにあるファイルを検索出来る機能です。
+自分のパソコンにあるファイルを検索できる機能です。
 
 あのファイルどこやったっけってなる人にとっては、めちゃくちゃ便利な機能ですね。
 ![file](/images/raycast_is_the_best/search_file.png)
 
 ### 過去のコピー履歴の呼び出し/検索
 
-過去のコピー履歴の呼び出し、検索が出来る機能です。
+過去のコピー履歴の呼び出し、検索ができる機能です。
 
 過去のコピー履歴の呼び出しは、[Clipy](https://clipy.softonic.jp/mac) を使っている方が多いのではないでしょうか？
-Clipy との違いはなんといっても、コピー履歴から検索まで出来ることです。
+Clipyとの違いはなんといっても、コピー履歴から検索までできることです。
 ![コピー履歴](/images/raycast_is_the_best/copy_history.png)
 
 ### スニペット作成・検索
 
-頻繁に使用する文字をスニペットとして作成、またそのスニペットを検索出来る機能です。
+頻繁に使用する文字をスニペットとして作成、またそのスニペットを検索できる機能です。
 
-先程と同様に、Clipy を使えばスニペットの作成は出来ますが、スニペットの検索は出来ません。
+先程と同様に、Clipyを使えばスニペットの作成は出来ますが、スニペットの検索は出来ません。
 特にスニペットは、「あれなんて登録したっけ？」となりがちなので、スニペットの検索機能は非常にありがたいですね！
 
-筆者は、よく使う「ありがとうございます！️」を `ari` でスニペット登録しています笑（怒られそう
+筆者は、よく使う「ありがとうございます！️」を `ari` でスニペット登録しています笑（怒られそう）
 ![スニペット](/images/raycast_is_the_best/snippet.png)
 
 ### ウィンドウのリサイズ・画面分割
 
-現在アクティブなウィンドウをリサイズして配置出来る機能です。
+現在アクティブなウィンドウをリサイズして配置できる機能です。
 ![window_resize](/images/raycast_is_the_best/window_resize.gif)
-筆者は、[こちらの記事](https://dev.classmethod.jp/articles/eetann-used-raycast/) を参考に「3 分割」なら 1/3、左側なら l、中央なら c、右側なら r のような法則でエイリアスをつけています。
+<!-- textlint-disable -->
+筆者は、[こちらの記事](https://dev.classmethod.jp/articles/eetann-used-raycast/) を参考に「3分割」なら1/3、左側ならl、中央ならc、右側ならrのような法則でエイリアスをつけています。
+<!-- textlint-enable -->
+
 | Name | Alias |
 |:--------------------|:-------:|
 | First Third | 1/3 l |
@@ -83,7 +86,7 @@ Clipy との違いはなんといっても、コピー履歴から検索まで�
 
 ### Floating Notes で軽いメモを取る
 
-他のアプリの使用中に常に表示されるメモを取ることが出来る機能です。
+他のアプリの使用中に常に表示されるメモを取ることができる機能です。
 
 画面遷移の影響も受けず、常にメモを取れるので、会議中にさっとメモを取る時などに非常に便利です。
 ![floating_notes](/images/raycast_is_the_best/floating_notes.gif)
@@ -92,19 +95,19 @@ Clipy との違いはなんといっても、コピー履歴から検索まで�
 
 カレンダーの予定の確認が出来ます。
 
-さらに、予定に Google Meet のリンクがあった場合、**Enter キー** で Meet に入ることが出来ます。（下画像の `Meeting`の一番右にビデオのアイコンがあります。このアイコンは、Google Meet のリンクがあることを指します。）
+さらに、予定にGoogle Meetのリンクがあった場合、**Enter キー** でMeetに入ることが出来ます。（下画像の `Meeting`の一番右にビデオのアイコンがあります。このアイコンは、Google Meetのリンクがあることを指します）
 ![スケジュール](/images/raycast_is_the_best/schedule.png)
 
 ### 言語処理能力
 
-Raycast は、窓の言語処理脳力も非常に高いのが特徴です。
+Raycastは、窓の言語処理脳力も非常に高いのが特徴です。
 
-簡単なドル円計算はもちろん、複雑な UTC(協定世界時)から JST(日本標準時)への計算なども行ってくれます。
+簡単なドル円計算はもちろん、複雑なUTC(協定世界時）からJST(日本標準時）への計算なども行ってくれます。
 ![UTCからJST](/images/raycast_is_the_best/utc_to_jst.png)
 
 ### 電卓
 
-Alfred と同様に電卓機能も備えています。
+Alfredと同様に電卓機能も備えています。
 ![電卓](/images/raycast_is_the_best/calculator.png)
 
 ## 拡張機能
@@ -112,18 +115,18 @@ Alfred と同様に電卓機能も備えています。
 ### Bookmark 検索
 
 https://www.raycast.com/raycast/browser-bookmarks
-Raycast は、Bookmark 検索を拡張機能として備えています。
+Raycastは、Bookmark検索を拡張機能として備えています。
 
-よく使うサイトは、Bookmark に入れておいて、これで即座に起動する事ができます。
+よく使うサイトは、Bookmarkに入れておいて、これで即座に起動できます。
 ![Bookmark](/images/raycast_is_the_best/bookmark.png)
 
 ### Google Chrome のタブ検索
 
 https://www.raycast.com/Codely/google-chrome
 
-開いている Google Chrome のタブを検索できる機能です。
+開いているGoogle Chromeのタブを検索できる機能です。
 
-皆さん、Mac を使ってる時にタブを開きすぎて、「あのタブどこいっちゃったっけ？」ってなることよくありませんか？（筆者だけかも笑）
+皆さん、Macを使ってる時にタブを開きすぎて、「あのタブどこいっちゃったっけ？」ってなることよくありませんか？（筆者だけかも笑）
 
 筆者と同じような方は、これを使えば間違いなく普段の仕事の生産性が上がります。
 ![Google Chromeのタブ検索](/images/raycast_is_the_best/chrome_tab.png)
@@ -132,21 +135,23 @@ https://www.raycast.com/Codely/google-chrome
 
 https://www.raycast.com/raycast/github
 
-連携した Github アカウントへ、様々な操作を行える機能です。
+連携したGithubアカウントへ、様々な操作を行える機能です。
 
-筆者は、リポジトリ検索・Pull Request 検索を特に使っています。
+筆者は、リポジトリー検索・Pull Request検索を特に使っています。
 ![Githubのリポジトリ検索](/images/raycast_is_the_best/github_repository.png)
 
 ### Notion のページ検索
 
 https://www.raycast.com/reckoning-dev/search-notion
 
-[数日前に日本語版を正式リリースした](https://twitter.com/NotionJP/status/1590283053594603520?s=20&t=pIundfDkS6Kw9nfsHPfiuQ)、Notion のページ検索も Raycast で行えます。
+[数日前に日本語版を正式リリースした](https://twitter.com/NotionJP/status/1590283053594603520?s=20&t=pIundfDkS6Kw9nfsHPfiuQ)、Notionのページ検索もRaycastで行えます。
 
-Notion は、アプリ内でページ検索が行えるので、
+<!-- textlint-disable -->
+Notionは、アプリ内でページ検索が行えるので、
+<!-- textlint-enable -->
 
-1. Raycast で、Notion を立ち上げる
-2. Notion のアプリでページ検索
+1. Raycastで、Notionを立ち上げる
+2. Notionのアプリでページ検索
 
 でも良いのですが、筆者はそれすらも手間なのでコマンド一発で検索できるようにしています。
 ![Notionのページ検索](/images/raycast_is_the_best/notion.png)
@@ -154,19 +159,22 @@ Notion は、アプリ内でページ検索が行えるので、
 ### JetBrains 製品で開いたプロジェクト検索
 
 https://www.raycast.com/gdsmith/jetbrains
-Raycast は、JetBrains 製品にも対応しています。
+Raycastは、JetBrains製品にも対応しています。
 
-これを使えば、JetBrains 製品ですぐにプロジェクトを開く事が出来るので、JetBrains 製品で開発しているエンジニアには必須の機能です。
+これを使えば、JetBrains製品ですぐにプロジェクトを開く事ができるので、JetBrains製品で開発しているエンジニアには必須の機能です。
 
 ![JetBrains](/images/raycast_is_the_best/jetbrains.png)
-噂では、VsCode 版も存在するようなので、興味ある方は是非調べてみてください。
+噂では、VsCode版も存在するようなので、興味ある方は是非調べてみてください。
 
 ## 自作拡張機能
 
-Raycast で自分が使いたい拡張機能がなかった場合、自分で作ることも出来ます。
+Raycastで自分が使いたい拡張機能がなかった場合、自分で作ることも出来ます。
 
-Developer 向けに、この拡張機能の作り方のリファレンスがあるので、これを参考に自作することをオススメします。
-言語は、React + TypeScript なので比較的とっつきやすいと思います。
+Developer向けに、この拡張機能の作り方のリファレンスがあるので、これを参考に自作することをオススメします。
+<!-- textlint-disable -->
+言語は、React + TypeScriptなので比較的とっつきやすいと思います。
+<!-- textlint-enable -->
+
 https://developers.raycast.com/
 
 # 筆者のホットキー
@@ -188,7 +196,7 @@ https://developers.raycast.com/
 | スニペット検索                         |     ⌥S     |
 | Bookmark 検索                          |     ⌥B     |
 | Google Chrome のタブ検索               |     ⌥C     |
-| Github のリポジトリ検索                |     ⌥R     |
+| Github のリポジトリー検索              |     ⌥R     |
 | Github の Pull Request 検索            |     ⌥P     |
 | Notion のページ検索                    |     ⌥N     |
 | JetBrains 製品で開いたプロジェクト検索 |     ⌥J     |
@@ -216,9 +224,9 @@ https://developers.raycast.com/
 
 ## Auto-switch Input Source
 
-Raycast 起動時に、デフォルトで ON になる入力ソースを選択出来ます。
+Raycast起動時に、デフォルトでONになる入力ソースを選択出来ます。
 
-これを `Romaji` にすることで、Raycast の起動時に必ずローマ字入力になります。（地味に便利）
+これを `Romaji` にすることで、Raycastの起動時に必ずローマ字入力になります。（地味に便利）
 
 ![JSTからUTC](/images/raycast_is_the_best/auto_switch_input_source.png =600x)
 
@@ -226,8 +234,8 @@ Raycast 起動時に、デフォルトで ON になる入力ソースを選択�
 
 最後までお読みいただきありがとうございます。
 
-Raycast の魅力は伝わりましたでしょうか？
-少しでも Raycast に興味を持っていただけたら、実際にインストールして触ってみてください。
+Raycastの魅力は伝わりましたでしょうか？
+少しでもRaycastに興味を持っていただけたら、実際にインストールして触ってみてください。
 必ずや、あなたの生産性の向上の手助けとなってくれるハズです。
 
-それでは、良い Raycast ライフを！
+それでは、良いRaycastライフを！
