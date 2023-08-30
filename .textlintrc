@@ -11,6 +11,9 @@ module.exports = {
       "2.1.6.カタカナの長音": true,
       "2.2.1.ひらがなと漢字の使い分け": true,
     },
+    "ja-technical-writing/no-exclamation-question-mark": false,
+    "ja-technical-writing/no-doubled-joshi": false,
+    "ja-technical-writing/sentence-length": false,
     prh: { rulePaths: ["./prh.yml"] },
   },
   filters: {
