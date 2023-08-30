@@ -8,7 +8,16 @@
     "lint:text": "textlint --cache $(git diff main --name-only) -f pretty-error",
     "lint:text:fix": "textlint --cache $(git diff main --name-only) --fix",
     "lint:text:full": "textlint --cache README.md \"articles/**/*.md\" -f pretty-error",
-    "lint:text:full:fix": "textlint --cache README.md \"articles/**/*.md\" --fix"
+    "lint:text:full:fix": "textlint --cache README.md \"articles/**/*.md\" --fix",
+    "prepare": "husky install",
+    "lint-staged": "lint-staged"
+  },
+  "lint-staged": {
+    "*.md": [
+      "prettier -w",
+      "textlint --cache --fix",
+      "textlint --cache"
+    ]
   },
   "keywords": [],
   "author": "",
@@ -17,6 +26,8 @@
     "zenn-cli": "^0.1.144"
   },
   "devDependencies": {
+    "husky": "^8.0.3",
+    "lint-staged": "^14.0.1",
     "prettier": "^2.8.8",
     "prettier-plugin-md-nocjsp": "^1.5.1",
     "textlint": "^13.3.3",
