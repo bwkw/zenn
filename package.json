@@ -8,7 +8,7 @@
     "lint:text": "textlint --cache $(git diff main --name-only) -f pretty-error",
     "lint:text:fix": "textlint --cache $(git diff main --name-only) --fix",
     "lint:text:full": "textlint --cache README.md \"articles/**/*.md\" -f pretty-error",
-    "lint:text:full:fix": "textlint --cache README.md \"articles/**/*.md\" --fix",
+    "lint:text:full:fix": "textlint --cache README.md \"articles/**/*.md\" --fix"
   },
   "keywords": [],
   "author": "",
