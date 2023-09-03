@@ -1030,7 +1030,9 @@ class SummerDiscount implements IDiscount
 ```
 
 <!-- textlint-disable -->
+
 改良版のコードでは、
+
 <!-- textlint-enable -->
 
 - 明確な単一責任： `RegularDiscount`と`SummerDiscount`クラスは、それぞれの割引額に基づいて価格を割り引くという単一の責任を持っています。

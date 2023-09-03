@@ -72,17 +72,20 @@ Clipyとの違いはなんといっても、コピー履歴から検索までで
 
 現在アクティブなウィンドウをリサイズして配置できる機能です。
 ![window_resize](/images/raycast_is_the_best/window_resize.gif)
+
 <!-- textlint-disable -->
+
 筆者は、[こちらの記事](https://dev.classmethod.jp/articles/eetann-used-raycast/) を参考に「3分割」なら1/3、左側ならl、中央ならc、右側ならrのような法則でエイリアスをつけています。
+
 <!-- textlint-enable -->
 
-| Name | Alias |
-|:--------------------|:-------:|
-| First Third | 1/3 l |
-| Center Third | 1/3 c |
-| Last Third | 1/3 r |
+| Name                | Alias  |
+| :------------------ | :----: |
+| First Third         | 1/3 l  |
+| Center Third        | 1/3 c  |
+| Last Third          | 1/3 r  |
 | Bottom Center Sixth | 1/6 bc |
-| Bottom Half | 1/2 b |
+| Bottom Half         | 1/2 b  |
 
 ### Floating Notes で軽いメモを取る
 
@@ -147,7 +150,9 @@ https://www.raycast.com/reckoning-dev/search-notion
 [数日前に日本語版を正式リリースした](https://twitter.com/NotionJP/status/1590283053594603520?s=20&t=pIundfDkS6Kw9nfsHPfiuQ)、Notionのページ検索もRaycastで行えます。
 
 <!-- textlint-disable -->
+
 Notionは、アプリ内でページ検索が行えるので、
+
 <!-- textlint-enable -->
 
 1. Raycastで、Notionを立ち上げる
@@ -171,8 +176,11 @@ Raycastは、JetBrains製品にも対応しています。
 Raycastで自分が使いたい拡張機能がなかった場合、自分で作ることも出来ます。
 
 Developer向けに、この拡張機能の作り方のリファレンスがあるので、これを参考に自作することをオススメします。
+
 <!-- textlint-disable -->
+
 言語は、React + TypeScriptなので比較的とっつきやすいと思います。
+
 <!-- textlint-enable -->
 
 https://developers.raycast.com/
