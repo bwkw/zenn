@@ -27,6 +27,12 @@ published: false
 | 3   | Peter |
 | 4   | Tom   |
 
+### 特徴
+
+### Pros
+
+### Cons
+
 ## UUID
 
 | id                                   | name  |
@@ -35,6 +41,12 @@ published: false
 | 123e4567-e89b-12d3-a456-426614174000 | Bob   |
 | 0c74f13f-fa83-4c48-9b33-689fed9a34b7 | Peter |
 | 5f9c7df8-3d59-4846-99fe-c4518e82c86f | Tom   |
+
+### 特徴
+
+### Pros
+
+### Cons
 
 ## ULID
 
@@ -45,6 +57,12 @@ published: false
 | 01AS3YPYXJTSV4RRFFQ69G5FAV | Peter |
 | 01B2M2Y8JPTSV4RRFFQ69G5FAV | Tom   |
 
+### 特徴
+
+### Pros
+
+### Cons
+
 ## Snowflake
 
 | id                  | name  |
@@ -53,6 +71,12 @@ published: false
 | 1382971839180339202 | Bob   |
 | 1382971839180339203 | Peter |
 | 1382971839180339204 | Tom   |
+
+### 特徴
+
+### Pros
+
+### Cons
 
 # データ識別子の比較
 
