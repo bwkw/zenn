@@ -37,9 +37,9 @@ published: false
 
 ### 特徴
 
-- 整数型で表され、通常1から始まります
-- 新規レコードを挿入するたびに、データベースが自動で次の連番の整数をIDとして割り当てます
-- 多数のオブジェクトリレーショナルマッピング（ORM）フレームワークやウェブアプリケーションフレームワークは、デフォルトのID戦略としてAuto Incrementを採用しています
+- 整数型を使用し、通常は1から始まる連番です
+- 新しいレコードがデータベースに挿入されるたびに、自動的に次の番号がIDに割り当てられます
+- 多くのオブジェクトリレーショナルマッピング（ORM）フレームワークやウェブアプリケーションフレームワークがデフォルトで使用します
 
 ## UUID v4
 
@@ -49,6 +49,14 @@ published: false
 | 123e4567-e89b-12d3-a456-426614174000 | Bob   | bob@example.com   |
 | 0c74f13f-fa83-4c48-9b33-689fed9a34b7 | Peter | peter@example.com |
 | 5f9c7df8-3d59-4846-99fe-c4518e82c86f | Tom   | tom@example.com   |
+
+### 構造
+
+<!-- textlint-disable -->
+
+128ビット長、16進数表記
+
+<!-- textlint-enable -->
 
 ### 特徴
 
@@ -64,11 +72,14 @@ published: false
 | 01AS3YPYXJTSV4RRFFQ69G5FAV | Peter | peter@example.com |
 | 01B2M2Y8JPTSV4RRFFQ69G5FAV | Tom   | tom@example.com   |
 
+### 構造
+
+タイムスタンプ（48ビット）とランダム値（80ビット）
+
 ### 特徴
 
-- 最初の48ビットはタイムスタンプで、残りの80ビットはランダムな値です
-- Base32でエンコードされ、結果として26文字のアルファベットと数字のみで構成されます
-- 時系列情報が組み込まれており、生成順にソートが可能です
+- Base32エンコーディングを使用し、26文字のアルファベットと数字で構成されます
+- 時系列情報を含み、生成された順にソートが可能です
 
 ## Snowflake
 
@@ -79,9 +90,17 @@ published: false
 | 1382971839180339203 | Peter | peter@example.com |
 | 1382971839180339204 | Tom   | tom@example.com   |
 
+### 構造
+
+<!-- textlint-disable -->
+
+64ビット整数
+
+<!-- textlint-enable -->
+
 ### 特徴
 
-- Twitterによって開発された方式（[参考](https://github.com/twitter-archive/snowflake)）で、64ビットの整数で表されます
+- Twitterによって開発された方式（[参考](https://github.com/twitter-archive/snowflake)）です
 - タイムスタンプ、データセンターまたはワーカーノードのID、シーケンス番号の情報が含まれています
 - 時系列情報が組み込まれているため、生成された順番に沿ってソート可能です
 
@@ -93,6 +112,17 @@ published: false
 | 01715b4c-b8e8-7dfa-a470-8969b8b8b890 | Bob   | bob@example.com   |
 | 01715b4c-b8e9-7e1b-b6f8-9968d6d8d8a0 | Peter | peter@example.com |
 | 01715b4c-b8ea-7e5c-b7e9-a678c7c8c8b0 | Tom   | tom@example.com   |
+
+### 構造
+
+- タイムスタンプ（48ビット）
+- バージョンとバリアント（6ビット）
+- ランダム値（74ビット）
+
+### 特徴
+
+- UUIDの新しいバージョンで、時系列順序に基づいたID生成が可能です
+- ソート可能な時系列情報を含んでおり、UUID v4よりも高度な時系列管理が可能です
 
 # データ識別子の比較
 
