@@ -115,6 +115,16 @@ published: false
 
 <!-- textlint-enable -->
 
+```
+    0                   1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                         timestamp(ms)                         |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |     timestamp(ms)   |    worker id    |    sequence number    |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+```
+
 ### 特徴
 
 - Twitterによって開発された方式（[参考](https://github.com/twitter-archive/snowflake)）です
@@ -170,3 +180,4 @@ published: false
 # 参考文献
 
 https://speakerdeck.com/matteobertozzi/ulid-vs-uuid
+https://www.slideshare.net/moaikids/20130901-snowflake
