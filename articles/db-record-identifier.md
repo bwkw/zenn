@@ -448,6 +448,14 @@ Twitterが開発した64ビットID生成システムで、タイムスタンプ
 
 # 参考文献
 
-https://speakerdeck.com/matteobertozzi/ulid-vs-uuid
-https://www.slideshare.net/moaikids/20130901-snowflake
 https://convto.hatenablog.com/entry/2022/05/29/121124
+https://zenn.dev/praha/articles/3c84e3818891c3
+https://techblog.raccoon.ne.jp/archives/1627262796.html
+https://kccoder.com/mysql/uuid-vs-int-insert-performance/
+https://speakerdeck.com/matteobertozzi/ulid-vs-uuid
+https://www.linkedin.com/pulse/choosing-right-id-strategy-auto-increment-uuid-ulid-valluru/
+https://www.linkedin.com/pulse/ulid-snowflake-id-cool-coders-alternative-boringuuids-deepam-kapur/
+https://www.slideshare.net/moaikids/20130901-snowflake
+https://yoskhdia.hatenablog.com/entry/2018/01/05/124633
+https://math.stackexchange.com/questions/4697032/threshold-for-the-number-of-uuids-generated-per-millisecond-at-which-the-colli
+https://gigazine.net/news/20231023-uuid-v7/
