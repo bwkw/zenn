@@ -3,7 +3,8 @@ title: "他のレコードと違う存在になりたいレコードへ"
 emoji: "🤡"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["DB", "レコード", "識別子"]
-published: false
+published: true
+published_at: 2023-12-04 08:00
 ---
 
 # TL;DR
