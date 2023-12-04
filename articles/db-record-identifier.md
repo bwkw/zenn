@@ -4,7 +4,7 @@ emoji: "🤡"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["DB", "レコード", "識別子"]
 published: true
-published_at: 2023-12-04 08:00
+published_at: 2023-12-05 08:00
 ---
 
 # TL;DR
