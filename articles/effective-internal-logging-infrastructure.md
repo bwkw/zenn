@@ -76,9 +76,6 @@ https://zenn.dev/vega_c/articles/7e29aa191d056f
 
 このセクションでは、AWSの主要なセキュリティサービスの機能を詳しく見ていき、それぞれがどのように予防的統制や発見的統制のカテゴリーに当てはまるかを探ります。これにより、AWSのセキュリティサービスが組織のセキュリティ体制をどのように強化し、セキュリティ脅威に対してどのように対応しているかが分かります。
 
-![AWSの各種セキュリティ強化サービス](/images/effective_internal_logging_infrastructure/security_service.png)
-参照: AWS Summit Online 2021「[AWS環境における脅威検知と対応](https://d1.awsstatic.com/events/jp/2021/summit-online/AWS-39_AWS_Summit_Online_2021_SEC03.pdf)」
-
 ## 予防的統制に寄与するAWSサービス
 予防的統制は、セキュリティインシデントが発生する前にリスクを最小限に抑えることを目的としています。AWSの以下のサービスは、この目的に寄与します。
 
