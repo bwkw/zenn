@@ -79,19 +79,27 @@ https://zenn.dev/vega_c/articles/7e29aa191d056f
 ## 予防的統制に寄与するAWSサービス
 予防的統制は、セキュリティインシデントが発生する前にリスクを最小限に抑えることを目的としています。AWSの以下のサービスは、この目的に寄与します。
 
-### AWS IAM (Identity and Access Management)
+### [AWS IAM (Identity and Access Management)](https://aws.amazon.com/jp/iam/)
+![AWS IAM](/images/effective_internal_logging_infrastructure/iam.png)
+
 AWS IAMは、AWSリソースへのアクセス管理を行うサービスです。ユーザーやグループ、ロールを作成し、これらに対して細かいアクセス権限を設定することで、不正アクセスや権限の乱用を防ぎます。IAMは、AWS環境内でのセキュリティ管理の基盤として機能し、不正アクセスやデータ漏洩のリスクを低減します。
 
-### AWS WAF (Web Application Firewall)
+### [AWS WAF (Web Application Firewall)](https://aws.amazon.com/jp/waf/)
+![AWS WAF](/images/effective_internal_logging_infrastructure/waf.png)
+
 AWS WAFは、ウェブアプリケーションを保護するためのファイアウォールサービスです。SQLインジェクションやクロスサイトスクリプティングなどの一般的なウェブ攻撃を防ぎます。カスタマイズ可能なセキュリティルールを使用して、特定の脅威を特定し、ブロックすることができます。AWS WAFは、ウェブアプリケーションを攻撃から保護し、セキュリティを強化することで、予防的統制に寄与します。
 
-### AWS Shield
+### [AWS Shield](https://aws.amazon.com/jp/shield/)
+![AWS Shield](/images/effective_internal_logging_infrastructure/shield.png)
+
 AWS Shieldは、DDoS攻撃からAWSリソースを保護するサービスです。すべてのAWS顧客に基本的な保護を無料で提供し、AWS Shield Advancedでは更に包括的な保護と攻撃対応サポートを提供します。AWS Shieldは、DDoS攻撃によるダウンタイムやデータ損失のリスクを最小限に抑えることで、予防的統制に大きく貢献します。
 
 ## 予防的・発見的統制に寄与するAWSサービス
 発見的統制は、セキュリティインシデントが発生した後にこれを検出し、迅速に対応することを目的としています。AWSの以下のサービスは、セキュリティリスクの予防とセキュリティインシデントの検出と対応において重要な役割を果たします。
 
-### Amazon GuardDuty
+### [Amazon GuardDuty](https://aws.amazon.com/jp/guardduty/)
+![Amazon GuardDuty](/images/effective_internal_logging_infrastructure/guard_duty.png)
+
 Amazon GuardDutyは、機械学習と脅威インテリジェンスを用いてAWS環境内のネットワークトラフィックとアカウントアクティビティを監視するサービスです。不審なアクセスや異常な行動をリアルタイムで検出し、即時に警告を提供します。
 
 - 予防的統制の側面
@@ -102,8 +110,10 @@ Amazon GuardDutyは、機械学習と脅威インテリジェンスを用いてA
   - セキュリティインシデントの早期発見により、迅速な対応と被害の最小化が可能になります。
   - 継続的なモニタリングとアラートにより、セキュリティイベントの分析と調査を効果的に行うことができます。
 
-### AWS SecurityHub
-AWS SecurityHubは、AWS環境全体のセキュリティ状態とコンプライアンスを一元的に管理し、監視するサービスです。セキュリティアラートと詳細なレポートを提供し、セキュリティとコンプライアンスの状況を可視化します。
+### [AWS Security Hub](https://aws.amazon.com/jp/security-hub/)
+![AWS Security Hub](/images/effective_internal_logging_infrastructure/security_hub.png)
+
+AWS Security Hubは、AWS環境全体のセキュリティ状態とコンプライアンスを一元的に管理し、監視するサービスです。セキュリティアラートと詳細なレポートを提供し、セキュリティとコンプライアンスの状況を可視化します。
 
 - 予防的統制の側面
   - セキュリティ状態の一元的な監視により、リスクを事前に特定し、対処策を立てることができます。
@@ -113,7 +123,9 @@ AWS SecurityHubは、AWS環境全体のセキュリティ状態とコンプラ�
   - セキュリティ脅威やコンプライアンス違反を迅速に検出し、対応を支援します。
   - アラートと詳細なレポートにより、セキュリティイベントの効果的な分析と迅速な対応を可能にします。
 
-### Amazon Inspector
+### [Amazon Inspector](https://aws.amazon.com/jp/inspector/)
+![Amazon Inspector](/images/effective_internal_logging_infrastructure/inspector.png)
+
 Amazon Inspectorは、AWS上で動作するアプリケーションのセキュリティ脆弱性を自動的に検出し、対策を提案するサービスです。脆弱性スキャンにより、セキュリティリスクを可視化し、修正のための推奨事項を提供します。
 
 - 予防的統制の側面
@@ -124,7 +136,9 @@ Amazon Inspectorは、AWS上で動作するアプリケーションのセキュ�
   - 既存の脆弱性に基づくセキュリティインシデントの検出と対応を可能にします。
   - セキュリティ評価結果に基づく対策提案により、セキュリティリスクの迅速な解消を支援します。
 
-### AWS CloudTrail
+### [AWS CloudTrail](https://aws.amazon.com/jp/cloudtrail/)
+![AWS CloudTrail](/images/effective_internal_logging_infrastructure/cloud_trail.png)
+
 AWS CloudTrailは、AWSアカウント内のAPI呼び出し履歴を記録し、セキュリティイベントの追跡と分析を行うサービスです。APIアクティビティの監視とログ記録により、システムのセキュリティと透明性を向上させます。
 
 - 予防的統制の側面
@@ -135,8 +149,10 @@ AWS CloudTrailは、AWSアカウント内のAPI呼び出し履歴を記録し、
   - イベント発生後の詳細な追跡と分析により、セキュリティインシデントの原因を特定し、迅速な対応を支援します。
   - 監査ログによる包括的な分析により、セキュリティインシデントの追跡と対応が可能になります。
 
-### AWS Detective
-AWS Detectiveは、AWSリソースとユーザーアクティビティに関連するデータを分析し、セキュリティインシデントの調査と解決を支援するサービスです。複雑なセキュリティデータを分析し、詳細な洞察を提供します。
+### [Amazon Detective](https://aws.amazon.com/jp/detective/)
+![Amazon Detective](/images/effective_internal_logging_infrastructure/detective.png)
+
+Amazon Detectiveは、AWSリソースとユーザーアクティビティに関連するデータを分析し、セキュリティインシデントの調査と解決を支援するサービスです。複雑なセキュリティデータを分析し、詳細な洞察を提供します。
 
 - 予防的統制の側面
   - データ分析により、将来のセキュリティリスクを事前に特定し、予防策を立てることが可能です。
@@ -146,7 +162,7 @@ AWS Detectiveは、AWSリソースとユーザーアクティビティに関連�
   - インシデント発生後のデータ分析により、原因究明と迅速な解決を支援します。
   - 継続的な分析により、セキュリティイベントの傾向とパターンを理解し、対応策を最適化します。
 
-### VPC Flow Logs
+### [VPC Flow Logs](https://docs.aws.amazon.com/ja_jp/vpc/latest/userguide/flow-logs.html)
 VPC Flow Logsは、AWS Virtual Private Cloud内のネットワークトラフィック情報を記録し、セキュリティ分析、ネットワーク監視、異常検知に利用されるサービスです。トラフィックの流れとパターンを詳細に把握し、セキュリティリスクの管理に寄与します。
 
 - 予防的統制の側面
@@ -157,8 +173,10 @@ VPC Flow Logsは、AWS Virtual Private Cloud内のネットワークトラフィ
   - インシデント発生後のトラフィック分析により、セキュリティ侵害の原因を突き止め、対応策を立てることができます。
   - ネットワークの異常検知により、セキュリティイベントの早期発見と迅速な対応が可能になります。
 
-### OpenSearch
-OpenSearchは、ログデータの収集、分析、視覚化を実現するサービスです。セキュリティ監視やログ分析に有効で、異常パターンの検出やリアルタイム監視ダッシュボードの提供が可能です。
+### [Amazon OpenSearch Service](https://docs.aws.amazon.com/ja_jp/opensearch-service/latest/developerguide/what-is.html)
+![Amazon OpenSearch Service](/images/effective_internal_logging_infrastructure/open_search_service.png)
+
+Amazon OpenSearch Serviceは、ログデータの収集、分析、視覚化を実現するサービスです。セキュリティ監視やログ分析に有効で、異常パターンの検出やリアルタイム監視ダッシュボードの提供が可能です。
 
 - 予防的統制の側面
   – ログデータの分析により、将来のセキュリティリスクを予測し、予防策を講じることが可能です。
