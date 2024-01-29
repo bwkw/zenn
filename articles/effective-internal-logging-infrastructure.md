@@ -208,8 +208,14 @@ Amazon OpenSearch Serviceは、ログデータの収集、分析、視覚化を�
 https://dev.classmethod.jp/articles/aws-security-all-in-one-2021/
 
 # おわりに
+セキュリティは、技術的な側面だけでなく、組織の文化や意識に深く根ざした課題です。多くの企業がセキュリティを強化すべき段階に直面しており、「どこから始めれば良いのか？」という疑問は一般的です。コストをかけてAWSの各種サービスを利用することでセキュリティは強化されるかもしれませんが、実際には経営層の理解と支援が不可欠です。
+
+セキュリティ対策の進め方は、組織の特性や文化、利用している技術によって異なります。最も重要なのは、セキュリティ対策を単なる技術的課題ではなく、組織全体の取り組みとして捉え、出来る部分から段階的に進めていくことが重要なんだなと強く感じた半日でした。
+
+セキュリティへのコスト配分を経営層に訴えかけることは困難に感じるかもしれませんが、組織のセキュリティ基盤を予防的統制と発見的統制の観点から評価し、コストを抑えつつ実行可能な部分から進めていくことが重要です。この段階的なアプローチにより、セキュリティリスクの管理と対応を強化していくことが、何よりも大切なのではないでしょうか。
 
 # 参考文献
 https://linfordco.com/blog/importance-of-preventive-controls/
 https://thecyphere.com/blog/security-controls/
 https://erp.dentsusoken.com/blog/preventivedetective-controls-vol-84/
+https://www.nri-secure.co.jp/blog/getting-security-budget-approved?hs_amp=true
