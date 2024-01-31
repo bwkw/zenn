@@ -206,7 +206,8 @@ Amazon OpenSearch Serviceは、ログデータの収集、分析、視覚化を�
   - 異常パターンの検出やリアルタイム監視により、セキュリティインシデントの迅速な特定と対応を支援します。
   - ログデータの深い分析により、セキュリティイベントの原因と対応策を詳細に把握することが可能です。
 
-# セキュリティ対策へのアプローチ
+# どうやってセキュリティ対策を進めていこうか？
+全セクションで紹介したように、AWSには多くのセキュリティ強化サービスが存在します。
 セキュリティは、技術的な側面だけでなく、組織の文化や意識に深く根ざした課題です。以下のフェーズを通じて、セキュリティ対策を効果的に進めることが重要です。（[参考](https://www.nri-secure.co.jp/blog/getting-security-budget-approved?hs_amp=true)）
 
 ![Security Budgeting Process](/images/effective_internal_logging_infrastructure/security_budgeting_process.png)
