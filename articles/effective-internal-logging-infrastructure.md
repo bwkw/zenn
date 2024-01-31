@@ -32,7 +32,7 @@ https://zenn.dev/vega_c/articles/7e29aa191d056f
 # セキュリティの考え方
 ## 責任共有モデル
 
-![責任共有モデル](/images/effective_internal_logging_infrastructure/security_budgeting_process.png)
+![責任共有モデル](/images/effective_internal_logging_infrastructure/responsibility_sharing_model.png)
 
 https://aws.amazon.com/jp/compliance/shared-responsibility-model/
 
