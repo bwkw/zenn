@@ -210,7 +210,7 @@ Amazon OpenSearch Serviceは、ログデータの収集、分析、視覚化を�
 全セクションで紹介したように、AWSには多くのセキュリティ強化サービスが存在します。
 セキュリティは、技術的な側面だけでなく、組織の文化や意識に深く根ざした課題です。以下のフェーズを通じて、セキュリティ対策を効果的に進めることが重要です。（[参考](https://www.nri-secure.co.jp/blog/getting-security-budget-approved?hs_amp=true)）
 
-![Security Budgeting Process](/images/effective_internal_logging_infrastructure/security_budgeting_process.png)
+![Security Budgeting Process](/images/effective_internal_logging_infrastructure/security_budget_process.png)
 
 1. **セキュリティリスクの特定（可視化）**
 効果的なセキュリティ戦略を立てるためには、リスクを網羅的に特定することが重要です。全ての情報資産に対する対策はコストとリソースの観点から難しいため、定期的に自社の全体像を踏まえて、必要な対策項目を洗い出し、実行可能な予算の確保を推奨します。
