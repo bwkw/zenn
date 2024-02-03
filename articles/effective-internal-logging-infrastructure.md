@@ -8,6 +8,10 @@ publication_name: "levtech"
 ---
 
 # TL;DR
+- セキュリティ対策には予防的統制と発見的統制の2つの観点が欠かせない
+- AWS提供のセキュリティサービス（IAM, WAF, Shield, Config, GuardDuty, Security Hub, Inspector, CloudTrail, Detective, VPC Flow Logs, Amazon OpenSearch Service）が予防的・発見的統制にどう寄与するかを解説
+- セキュリティ対策は、リスクの特定と可視化、リスク分析と優先度付け、施策費用の算出、経営層への報告とサポートの獲得で進めるべし
+- セキュリティは、単に技術やツールを導入するだけではなく、組織全体の意識や文化、そして継続的な改善が求められる
 
 # はじめに
 レバテック開発部レバテックプラットフォーム開発チームに所属している内藤です。
