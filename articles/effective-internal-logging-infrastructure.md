@@ -1,5 +1,5 @@
 ---
-title: "愛してやまないAWSで展開するセキュリティ戦略"
+title: "愛してやまないAWSで展開するセキュリティ対策戦略"
 emoji: "🛕"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["AWS", "セキュリティ", "インシデント", "log"]
