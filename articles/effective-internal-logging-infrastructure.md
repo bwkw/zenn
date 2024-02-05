@@ -30,7 +30,7 @@ publication_name: "levtech"
 
 より具体的なイベントの内容については、以下の記事を参照いただければと思います。詳細情報は公開できないため、興味がある方は是非イベントへの参加をオススメします👋
 
-https://dev.classmethod.jp/articles/aws-top-engineer-2022-security-incident-workshop-report/
+https://dev.classmethod.jp/articles/aws-workshop-wada/
 https://zenn.dev/vega_c/articles/7e29aa191d056f
 
 # セキュリティの考え方
