@@ -3,7 +3,8 @@ title: "愛してやまないAWSで展開するセキュリティ対策戦略"
 emoji: "🛕"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["AWS", "セキュリティ", "インシデント", "log"]
-published: false
+published: true
+published_at: 2024-02-08 13:00
 publication_name: "levtech"
 ---
 
