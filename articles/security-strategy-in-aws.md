@@ -4,7 +4,7 @@ emoji: "🛕"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["AWS", "セキュリティ", "インシデント", "log"]
 published: true
-published_at: 2024-02-08 13:00
+published_at: 2024-02-08 11:50
 publication_name: "levtech"
 ---
 
