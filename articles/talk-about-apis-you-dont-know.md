@@ -59,6 +59,8 @@ APIの設計において最も基本的かつ重要な要素は「**実行可能
 予測可能なAPIは、利用者が自信を持って使用できるようにし、生産性を高めるために不可欠です。利用者が何を期待するかを理解し、それに応えることで、APIはより使いやすく、効果的なものになります。
 
 # 馴染みのあるAPI設計
+
+
 # デザインパターンの紹介
 本セクションでは、APIのデザインパターンについて、実際のTypeScriptのソースコードを用いることで、理論だけではなく、実践に基づいた深い理解を促します。TypeScriptは多くの開発者にとって馴染み深い言語であり、APIの概念を明確に示すのに適しています。
 
@@ -97,7 +99,56 @@ interface Email {
 }
 ```
 
-## ロングランオペレーション
+## ロングランオペレーション（Long Running Operations, LRO）
+### 概要
+LROとは、時間を要する作業を指します。このような作業を行いながらも、他の作業を同時に進めたい場合、現代のプログラミング言語は非同期動作をサポートしています。これにより、時間がかかる作業をブロックせずにプログラム内で簡単に管理できます。
+この機能は、作業の開始時に特定のプレースホルダーを返し、作業が完了した際にはこのプレースホルダーが結果と共に「解決」されるか、エラーが発生した場合には「拒否」されます。この仕組みを利用することで、プログラマはコールバックをプレースホルダーに登録し、結果を非同期に処理することができます。また、必要に応じて結果が返されるまで待ち、プレースホルダーが解決または拒否されるまでコードの実行を一時停止することも可能です。
+
+https://cloud.google.com/translate/docs/advanced/long-running-operation?hl=ja
+
+### 対象とする問題
+APIが複雑な作業や大量のリソースを扱う必要がある場合、単純なAPI設計では速い動作と遅い動作の間で一貫性を保つことが難しくなります。時間がかかる作業に対しては特別な考慮が必要になります。
+
+### 問題点
+LROは、最初に理解するのが少し難しいかもしれない複雑で汎用性が高く、パラメーター化されたリソースです。LROは、他の作業を要求することによってのみ存在し、明示的に作成されるわけではありません。これは、従来のリソース作成の方法論とは異なるアプローチを提供します。
+
+### 実装例
+LROを扱うためには、Operationリソースを定義し、APIがLROを発見して管理する方法を提供する必要があります。これには、Operationオブジェクトの作成、進行状態の監視、および必要に応じて操作の一時停止、再開、キャンセルを行うメソッドの定義が含まれます。（今回は一部を実装）
+
+```typescript
+abstract class ChatRoomApi {
+  @get("/{id=operations/*}")
+  abstract GetOperation<ResultT, MetadataT>(req: GetOperationRequest):
+    Operation<ResultT, MetadataT>;
+
+  @post("/{id=operations/*}:cancel")
+  abstract CancelOperation<ResultT, MetadataT>(req: CancelOperationRequest):
+    Operation<ResultT, MetadataT>;
+}
+
+interface Operation<ResultT, MetadataT> {
+  id: string;
+  done: boolean;
+  expireTime: Date;
+  result?: ResultT | OperationError;
+  metadata?: MetadataT;
+}
+
+interface OperationError {
+  code: string;
+  message: string;
+  details?: any;
+}
+
+interface GetOperationRequest {
+  id: string;
+}
+
+interface CancelOperationRequest {
+  id: string;
+}
+```
+
 ## 再実行可能ジョブ
 ## シングルトンサブリソース
 ## バッチ処理
