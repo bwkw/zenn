@@ -121,6 +121,48 @@ API設計時、リソースの構成要素がプロパティに適している�
 ### 問題点
 シングルトンサブリソースの設計では、リソースとそのサブリソースを同時に、アトミックに操作する方法が不可能になります。これは、特定の情報セットを親リソースから分離し、独立させることが主な目的であるため、設計上の制限として存在します。例えば、DriverLocation情報をDriverリソースの一部として扱っていた場合、特定の位置情報を持つDriverリソースを一度に作成することが可能でしたが、サブリソースを分離することにより、このような同時操作が行えなくなります。
 
+### 実装例
+ライドシェアリングサービスのAPIでのシングルトンサブリソースの実装例を示します。
+以下のコードスニペットでは、`RideSharingApi` 抽象クラスを通じて、ドライバー情報と位置情報の取得及び更新を行う方法を示しています。具体的には、ドライバーの詳細情報を取得・更新するエンドポイントと、ドライバーの現在位置を取得・更新するエンドポイントが提供されています。
+
+```typescript
+abstract class RideSharingApi {
+  @get("/{id=drivers/*}")
+  abstract GetDriver(req: GetDriverRequest): Driver;
+
+  @patch("/{resource.id=drivers/*}")
+  abstract UpdateDriver(req: UpdateDriverRequest): Driver;
+
+  @get("/{id=drivers/*/location}")
+  abstract GetDriverLocation(req: GetDriverLocationRequest): DriverLocation;
+
+  @patch("/{resource.id=drivers/*/location}")
+  abstract UpdateDriverLocation(req: UpdateDriverLocationRequest): DriverLocation;
+}
+
+interface Driver {
+  id: string;
+  name: string;
+  licensePlate: string;
+}
+
+interface DriverLocation {
+  id: string;
+  lat: number;
+  long: number;
+  updateTime: Date;
+}
+
+interface GetDriverLocationRequest {
+  id: string;
+}
+
+interface UpdateDriverLocationRequest {
+  resource: DriverLocation;
+  fieldMask: FieldMask;
+}
+```
+
 ## バッチ処理
 ## フィルタリング
 # おわりに
