@@ -140,6 +140,70 @@ interface CancelOperationRequest {
 ```
 
 ## 再実行可能ジョブ
+### 概要
+再実行可能ジョブは、API のオンデマンド実行機能を2つの主要な操作に分割する特殊なリソースです。通常、API メソッドを呼び出す際には、そのメソッドに必要な設定を提供し、メソッドはその設定を用いて即座に処理を行います。しかし、再実行可能ジョブでは、このプロセスが2つの異なるステップに分かれます。まず、実行する処理に必要な設定を用いてジョブを作成します。その後、runというカスタムメソッドを呼び出すことで、実際の処理を実行します。
+
+https://cloud.google.com/dataproc/docs/concepts/jobs/restartable-jobs?hl=ja
+
+### 対象とする問題
+クライアントがAPIメソッドを非同期に呼び出す必要があるという前提のもと、前述のLROでは解決しない場合があります。
+以下のような事例はその最たる例です。
+
+#### 非同期実行を行うカスタムメソッドの提供
+この方法では、メソッドを呼び出すたびに必要なすべての設定を提供する必要があります。設定パラメータが増えるにつれて、管理が複雑になり、誤った設定を追跡するのが困難になります。このような設定パラメータをAPI自体に保存できる機能は非常に便利です。
+
+#### オンデマンドメソッドの実行
+このモデルでは、メソッドを実行する機能と、そのメソッドを呼び出すためのパラメータを設定する機能が混在します。設定パラメータが複雑になると、設定と実行の権限を分ける必要が生じることがあります。特に、開発者と運用チームが別の権限を持つようになると、この問題は顕著になります。
+
+#### 定期的な自動実行の要望
+既存のオンデマンド実行から、定期的に自動でメソッドを実行したいと考える場合、クライアントデバイスを設定してAPI呼び出しを行うことは可能ですが、これは新たな脆弱性を生じさせる可能性があります。APIが自身でスケジュールを設定し、外部システムの介入なしにメソッドを実行できるようにする方が、はるかにシンプルで安全です。
+
+### 問題点
+現在のところ、Operation リソースのリストから目的の Job リソースに関連するものを特定するためには、適切なフィルタリングが必要です。
+
+### 実装例
+再実行可能なジョブを実現するためには、主に2つの重要なコンポーネントが必要です。一つ目は、ジョブの定義です。これには、そのジョブに関連するすべての標準メソッドを含むJobリソースの定義が含まれます。二つ目は、定義されたジョブで行いたい作業を実際に実行するためのカスタムrunメソッドの実装です。
+
+```typescript
+abstract class ChatRoomApi {
+  @post("/analyzeChatRoomJobs")
+  abstract CreateAnalyzeChatRoomJob(req: CreateAnalyzeChatRoomJobRequest):
+    AnalyzeChatRoomJob;
+
+  @post("/{id=analyzeChatRoomJobs/*}:run")
+  abstract RunAnalyzeChatRoomJob(req: RunAnalyzeChatRoomJobRequest):
+    Operation<AnalyzeChatRoomJobExecution, RunAnalyzeChatRoomJobMetadata>;
+}
+
+interface CreateAnalyzeChatRoomJobRequest {
+  resource: AnalyzeChatRoomJob;
+}
+
+interface AnalyzeChatRoomJob {
+  id: string;
+  chatRoom: string;
+  destination: string;
+  compressionFormat: string;
+}
+
+interface RunAnalyzeChatRoomJobRequest {
+  id: string;
+}
+
+interface AnalyzeChatRoomJobExecution {
+  id: string;
+  job: AnalyzeChatRoomJob;
+  sentenceComplexity: number;
+  sentiment: number;
+  abuseScore: number;
+}
+
+interface RunAnalyzeChatRoomJobMetadata {
+  messagesProcessed: number;
+  messagesCounted: number;
+}
+```
+
 ## シングルトンサブリソース
 ### 概要
 シングルトンサブリソースとは、あるリソースの構成要素を単なるプロパティから、より独立性の高いエンティティへと進化させる手法です。このアプローチにおいて重要な戦略の一つは、問題のある構成要素をリソース全体と単純なプロパティの間に位置するもの、つまりハイブリッドな存在としてデザインすることです。これにより、フルリソースが提供する特定の特性や機能と、単純なプロパティが持つ他の特性や機能を兼ね備えた新たな形態を創出することが可能になります。
