@@ -95,7 +95,7 @@ https://cloud.google.com/translate/docs/advanced/long-running-operation?hl=ja
 APIが複雑な作業や大量のデータを扱う場合、簡単なAPI設計では迅速な操作と時間を要する操作の間で一貫性を保つことが困難です。そのため、時間がかかる作業は特別な取り扱いが必要になります。
 
 ### 問題点
-LROは、初学者にとっては理解が難しい場合があります。これは、リクエストによってのみ生成され、従来のリソース作成方法とは異なるアプローチを採用しているためです。LROは、明示的な作成プロセスを伴わず、その存在は他の作業を要求することに依存します。
+ロングランオペレーション（LRO）の管理には、操作の進行状況を監視する過程が複雑化する可能性があります。APIがデータを処理するにあたり、ユーザーは進捗に関する定期的な更新を求めます。しかしながら、プロセスがクラッシュしたり、ネットワークが切断されたりするなど、何らかの理由で接続が失われた場合、既存の進捗情報へのアクセスが困難になり、進行状況の監視を再開することが難しくなります。
 
 ### 実装例
 以下は、LROを扱うAPIの実装例です。この例では、 `ChatRoomApi` 抽象クラスを利用して、進行中の操作の状態を取得する方法と、必要に応じて操作をキャンセルする方法を紹介します。LROを管理するためには、`Operation` リソースの定義が不可欠です。このプロセスには、`Operation` オブジェクトの生成、進行状態の追跡、そして操作の一時停止、再開、キャンセルを可能にするメソッドが含まれます。示されているコードスニペットは、これらの機能の一部を実装する方法を示しています。
@@ -104,6 +104,10 @@ LROは、初学者にとっては理解が難しい場合があります。こ�
 abstract class ChatRoomApi {
   @get("/{id=operations/*}")
   abstract GetOperation<ResultT, MetadataT>(req: GetOperationRequest):
+    Operation<ResultT, MetadataT>;
+
+  @get("/{id=operations/*}:wait")
+  abstract WaitOperation<ResultT, MetadataT>(req: WaitOperationRequest):
     Operation<ResultT, MetadataT>;
 
   @post("/{id=operations/*}:cancel")
@@ -126,6 +130,10 @@ interface OperationError {
 }
 
 interface GetOperationRequest {
+  id: string;
+}
+
+interface WaitOperationRequest {
   id: string;
 }
 
