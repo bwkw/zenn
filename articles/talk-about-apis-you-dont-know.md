@@ -202,65 +202,52 @@ https://cloud.google.com/dataproc/docs/concepts/jobs/restartable-jobs?hl=ja
 
 ## シングルトンサブリソース
 ### 概要
-シングルトンサブリソースは、あるリソースの一部を独立したエンティティとして設計する手法です。この方法では、リソースの特定の構成要素を単純なプロパティではなく、リソースとプロパティの中間に位置づけ、その要素に独立性を持たせます。
+API設計において、リソースの特定の構成要素がそのサイズや複雑さ、セキュリティ要件、または頻繁な更新の必要性により、通常のプロパティとして適切に扱うことが難しい場合があります。シングルトンサブリソースを利用することで、これらの構成要素を独立したエンティティとして設計し、それぞれに適した管理方法を適用することが可能になります。
 
+以下にGoogleが出しているシングルトンサブリソースの記事を示します。
 https://cloud.google.com/apis/design/design_patterns?hl=ja#singleton_resources
 
-### 対象とする問題
-API設計時、リソースの構成要素がプロパティに適しているにもかかわらず、通常のプロパティとして扱えない場合があります。 以下のような事例はその最たる例です。
-
-#### サイズや複雑さ
-単一の構成要素がリソース全体よりも大きく複雑になる場合、リソースから分離するべきです。例えば、大きなバイナリオブジェクトの保存では、バイナリデータをメタデータと共に保持することは少ないです。
-
-#### セキュリティ
-リソースの一部が異なるアクセス制限を必要とする場合、それをリソースから完全に分離することが重要です。例えば、従業員データのAPIでは、報酬情報が一般的な情報よりも厳格なアクセス制限を受ける可能性があります。
-
-#### ボラティリティ
-リソースの特定構成要素が通常と異なるアクセスパターンを持つ場合、頻繁に更新される要素は他と分離し、独立して更新できるようにするべきです。例えば、ライドシェアのAPIでドライバーの位置情報は頻繁に更新されますが、ナンバープレートなどの情報はそうではありません。
-
-### 問題点
-シングルトンサブリソースを導入すると、リソースとサブリソースをアトミックに操作することができなくなる場合があります。これは、サブリソースを独立させることにより、親リソースと同時に操作することが難しくなるためです。
-
 ### 実装例
-以下は、ライドシェアリングサービスのAPIにおけるシングルトンサブリソースの実装例です。`RideSharingApi` 抽象クラスを用いて、ドライバーの詳細情報や位置情報の取得・更新を行います。具体的には、ドライバーの情報とその位置情報を別々に管理するエンドポイントを提供しています。
+以下は、シングルトンサブリソースを扱うAPIの実装例です。`RideSharingApi` 抽象クラスは、ドライバーの基本情報の取得・更新メソッドと、位置情報の取得・更新メソッドを別々に提供します。これにより、ドライバーの位置情報などの頻繁に変更されるデータを効率的に管理し、更新することが可能になります。
 
-```typescript
-abstract class RideSharingApi {
-  @get("/{id=drivers/*}")
-  abstract GetDriver(req: GetDriverRequest): Driver;
-
-  @patch("/{resource.id=drivers/*}")
-  abstract UpdateDriver(req: UpdateDriverRequest): Driver;
-
-  @get("/{id=drivers/*/location}")
-  abstract GetDriverLocation(req: GetDriverLocationRequest): DriverLocation;
-
-  @patch("/{resource.id=drivers/*/location}")
-  abstract UpdateDriverLocation(req: UpdateDriverLocationRequest): DriverLocation;
-}
-
-interface Driver {
-  id: string;
-  name: string;
-  licensePlate: string;
-}
-
-interface DriverLocation {
-  id: string;
-  lat: number;
-  long: number;
-  updateTime: Date;
-}
-
-interface GetDriverLocationRequest {
-  id: string;
-}
-
-interface UpdateDriverLocationRequest {
-  resource: DriverLocation;
-  fieldMask: FieldMask;
-}
-```
+※ デザインパターンのコードを引用しています。
+> ```typescript
+> abstract class RideSharingApi {
+>   @get("/{id=drivers/*}")
+>   abstract GetDriver(req: GetDriverRequest): Driver;
+> 
+>   @patch("/{resource.id=drivers/*}")
+>   abstract UpdateDriver(req: UpdateDriverRequest): Driver;
+> 
+>   @get("/{id=drivers/*/location}")
+>   abstract GetDriverLocation(req: GetDriverLocationRequest): DriverLocation;
+> 
+>   @patch("/{resource.id=drivers/*/location}")
+>   abstract UpdateDriverLocation(req: UpdateDriverLocationRequest): DriverLocation;
+> }
+> 
+> interface Driver {
+>   id: string;
+>   name: string;
+>   licensePlate: string;
+> }
+> 
+> interface DriverLocation {
+>   id: string;
+>   lat: number;
+>   long: number;
+>   updateTime: Date;
+> }
+> 
+> interface GetDriverLocationRequest {
+>   id: string;
+> }
+> 
+> interface UpdateDriverLocationRequest {
+>   resource: DriverLocation;
+>   fieldMask: FieldMask;
+> }
+> ```
 
 # おわりに
 これまで、良いAPIの本質とその実現に役立つデザインパターンについて紹介してきました。
