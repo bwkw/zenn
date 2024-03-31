@@ -98,60 +98,56 @@ https://cloud.google.com/apis/design/custom_methods?hl=ja
 
 ## ロングランオペレーション（Long Running Operations, LRO）
 ### 概要
-LROは、完了までに時間がかかる処理を指し、現代のプログラミング言語では非同期動作を通じてこれをサポートしています。これにより、時間を要する処理を行いつつ、他の作業を同時に進めることができます。非同期処理では、作業の開始時にプレースホルダーを返し、作業完了時には結果と共にプレースホルダーを「解決」するか、エラー発生時に「拒否」します。これにより、結果を非同期に処理したり、結果が返されるまで待機したりすることが可能です。
+LROは、完了までに時間がかかる処理を指し、これを非同期動作を通じてサポートしています。特に、APIが複雑な作業や大量のデータを扱う場合、通常のAPI設計では迅速な操作と時間を要する操作の間で一貫性を保つことが難しくなります。このような時間がかかる処理を行う場合、非同期処理を利用して、作業の開始時にプレースホルダーを返し、作業完了時には結果と共にプレースホルダーを「解決」するか、エラー発生時に「拒否」します。
 
+以下にGoogleが出しているLROの記事を示します。
 https://cloud.google.com/translate/docs/advanced/long-running-operation?hl=ja
 
-### 対象とする問題
-APIが複雑な作業や大量のデータを扱う場合、簡単なAPI設計では迅速な操作と時間を要する操作の間で一貫性を保つことが困難です。そのため、時間がかかる作業は特別な取り扱いが必要になります。
-
-### 問題点
-ロングランオペレーション（LRO）の管理には、操作の進行状況を監視する過程が複雑化する可能性があります。APIがデータを処理するにあたり、ユーザーは進捗に関する定期的な更新を求めます。しかしながら、プロセスがクラッシュしたり、ネットワークが切断されたりするなど、何らかの理由で接続が失われた場合、既存の進捗情報へのアクセスが困難になり、進行状況の監視を再開することが難しくなります。
-
 ### 実装例
-以下は、LROを扱うAPIの実装例です。この例では、 `ChatRoomApi` 抽象クラスを利用して、進行中の操作の状態を取得する方法と、必要に応じて操作をキャンセルする方法を紹介します。LROを管理するためには、`Operation` リソースの定義が不可欠です。このプロセスには、`Operation` オブジェクトの生成、進行状態の追跡、そして操作の一時停止、再開、キャンセルを可能にするメソッドが含まれます。示されているコードスニペットは、これらの機能の一部を実装する方法を示しています。
+以下は、LROを扱うAPIの実装例です。この例では、 `ChatRoomApi` 抽象クラスを利用して、進行中の操作の状態を取得する方法と、必要に応じて操作をキャンセルする方法を紹介します。この実装では、 `Operation` リソースを用いて操作の管理と状態の追跡を効率的に行います。
 
-```typescript
-abstract class ChatRoomApi {
-  @get("/{id=operations/*}")
-  abstract GetOperation<ResultT, MetadataT>(req: GetOperationRequest):
-    Operation<ResultT, MetadataT>;
-
-  @get("/{id=operations/*}:wait")
-  abstract WaitOperation<ResultT, MetadataT>(req: WaitOperationRequest):
-    Operation<ResultT, MetadataT>;
-
-  @post("/{id=operations/*}:cancel")
-  abstract CancelOperation<ResultT, MetadataT>(req: CancelOperationRequest):
-    Operation<ResultT, MetadataT>;
-}
-
-interface Operation<ResultT, MetadataT> {
-  id: string;
-  done: boolean;
-  expireTime: Date;
-  result?: ResultT | OperationError;
-  metadata?: MetadataT;
-}
-
-interface OperationError {
-  code: string;
-  message: string;
-  details?: any;
-}
-
-interface GetOperationRequest {
-  id: string;
-}
-
-interface WaitOperationRequest {
-  id: string;
-}
-
-interface CancelOperationRequest {
-  id: string;
-}
-```
+※ デザインパターンのコードを引用しています。
+> ```typescript
+> abstract class ChatRoomApi {
+>   @get("/{id=operations/*}")
+>   abstract GetOperation<ResultT, MetadataT>(req: GetOperationRequest):
+>     Operation<ResultT, MetadataT>;
+> 
+>   @get("/{id=operations/*}:wait")
+>   abstract WaitOperation<ResultT, MetadataT>(req: WaitOperationRequest):
+>     Operation<ResultT, MetadataT>;
+> 
+>   @post("/{id=operations/*}:cancel")
+>   abstract CancelOperation<ResultT, MetadataT>(req: CancelOperationRequest):
+>     Operation<ResultT, MetadataT>;
+> }
+> 
+> interface Operation<ResultT, MetadataT> {
+>   id: string;
+>   done: boolean;
+>   expireTime: Date;
+>   result?: ResultT | OperationError;
+>   metadata?: MetadataT;
+> }
+> 
+> interface OperationError {
+>   code: string;
+>   message: string;
+>   details?: any;
+> }
+> 
+> interface GetOperationRequest {
+>   id: string;
+> }
+> 
+> interface WaitOperationRequest {
+>   id: string;
+> }
+> 
+> interface CancelOperationRequest {
+>   id: string;
+> }
+> ```
 
 ## 再実行可能ジョブ
 ### 概要
