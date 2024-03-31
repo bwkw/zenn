@@ -72,7 +72,7 @@ RESTの設計は以下の四つの基本原則に基づいています。
 ### 概要
 カスタムメソッドは、標準的なCRUD操作（作成、読み取り、更新、削除）では対応できない特定の操作が必要になる場合に便利です。例えば、メールの送信や即時の文書翻訳など、通常の `create` や `update` メソッドでは処理が難しい操作がこれに該当します。
 
-以下にGoogleが出しているカスタムメソッドの記事を示します。
+参考までに、以下にGoogleが出しているカスタムメソッドの記事を示します。
 https://cloud.google.com/apis/design/custom_methods?hl=ja
 
 ### 実装例
@@ -96,11 +96,11 @@ https://cloud.google.com/apis/design/custom_methods?hl=ja
 > }
 > ```
 
-## ロングランオペレーション（Long Running Operations, LRO）
+## ロングランオペレーション (Long Running Operations, LRO)
 ### 概要
 LROは、完了までに時間がかかる処理を指し、これを非同期動作を通じてサポートしています。特に、APIが複雑な作業や大量のデータを扱う場合、通常のAPI設計では迅速な操作と時間を要する操作の間で一貫性を保つことが難しくなります。このような時間がかかる処理を行う場合、非同期処理を利用して、作業の開始時にプレースホルダーを返し、作業完了時には結果と共にプレースホルダーを「解決」するか、エラー発生時に「拒否」します。
 
-以下にGoogleが出しているLROの記事を示します。
+参考までに、以下にGoogleが出しているLROの記事を示します。
 https://cloud.google.com/translate/docs/advanced/long-running-operation?hl=ja
 
 ### 実装例
@@ -153,7 +153,7 @@ https://cloud.google.com/translate/docs/advanced/long-running-operation?hl=ja
 ### 概要
 再実行可能ジョブは、APIの使用においてオンデマンドメソッドの実行や定期的な自動実行のニーズに対応します。設定と実行の権限を分けることで、開発者と運用チーム間の権限分離が可能になり、外部システムを必要とせずにAPI自身でスケジュール設定しメソッドを実行できるようになります。これにより、APIはよりシンプルかつ安全な操作を実現しますが、ジョブのライフサイクル管理（作成、実行、監視、再実行など）の組み込みによりシステムの複雑さが増すという問題が伴います。
 
-以下にGoogleが出している再実行可能ジョブの記事を示します。
+参考までに、以下にGoogleが出している再実行可能ジョブの記事を示します。
 https://cloud.google.com/dataproc/docs/concepts/jobs/restartable-jobs?hl=ja
 
 ### 実装例
@@ -204,7 +204,7 @@ https://cloud.google.com/dataproc/docs/concepts/jobs/restartable-jobs?hl=ja
 ### 概要
 API設計において、リソースの特定の構成要素がそのサイズや複雑さ、セキュリティ要件、または頻繁な更新の必要性により、通常のプロパティとして適切に扱うことが難しい場合があります。シングルトンサブリソースを利用することで、これらの構成要素を独立したエンティティとして設計し、それぞれに適した管理方法を適用することが可能になります。
 
-以下にGoogleが出しているシングルトンサブリソースの記事を示します。
+参考までに、以下にGoogleが出しているシングルトンサブリソースの記事を示します。
 https://cloud.google.com/apis/design/design_patterns?hl=ja#singleton_resources
 
 ### 実装例
