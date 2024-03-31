@@ -70,34 +70,31 @@ RESTの設計は以下の四つの基本原則に基づいています。
 
 ## カスタムメソッド
 ### 概要
-カスタムメソッドは、APIで標準メソッドの範囲を超える特定の操作を行うために使用されます。これらは、標準メソッドの厳格なルールに従う必要がなく、柔軟に対応できるため、特定のケースに適したアプローチを取ることが可能です。ただし、API利用者がカスタムメソッドに対して標準メソッドと同じような予測をしにくいため、API全体の一貫性を保つことが重要です。
+カスタムメソッドは、標準的なCRUD操作（作成、読み取り、更新、削除）では対応できない特定の操作が必要になる場合に便利です。例えば、メールの送信や即時の文書翻訳など、通常の `create` や `update` メソッドでは処理が難しい操作がこれに該当します。
 
+以下にGoogleが出しているカスタムメソッドの記事を示します。
 https://cloud.google.com/apis/design/custom_methods?hl=ja
 
-### 対象とする問題
-多くのAPIで、標準メソッドでは対応できない特定の操作が必要になる場合があります。メールの送信や即時の文書翻訳など、通常の `create` や `update` メソッドでは処理しづらい操作がこれに該当します。
-
-### 問題点
-カスタムメソッドは適切なリソース構成があれば標準メソッドでも実現できる操作を提供しますが、リソース設計を不適切にするか、過度に使用することでAPIの設計が劣化するリスクがあります。
-
 ### 実装例
-以下は、メールサービスAPIでカスタムメソッドを実装する例です。`EmailApi` 抽象クラスを介して、特定のユーザーにメールを送信する方法を示しています。
+以下は、カスタムメソッドを扱うAPIの実装例です。`EmailApi` 抽象クラスを介して、特定のユーザーにメールを送信する方法を示しています。
+この例の注目点は、エンドポイントの定義における:sendの使用です。ここでの `:send` は、カスタムメソッドの命名規則を示しており、標準的なHTTPメソッド（GET、POSTなど）に対する補足的な操作を表します。
 
-```typescript
-abstract class EmailApi {
-  @post("/{id=users/*emails/*}:send")
-  abstract SendEmail(req: SendEmailRequest): Email;
-}
-
-interface Email {
-  id: string;
-  subject: string;
-  content: string;
-  state: string;
-  deleted: boolean;
-  // ...
-}
-```
+※ デザインパターンのコードを引用しています。
+> ```typescript
+> abstract class EmailApi {
+>   @post("/{id=users/*emails/*}:send")
+>   abstract SendEmail(req: SendEmailRequest): Email;
+> }
+> 
+> interface Email {
+>   id: string;
+>   subject: string;
+>   content: string;
+>   state: string;
+>   deleted: boolean;
+>   // ...
+> }
+> ```
 
 ## ロングランオペレーション（Long Running Operations, LRO）
 ### 概要
