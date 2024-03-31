@@ -151,64 +151,54 @@ https://cloud.google.com/translate/docs/advanced/long-running-operation?hl=ja
 
 ## 再実行可能ジョブ
 ### 概要
-再実行可能ジョブは、APIのオンデマンド実行機能を初期設定と実行の二つの主要なステップに分ける特別なリソースです。従来のAPIメソッドでは、メソッド呼び出し時に必要な設定を提供し、即座に処理が行われます。一方、再実行可能ジョブでは、処理を実行するための設定を使ってジョブをまず作成し、次に `run` というカスタムメソッドで実際の処理を行います。
+再実行可能ジョブは、APIの使用においてオンデマンドメソッドの実行や定期的な自動実行のニーズに対応します。設定と実行の権限を分けることで、開発者と運用チーム間の権限分離が可能になり、外部システムを必要とせずにAPI自身でスケジュール設定しメソッドを実行できるようになります。これにより、APIはよりシンプルかつ安全な操作を実現しますが、ジョブのライフサイクル管理（作成、実行、監視、再実行など）の組み込みによりシステムの複雑さが増すという問題が伴います。
 
+以下にGoogleが出している再実行可能ジョブの記事を示します。
 https://cloud.google.com/dataproc/docs/concepts/jobs/restartable-jobs?hl=ja
 
-### 対象とする問題
-クライアントがAPIメソッドを非同期に呼び出す必要があるという前提のもと、前述のLROでは解決しない場合があります。以下のような事例はその最たる例です。
-
-#### オンデマンドメソッドの実行
-設定と実行の権限を分ける必要性が生じ、特に開発者と運用チームの間で権限を区別する場合に有用です。
-
-#### 定期的な自動実行の要望
-APIが自身でスケジュールを設定し、外部システムなしでメソッドを実行できるようにすることで、シンプルかつ安全な操作を可能にします。
-
-### 問題点
-ジョブのライフサイクル管理（作成、実行、監視、再実行など）をAPIに組み込むことで、システムの複雑さが増します。
-
 ### 実装例
-以下は、 `ChatRoomApi` 抽象クラスを利用した再実行可能ジョブのAPI実装例です。ジョブの定義と、実行用のカスタム `run` メソッドを備えています。`CreateAnalyzeChatRoomJob` で分析ジョブを設定し、`RunAnalyzeChatRoomJob` で非同期にメッセージ分析を実行します。
+以下は、再実行可能ジョブのAPI実装例です。この例では、メッセージ分析を目的としたジョブの設定(`CreateAnalyzeChatRoomJob`)と、非同期にそのジョブを実行するためのカスタムrunメソッド(`RunAnalyzeChatRoomJob`)を利用しています。
 
-```typescript
-abstract class ChatRoomApi {
-  @post("/analyzeChatRoomJobs")
-  abstract CreateAnalyzeChatRoomJob(req: CreateAnalyzeChatRoomJobRequest):
-    AnalyzeChatRoomJob;
-
-  @post("/{id=analyzeChatRoomJobs/*}:run")
-  abstract RunAnalyzeChatRoomJob(req: RunAnalyzeChatRoomJobRequest):
-    Operation<AnalyzeChatRoomJobExecution, RunAnalyzeChatRoomJobMetadata>;
-}
-
-interface CreateAnalyzeChatRoomJobRequest {
-  resource: AnalyzeChatRoomJob;
-}
-
-interface AnalyzeChatRoomJob {
-  id: string;
-  chatRoom: string;
-  destination: string;
-  compressionFormat: string;
-}
-
-interface RunAnalyzeChatRoomJobRequest {
-  id: string;
-}
-
-interface AnalyzeChatRoomJobExecution {
-  id: string;
-  job: AnalyzeChatRoomJob;
-  sentenceComplexity: number;
-  sentiment: number;
-  abuseScore: number;
-}
-
-interface RunAnalyzeChatRoomJobMetadata {
-  messagesProcessed: number;
-  messagesCounted: number;
-}
-```
+※ デザインパターンのコードを引用しています。
+> ```typescript
+> abstract class ChatRoomApi {
+>   @post("/analyzeChatRoomJobs")
+>   abstract CreateAnalyzeChatRoomJob(req: CreateAnalyzeChatRoomJobRequest):
+>     AnalyzeChatRoomJob;
+> 
+>   @post("/{id=analyzeChatRoomJobs/*}:run")
+>   abstract RunAnalyzeChatRoomJob(req: RunAnalyzeChatRoomJobRequest):
+>     Operation<AnalyzeChatRoomJobExecution, RunAnalyzeChatRoomJobMetadata>;
+> }
+> 
+> interface CreateAnalyzeChatRoomJobRequest {
+>   resource: AnalyzeChatRoomJob;
+> }
+> 
+> interface AnalyzeChatRoomJob {
+>   id: string;
+>   chatRoom: string;
+>   destination: string;
+>   compressionFormat: string;
+> }
+> 
+> interface RunAnalyzeChatRoomJobRequest {
+>   id: string;
+> }
+> 
+> interface AnalyzeChatRoomJobExecution {
+>   id: string;
+>   job: AnalyzeChatRoomJob;
+>   sentenceComplexity: number;
+>   sentiment: number;
+>   abuseScore: number;
+> }
+> 
+> interface RunAnalyzeChatRoomJobMetadata {
+>   messagesProcessed: number;
+>   messagesCounted: number;
+> }
+> ```
 
 ## シングルトンサブリソース
 ### 概要
