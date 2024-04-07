@@ -116,41 +116,41 @@ LROは、完了までに時間がかかる処理を指し、デザインパタ�
 > abstract class ChatRoomApi {
 >   @get("/{id=operations/*}")
 >   abstract GetOperation<ResultT, MetadataT>(req: GetOperationRequest):
->     Operation<ResultT, MetadataT>;
+>     Operation<ResultT, MetadataT>;  // 指定されたIDを持つ操作の現在の状態を取得
 > 
 >   @get("/{id=operations/*}:wait")
 >   abstract WaitOperation<ResultT, MetadataT>(req: WaitOperationRequest):
->     Operation<ResultT, MetadataT>;
+>     Operation<ResultT, MetadataT>;  // 指定されたIDを持つ操作が完了するまで待機する
 > 
 >   @post("/{id=operations/*}:cancel")
 >   abstract CancelOperation<ResultT, MetadataT>(req: CancelOperationRequest):
->     Operation<ResultT, MetadataT>;
+>     Operation<ResultT, MetadataT>;  // 指定されたIDを持つ進行中の操作をキャンセルする
 > }
 > 
-> interface Operation<ResultT, MetadataT> {
->   id: string;
->   done: boolean;
->   expireTime: Date;
->   result?: ResultT | OperationError;
->   metadata?: MetadataT;
+> interface Operation<ResultT, MetadataT> {  // プレースホルダー
+>   id: string;                              // ID 
+>   done: boolean;                           // 操作の完了を表すフラグ
+>   expireTime: Date;                        // 操作が期限切れになる時刻
+>   result?: ResultT | OperationError;       // 操作の結果（未完了の場合は設定されない）
+>   metadata?: MetadataT;                    // 操作に関する追加情報
 > }
 > 
-> interface OperationError {
->   code: string;
->   message: string;
->   details?: any;
+> interface OperationError {  // エラー
+>   code: string;             // ステータスコード
+>   message: string;          // エラーメッセージ
+>   details?: any;            // エラー詳細
 > }
 > 
-> interface GetOperationRequest {
->   id: string;
+> interface GetOperationRequest {  // 指定されたIDを持つ操作の現在の状態を取得するリクエスト
+>   id: string;                    // ID
 > }
 > 
-> interface WaitOperationRequest {
->   id: string;
+> interface WaitOperationRequest {  // 指定されたIDを持つ操作が完了するまで待機するリクエスト
+>   id: string;                     // ID
 > }
 > 
-> interface CancelOperationRequest {
->   id: string;
+> interface CancelOperationRequest {  // 指定されたIDを持つ進行中の操作をキャンセルするリクエスト
+>   id: string;                       // ID
 > }
 > ```
 
