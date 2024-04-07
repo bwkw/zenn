@@ -168,39 +168,39 @@ LROは、完了までに時間がかかる処理を指し、デザインパタ�
 > abstract class ChatRoomApi {
 >   @post("/analyzeChatRoomJobs")
 >   abstract CreateAnalyzeChatRoomJob(req: CreateAnalyzeChatRoomJobRequest):
->     AnalyzeChatRoomJob;
+>     AnalyzeChatRoomJob;  // チャットルーム分析ジョブを作成する 
 > 
 >   @post("/{id=analyzeChatRoomJobs/*}:run")
 >   abstract RunAnalyzeChatRoomJob(req: RunAnalyzeChatRoomJobRequest):
->     Operation<AnalyzeChatRoomJobExecution, RunAnalyzeChatRoomJobMetadata>;
+>     Operation<AnalyzeChatRoomJobExecution, RunAnalyzeChatRoomJobMetadata>;  // 指定されたIDのチャットルームの分析ジョブを実行する
 > }
 > 
-> interface CreateAnalyzeChatRoomJobRequest {
->   resource: AnalyzeChatRoomJob;
+> interface CreateAnalyzeChatRoomJobRequest {  // チャットルーム分析ジョブを作成するリクエスト
+>   resource: AnalyzeChatRoomJob;              // チャットルーム分析ジョブの設定
 > }
 > 
-> interface AnalyzeChatRoomJob {
->   id: string;
->   chatRoom: string;
->   destination: string;
->   compressionFormat: string;
+> interface AnalyzeChatRoomJob {  // チャットルーム分析ジョブの設定
+>   id: string;                   // ID
+>   chatRoom: string;             // 分析するチャットルーム
+>   destination: string;          // 結果の保存先
+>   compressionFormat: string;    // 圧縮形式
 > }
 > 
-> interface RunAnalyzeChatRoomJobRequest {
->   id: string;
+> interface RunAnalyzeChatRoomJobRequest {  // 指定されたIDのチャットルームの分析ジョブを実行するリクエスト
+>   id: string;                             // ID
 > }
 > 
-> interface AnalyzeChatRoomJobExecution {
->   id: string;
->   job: AnalyzeChatRoomJob;
->   sentenceComplexity: number;
->   sentiment: number;
->   abuseScore: number;
+> interface AnalyzeChatRoomJobExecution {  // チャットルーム分析ジョブの実行結果
+>   id: string;                            // ID
+>   job: AnalyzeChatRoomJob;               // チャットルーム分析ジョブの設定
+>   sentenceComplexity: number;            // 文章の複雑さ
+>   sentiment: number;                     // 感情分析のスコア
+>   abuseScore: number;                    // 虐待スコア
 > }
 > 
-> interface RunAnalyzeChatRoomJobMetadata {
->   messagesProcessed: number;
->   messagesCounted: number;
+> interface RunAnalyzeChatRoomJobMetadata {  // チャットルーム分析ジョブの実行結果の追加情報
+>   messagesProcessed: number;               // 処理されたメッセージの総数
+>   messagesCounted: number;                 // 分析対象のメッセージの総数
 > }
 > ```
 
