@@ -215,38 +215,39 @@ API設計において、リソースの特定のプロパティがそのサイ�
 > ```typescript
 > abstract class RideSharingApi {
 >   @get("/{id=drivers/*}")
->   abstract GetDriver(req: GetDriverRequest): Driver;
+>   abstract GetDriver(req: GetDriverRequest): Driver;  // ドライバーの情報を取得する
 > 
 >   @patch("/{resource.id=drivers/*}")
->   abstract UpdateDriver(req: UpdateDriverRequest): Driver;
+>   abstract UpdateDriver(req: UpdateDriverRequest): Driver;  // ドライバーの情報を更新する
 > 
 >   @get("/{id=drivers/*/location}")
->   abstract GetDriverLocation(req: GetDriverLocationRequest): DriverLocation;
+>   abstract GetDriverLocation(req: GetDriverLocationRequest): DriverLocation;  // ドライバーの位置情報を取得する
 > 
 >   @patch("/{resource.id=drivers/*/location}")
->   abstract UpdateDriverLocation(req: UpdateDriverLocationRequest): DriverLocation;
+>   abstract UpdateDriverLocation(req: UpdateDriverLocationRequest): DriverLocation;  // ドライバーの位置情報を更新する
+> 
 > }
 > 
-> interface Driver {
->   id: string;
->   name: string;
->   licensePlate: string;
+> interface Driver {       // ドライバー 
+>   id: string;            // ID
+>   name: string;          // 名前
+>   licensePlate: string;  // ナンバープレート
 > }
 > 
-> interface DriverLocation {
->   id: string;
->   lat: number;
->   long: number;
->   updateTime: Date;
+> interface DriverLocation {  // ドライバーの位置情報
+>   id: string;               // ID
+>   lat: number;              // 緯度 
+>   long: number;             // 経度
+>   updateTime: Date;         // 位置情報の最終更新時間
 > }
 > 
-> interface GetDriverLocationRequest {
->   id: string;
+> interface GetDriverLocationRequest {  // ドライバーの位置情報を取得するリクエスト
+>   id: string;                         // ID
 > }
 > 
-> interface UpdateDriverLocationRequest {
->   resource: DriverLocation;
->   fieldMask: FieldMask;
+> interface UpdateDriverLocationRequest {  // ドライバーの位置情報を更新するリクエスト 
+>   resource: DriverLocation;              // 更新するドライバーの位置情報
+>   fieldMask: FieldMask;                  // 更新するフィールドを指定するマスク
 > }
 > ```
 
