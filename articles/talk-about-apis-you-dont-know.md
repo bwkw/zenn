@@ -78,21 +78,23 @@ RESTの設計は以下の四つの基本原則に基づいています。
 https://cloud.google.com/apis/design/custom_methods?hl=ja
 
 ### 実装例
-以下は、カスタムメソッドを扱うAPIの実装例です。`EmailApi` 抽象クラスを介して、特定のユーザーにメールを送信する方法を示しています。 この例の注目点は、エンドポイントの定義における `:send` の使用です。ここでの `:send` は、カスタムメソッドの命名規則を示しており、標準的なHTTPメソッド（GET、POSTなど）に対する補足的な操作を表します。
+以下は、カスタムメソッドを扱うAPIの実装例です。`EmailApi`抽象クラスを介して、特定のユーザーにメールを送信する方法を示しています。 この例の注目点は、エンドポイントの定義における`:send`, `:unsend`の使用です。ここでの`:send`, `:unsend`は、カスタムメソッドの命名規則を示しており、標準的なHTTPメソッド（GET、POSTなど）に対する補足的な操作を表します。
 
 ※ デザインパターンのコードを引用しています。
 > ```typescript
 > abstract class EmailApi {
->   @post("/{id=users/*emails/*}:send")
->   abstract SendEmail(req: SendEmailRequest): Email;
+>   @post("/{id=users/*emails/*}:send")  // ここ
+>   abstract SendEmail(req: SendEmailRequest): Email;  // メールを送信する 
+>   
+>   @post("/{id=users/*/emails/*}:unsend")  // ここ
+>   abstract UnsendEmail(req: UnsendEmailRequest): Email;  // メール送信を中断する
 > }
 > 
-> interface Email {
->   id: string;
->   subject: string;
->   content: string;
->   state: string;
->   deleted: boolean;
+> interface Email {   // メール
+>   id: string;       // ID
+>   subject: string;  // 件名
+>   content: string;  // 本文
+>   state: string;    // 状態（draft(下書き), sent(送信), unsend(未送信)）  
 >   // ...
 > }
 > ```
