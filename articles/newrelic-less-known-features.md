@@ -29,5 +29,14 @@ https://zenn.dev/levtech/articles/908463b504ed75
 ## [ログ管理](https://docs.newrelic.com/docs/logs/get-started/get-started-log-management/)
 
 # 実はこんなことも出来る！
+## [Synthetic Monitors](https://docs.newrelic.com/docs/synthetics/synthetic-monitoring/using-monitors/intro-synthetic-monitoring/)
+
+## [Error Inbox](https://docs.newrelic.com/docs/apm/errors-inbox/errors-inbox-ui/)
+
+## [IAST](https://docs.newrelic.com/docs/iast/introduction/)
+
+## [CodeStream](https://docs.newrelic.com/docs/codestream/start-here/what-is-codestream/)
+
+## [AI Monitoring](https://docs.newrelic.com/docs/ai-monitoring/intro-to-ai-monitoring/)
 
 # おわりに
