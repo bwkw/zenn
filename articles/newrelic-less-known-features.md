@@ -18,7 +18,15 @@ https://zenn.dev/levtech/articles/908463b504ed75
 
 # そもそもNewRelicって？
 
-# 何が出来るの？
+# よく知られている機能たち
+## [APM](https://docs.newrelic.com/docs/apm/new-relic-apm/getting-started/introduction-apm/)
+個人的には、NewRelicの代名詞です。
+
+## [ブラウザ監視](https://docs.newrelic.com/docs/browser/browser-monitoring/getting-started/introduction-browser-monitoring/)
+
+## [インフラストラクチャ監視](https://docs.newrelic.com/docs/infrastructure/infrastructure-monitoring/get-started/get-started-infrastructure-monitoring/0)
+
+## [ログ管理](https://docs.newrelic.com/docs/logs/get-started/get-started-log-management/)
 
 # 実はこんなことも出来る！
 
