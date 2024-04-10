@@ -17,6 +17,9 @@ published: false
 https://zenn.dev/levtech/articles/908463b504ed75
 
 # そもそもNewRelicって？
+NewRelicは、アプリケーションとインフラのパフォーマンスをリアルタイムで監視するためのオールインワンオブザーバビリティプラットフォームです。
+
+オブザーバビリティとは、「**アウトプットからシステムをどれだけよく理解できるか？**」という能力を指し、システムのパフォーマンスや問題点をリアルタイムで可視化し、問題の早期発見と迅速な解決を可能にします。
 
 # よく知られている機能たち
 ## [APM](https://docs.newrelic.com/docs/apm/new-relic-apm/getting-started/introduction-apm/)
