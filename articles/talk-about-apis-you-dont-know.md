@@ -1,9 +1,10 @@
 ---
-title: "君たちの知らないAPIの話をしよう"
+title: "君たちの知らないAPIデザインパターンの話をしよう"
 emoji: "👺"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["API"]
-published: false
+published: true
+published_at: 2024-04-11 11:00
 publication_name: "levtech"
 ---
 
@@ -58,7 +59,7 @@ RESTの設計は以下の四つの基本原則に基づいています。
 | 目的          | エンドポイント                            | メソッド      |
 |-------------|------------------------------------|-----------|
 | ユーザの一覧取得    | http://api.example.com/users       | GET       |
-| ユーザの新起登録    | http://api.example.com/users       | POST      |
+| ユーザの新規登録    | http://api.example.com/users       | POST      |
 | 特定のユーザの情報取得 | http://api.example.com/users/:id	  | GET       |
 | ユーザの情報更新    | http://api.example.com/users/:id   | PUT/PATCH |
 | ユーザの情報の削除   | 	http://api.example.com/users/:id	 | DELETE    |
