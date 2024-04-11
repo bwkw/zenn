@@ -1,10 +1,10 @@
 ---
-title: "君たちの知らないAPIの話をしよう"
+title: "君たちの知らないAPIデザインパターンの話をしよう"
 emoji: "👺"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["API"]
 published: true
-published_at: 2024-04-12 11:00
+published_at: 2024-04-11 11:00
 publication_name: "levtech"
 ---
 
