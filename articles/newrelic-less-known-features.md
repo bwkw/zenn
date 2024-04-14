@@ -48,16 +48,29 @@ DevOpsの普及により、開発者はコードの開発だけでなく運用�
 上記2点の理由からも、「**オブザーバビリティ**」がビジネスとテクノロジーが成長する中で、今後も重要な役割を果たすことが伺えますね！
 
 # よく知られている機能たち
+これまで、「**オブザーバビリティ**」という考え方についてお話ししてきましたが、このセクションでは、一般的によく知られている（であろう）機能をいくつか紹介したいと思います！
+
 ## [APM](https://docs.newrelic.com/docs/apm/new-relic-apm/getting-started/introduction-apm/)
-個人的には、NewRelicの代名詞です。
+個人的には、NewRelicの代名詞で、「**オブザーバビリティ**」の真髄だと思っています。
+APM機能は、アプリケーションのパフォーマンスをリアルタイムで監視し、エンドユーザーに最高の体験を提供することを可能にします。アプリケーションのすべてのトランザクションを追跡し、エラー発生時の迅速な原因究明と修正を助けます。
 
 ## [ブラウザ監視](https://docs.newrelic.com/docs/browser/browser-monitoring/getting-started/introduction-browser-monitoring/)
+言わずもがなの機能ですね。従来の監視ツールでもお馴染みのやつですね。
+ブラウザ監視機能は、Webアプリケーションのフロントエンドのパフォーマンスを測定し、ユーザー体験を向上させるための詳細データを提供します。ページロード時間の分析からJavaScriptエラーの特定まで、フロントエンドの問題を詳細に把握できます。
 
 ## [インフラストラクチャ監視](https://docs.newrelic.com/docs/infrastructure/infrastructure-monitoring/get-started/get-started-infrastructure-monitoring/0)
+これも従来の監視ツールでもお馴染みのやつですね。
+インフラストラクチャ監視は、サーバー、仮想マシン、コンテナなどのリソースの健康状態を一元的に視覚化します。リソースの使用状況やパフォーマンスの変動を追跡し、システム全体の最適化を支援します。
 
 ## [ログ管理](https://docs.newrelic.com/docs/logs/get-started/get-started-log-management/)
+これも従来の監視ツールでもお馴染みのやつですね。
+ログ管理機能は、ログデータを集約し、検索や分析が容易な形で表示することで、問題の診断と解決を迅速化します。この機能により、複数のソースからのログデータを一元管理し、洞察を得ることができます。
 
-# 実はこんなことも出来る！
+:::message
+ここまで説明すると、「従来の監視ツールとほぼ一緒じゃない？」と思うかもしれないですが、NewRelicの「オブザーバビリティ」たる所以はこれらの機能の統合のされ方、利用のされ方にあります！
+:::
+
+# 実はこんな機能もあるんです
 ## [Synthetic Monitors](https://docs.newrelic.com/docs/synthetics/synthetic-monitoring/using-monitors/intro-synthetic-monitoring/)
 
 ## [Error Inbox](https://docs.newrelic.com/docs/apm/errors-inbox/errors-inbox-ui/)
