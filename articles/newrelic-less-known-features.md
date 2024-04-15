@@ -71,14 +71,22 @@ APM機能は、アプリケーションのパフォーマンスをリアルタ�
 :::
 
 # 実はこんな機能もあるんです
+NewRelicには前章で紹介したような基本的な監視機能に加えて、以下のような魅力的な機能が存在します。
+個人的には、これらの機能は従来の監視ツールではあまり見かけないもので、NewRelicの「**オブザーバビリティ**」の思想をより強く感じる機能のように思います！
+
 ## [Synthetic Monitors](https://docs.newrelic.com/docs/synthetics/synthetic-monitoring/using-monitors/intro-synthetic-monitoring/)
+Synthetic Monitorsは、実際のユーザーの行動をシミュレートしてウェブサイトやアプリケーションのパフォーマンスをテストする機能です。これにより、ユーザーに影響を与える前に問題を特定し、修正することが可能になります。
 
 ## [Error Inbox](https://docs.newrelic.com/docs/apm/errors-inbox/errors-inbox-ui/)
+Error Inboxは、アプリケーションのエラーを一箇所に集約し、チームが効率的にエラーを解析し、対応することを助ける機能です。このツールを使用することで、エラーの優先順位付け、割り当て、追跡が簡単になり、エラー対応のプロセスがスムーズになります。
 
 ## [IAST](https://docs.newrelic.com/docs/iast/introduction/)
+IAST（Interactive Application Security Testing）は、セキュリティの脆弱性をリアルタイムで検出するためのツールです。開発中のアプリケーションを対象に、動的な分析を行いながら、セキュリティリスクを特定し、修正を促します。
 
 ## [CodeStream](https://docs.newrelic.com/docs/codestream/start-here/what-is-codestream/)
+New Relic CodeStreamは、開発プロセスの初期段階でパフォーマンスやエラーに関する問題を特定し、対応を可能にするIDE拡張機能です。CodeStreamを利用することで、開発者はエラー、パフォーマンスの低下、サービスレベル目標（SLO）の違反などの問題をIDE内で直接確認できます。
 
 ## [AI Monitoring](https://docs.newrelic.com/docs/ai-monitoring/intro-to-ai-monitoring/)
+AI Monitoringは、機械学習を利用してシステムのデータを解析し、パフォーマンスの問題や異常を自動で識別します。このAI駆動のアプローチにより、問題の予典と対応がさらに早く、効率的に行われ、システムの安定性が向上します。
 
 # おわりに
