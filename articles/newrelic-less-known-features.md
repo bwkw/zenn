@@ -17,15 +17,19 @@ published: false
 
 先日、弊社の [tomo_nxn](https://zenn.dev/tomo_nxn) さんと一緒に、~~「New Relic 実践入門 第2版」(翔泳社、3410円)を無料でもらう目的で~~ 担当プロジェクトでNew Relicを活用していく目的で、「**New Relic ハンズオン for beginners**」というイベントに参加してきましたw
 
-この記事では、NewRelicの基本概念と重要性、なぜ最近これほどまでに注目されているのかを掘り下げつつ、基本的な機能およびこのイベントで知った魅力的な機能、さらには後から自分で調べて見つけた興味深い機能について紹介できたらと思います〜
-
-「イベント内容について特に触れないんかい！」と思ったそこのあなた、イベント内容については、[tomo_nxn](https://zenn.dev/tomo_nxn) さんがまとめてくださっているので、是非こちらを覗いてみてください！（宣伝）
+イベント内容については、[tomo_nxn](https://zenn.dev/tomo_nxn) さんがまとめてくださっているので、是非こちらを覗いてみてください！（宣伝）
 https://zenn.dev/levtech/articles/908463b504ed75
 
-# そもそもNewRelicって？
-NewRelicは、アプリケーションとインフラのパフォーマンスをリアルタイムで監視するためのオールインワンオブザーバビリティプラットフォームです。
+この記事では、NewRelicの基本概念と重要性、なぜ最近これほどまでに注目されているのかを掘り下げつつ、基本的な機能やこのイベントで知った魅力的な機能、および後から自分で調べて見つけた興味深い機能について紹介できたらと思います〜
 
-オブザーバビリティとは、「**アウトプットからシステムをどれだけよく理解できるか？**」という能力を指し、システムのパフォーマンスや問題点をリアルタイムで可視化し、問題の早期発見と迅速な解決を可能にします。
+:::message
+「NewRelicの基本的なことなんて知ってるよ💢」って方は[実はこんな機能もあるんやで](https://zenn.dev/levtech/articles/newrelic-less-known-features#%E5%AE%9F%E3%81%AF%E3%81%93%E3%82%93%E3%81%AA%E6%A9%9F%E8%83%BD%E3%82%82%E3%81%82%E3%82%8B%E3%82%93%E3%81%A7%E3%81%99)に飛んでください
+:::
+
+# そもそもNewRelicって？
+NewRelicは、アプリケーションとインフラのパフォーマンスをリアルタイムで監視するための「**オールインワンオブザーバビリティプラットフォーム**」です。
+
+オブザーバビリティとは、「**アウトプットからシステムをどれだけよく理解できるか？**」という能力を指します。この能力は、システムのパフォーマンスや問題点をリアルタイムで可視化し、問題の早期発見と迅速な解決を可能にしてくれます。
 
 # はいはい、つまり監視ツールね
 「はいはい、つまり監視ツールね」と思ったそこのあなた、少しお待ちを🖐️
@@ -43,13 +47,13 @@ NewRelicは、アプリケーションとインフラのパフォーマンスを
 # なぜ急にこんなにも注目を集めてるの？
 弊社でも最近NewRelicを導入する運びとなり、私はその時初めて「**オブザーバビリティ**」という概念を知ったのですが、正直「なんで急にこんなにも注目を集めているんだろう？」って疑問が湧きましたw 
 
-調べてみると、オブザーバビリティが注目を集めている理由は、主に以下の2点であるとされています。
+調べてみると、オブザーバビリティが注目を集めている理由は、主に以下の2点であるとされているようです。
 
-**1. システムの複雑性の増大**
-技術の進化とともにアーキテクチャが複雑化し、障害の原因を迅速に特定する必要が生まれています。
+1. システムの複雑性の増大
+技術の進化により、アーキテクチャが複雑化し、障害の原因特定が難しくなっています。これが復旧作業に多くの時間を要するため、迅速な問題解決が求められるようになりました。
 
-**2. 開発者の業務範囲の拡大**
-DevOpsの普及により、開発者はコードの開発だけでなく運用にも関与するようになりました。これにより、システムの継続的な監視と迅速な問題解決が求められています。
+2. 開発者の業務範囲の拡大 
+DevOpsの普及に伴い、開発者はコードの開発だけでなく、運用にも関与するようになりました。これにより、システムの継続的な監視と迅速な問題解決が一層重要になっています。
 
 上記2点の理由からも、「**オブザーバビリティ**」がビジネスとテクノロジーが成長する中で、今後も重要な役割を果たすことが伺えますね！
 
@@ -58,42 +62,60 @@ DevOpsの普及により、開発者はコードの開発だけでなく運用�
 
 ## [APM](https://docs.newrelic.com/docs/apm/new-relic-apm/getting-started/introduction-apm/)
 個人的には、NewRelicの代名詞で、「**オブザーバビリティ**」の真髄だと思っています。
+
 APM機能は、アプリケーションのパフォーマンスをリアルタイムで監視し、エンドユーザーに最高の体験を提供することを可能にします。アプリケーションのすべてのトランザクションを追跡し、エラー発生時の迅速な原因究明と修正を助けます。
+
+![apm](/images/newrelic_less_known_features/apm.png)
 
 ## [ブラウザ監視](https://docs.newrelic.com/docs/browser/browser-monitoring/getting-started/introduction-browser-monitoring/)
 言わずもがなの機能ですね。従来の監視ツールでもお馴染みのやつですね。
+
 ブラウザ監視機能は、Webアプリケーションのフロントエンドのパフォーマンスを測定し、ユーザー体験を向上させるための詳細データを提供します。ページロード時間の分析からJavaScriptエラーの特定まで、フロントエンドの問題を詳細に把握できます。
 
-## [インフラストラクチャ監視](https://docs.newrelic.com/docs/infrastructure/infrastructure-monitoring/get-started/get-started-infrastructure-monitoring/0)
+![browser](/images/newrelic_less_known_features/browser_monitoring.png)
+
+## [インフラストラクチャ監視](https://docs.newrelic.com/docs/infrastructure/infrastructure-monitoring/get-started/get-started-infrastructure-monitoring/)
 これも従来の監視ツールでもお馴染みのやつですね。
+
 インフラストラクチャ監視は、サーバー、仮想マシン、コンテナなどのリソースの健康状態を一元的に視覚化します。リソースの使用状況やパフォーマンスの変動を追跡し、システム全体の最適化を支援します。
+
+![infrastructure](/images/newrelic_less_known_features/infrastructure_monitoring.png)
 
 ## [ログ管理](https://docs.newrelic.com/docs/logs/get-started/get-started-log-management/)
 これも従来の監視ツールでもお馴染みのやつですね。
+
 ログ管理機能は、ログデータを集約し、検索や分析が容易な形で表示することで、問題の診断と解決を迅速化します。この機能により、複数のソースからのログデータを一元管理し、洞察を得ることができます。
+
+![logs](/images/newrelic_less_known_features/logs_management.png)
 
 :::message
 ここまで説明すると、「従来の監視ツールとほぼ一緒じゃない？」と思うかもしれないですが、NewRelicの「オブザーバビリティ」たる所以はこれらの機能の統合のされ方、利用のされ方にあります！
 :::
 
-# 実はこんな機能もあるんです
-NewRelicには前章で紹介したような基本的な監視機能に加えて、以下のような魅力的な機能が存在します。
+# 実はこんな機能もあるんやで
+NewRelicには前章で紹介したような基本的な監視機能に加えて、以下のような魅力的な機能が存在します！
+
 個人的には、これらの機能は従来の監視ツールではあまり見かけないもので、NewRelicの「**オブザーバビリティ**」の思想をより強く感じる機能のように思います！
 
-## [Synthetic Monitors](https://docs.newrelic.com/docs/synthetics/synthetic-monitoring/using-monitors/intro-synthetic-monitoring/)
+## [Synthetic Monitors](https://docs.newrelic.com/docs/synthetics/synthetic-monitoring/getting-started/get-started-synthetic-monitoring/)
 Synthetic Monitorsは、実際のユーザーの行動をシミュレートしてウェブサイトやアプリケーションのパフォーマンスをテストする機能です。これにより、ユーザーに影響を与える前に問題を特定し、修正することが可能になります。
 
-## [Error Inbox](https://docs.newrelic.com/docs/apm/errors-inbox/errors-inbox-ui/)
+![synthetic](/images/newrelic_less_known_features/synthetic_monitors.png)
+
+## [Errors Inbox](https://docs.newrelic.com/docs/errors-inbox/getting-started/)
 Error Inboxは、アプリケーションのエラーを一箇所に集約し、チームが効率的にエラーを解析し、対応することを助ける機能です。このツールを使用することで、エラーの優先順位付け、割り当て、追跡が簡単になり、エラー対応のプロセスがスムーズになります。
+
+![errors_inbox](/images/newrelic_less_known_features/errors_inbox.png)
 
 ## [IAST](https://docs.newrelic.com/docs/iast/introduction/)
 IAST（Interactive Application Security Testing）は、セキュリティの脆弱性をリアルタイムで検出するためのツールです。開発中のアプリケーションを対象に、動的な分析を行いながら、セキュリティリスクを特定し、修正を促します。
 
+![iast](/images/newrelic_less_known_features/iast.png)
+
 ## [CodeStream](https://docs.newrelic.com/docs/codestream/start-here/what-is-codestream/)
 New Relic CodeStreamは、開発プロセスの初期段階でパフォーマンスやエラーに関する問題を特定し、対応を可能にするIDE拡張機能です。CodeStreamを利用することで、開発者はエラー、パフォーマンスの低下、サービスレベル目標（SLO）の違反などの問題をIDE内で直接確認できます。
 
-## [AI Monitoring](https://docs.newrelic.com/docs/ai-monitoring/intro-to-ai-monitoring/)
-AI Monitoringは、機械学習を利用してシステムのデータを解析し、パフォーマンスの問題や異常を自動で識別します。このAI駆動のアプローチにより、問題の予典と対応がさらに早く、効率的に行われ、システムの安定性が向上します。
+![code_stream](/images/newrelic_less_known_features/code_stream.png)
 
 # おわりに
 NewRelicについて長らくお話ししてきましたが、弊社も導入したてですし、僕もまだまだ知らないことばかりです。
