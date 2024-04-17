@@ -1,5 +1,5 @@
 ---
-title: "NewRelicのあまり知られていないであろう機能に迫る"
+title: "我々はまだ知らなかった。NewRelicの真の姿を"
 emoji: "🔭"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["newrelic"]
