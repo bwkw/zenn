@@ -100,3 +100,8 @@ NewRelicについて長らくお話ししてきましたが、弊社も導入し
 ただ、NewRelicは、きっと弊社の、そして担当システムの運用コストを下げ、よりよくしていくためのパートナーになってくれるはずです！
 
 今後導入を進めていく中で、多くの成功と失敗があるかと思います。その辺りもいずれ記事に書こう(誰かが描いてくれるはずw)と思うので、その辺りが気になる方は是非弊社テックブログをwatchしててくださいね〜
+
+# 参考文献
+https://newrelic.com/jp/blog/best-practices/what-is-observability
+https://newrelic.com/jp/blog/best-practices/what-is-observability-difference-from-debugging
+https://newrelic.com/jp/blog/best-practices/what-is-observability-difference-from-monitoring
