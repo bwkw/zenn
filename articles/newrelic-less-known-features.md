@@ -10,8 +10,8 @@ publication_name: "levtech"
 # TL;DR
 - NewRelicは、ただの「監視ツール」じゃなく「**オールインワンオブザーバビリティプラットフォーム**」である
 - NewRelicが掲げている「**オブザーバビリティ**」というコンセプトは近年特に多くの注目を集めている
-- 「APM」、「ブラウザ監視」、「インフラストラクチャ監視」、「ログ管理」とかは比較的よく知られている機能
-- 「Synthetic Monitors」、「Error Inbox」、「IAST」、「CodeStream」は初めて知ったけどめちゃくちゃ使えそう
+- APM, ブラウザ監視, インフラストラクチャ監視, ログ管理とかは比較的よく知られている機能
+- Synthetic Monitors, Error Inbox, IAST, CodeStreamは初めて知ったけどめちゃくちゃ使えそう
 
 # はじめに
 こんにちは、NewRelicのゆるキャラ「ニャリック」のステッカーを会社のPCに貼っている内藤です。
