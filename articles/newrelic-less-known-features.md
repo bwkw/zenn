@@ -10,8 +10,8 @@ publication_name: "levtech"
 # TL;DR
 - NewRelicは、ただの「監視ツール」じゃなく「**オールインワンオブザーバビリティプラットフォーム**」である
 - NewRelicが掲げている「**オブザーバビリティ**」というコンセプトは近年特に多くの注目を集めている
-- 「APM」、「ブラウザ監視」、「インフラストラクチャ監視」、「ログ管理」とかは比較的よく知られている機能で、弊チームで導入済み
-- 「Synthetic Monitoring」、「Errors Inbox」、「分散トレーシング」、「CodeStream」は初めて知ったけどめちゃくちゃ使えそうなので、弊チームに今後導入していく
+- 「APM」「ブラウザ監視」「インフラストラクチャ監視」「ログ管理」は比較的よく知られている機能で、弊チームで導入済み
+- 「Synthetic Monitoring」「Errors Inbox」「分散トレーシング」「CodeStream」は初めて知ったけどめちゃくちゃ使えそうなので、弊チームに今後導入していく
 
 # はじめに
 こんにちは、NewRelicのゆるキャラ「ニャリック」のステッカーを会社のPCに貼っている内藤です。
@@ -42,11 +42,11 @@ NewRelicは、アプリケーションとインフラのパフォーマンスを
 つまり、NewRelicは、ただ見守ってくれるだけの監視ツールではなく、システムをよりよく理解し、改善していくための強力なパートナー、私はそんな存在だと思っています！
 
 :::message alert
-**弊社は、NewRelicよりお金をいただいてるわけではございません**
+**弊社は、NewRelicよりお金をいただいてるわけではございませんw**
 :::
 
 # なぜ急にこんなにも注目を集めてるの？
-弊社でも最近NewRelicを導入する運びとなり、私はその時初めて「**オブザーバビリティ**」という概念を知ったのですが、同時に「なんで急にこんなにも注目を集めているんだろう？」って疑問も湧きましたw 
+弊社でも最近NewRelicを導入する運びとなり、私はその時初めて「**オブザーバビリティ**」という概念を知ったのですが、同時に「なんで急にこんなにも注目を集めているんだろう？」って疑問も湧きました。 
 
 調べてみると、オブザーバビリティが注目を集めている理由は、主に以下の2点であるとされているようです。
 
@@ -85,7 +85,7 @@ APM機能を用いてメトリクス、イベント、ログ、トランザク�
 ## [ログ管理](https://docs.newrelic.com/docs/logs/get-started/get-started-log-management/)
 これも従来の監視ツールでもお馴染みのやつですね。
 
-ログ管理機能によって、ログデータを一元的に集約し、検索や分析を容易に行うことができるようになります。
+ログ管理機能によって、ログデータを一元的に集約し、検索や分析を容易に行うことができます。
 
 ![logs](/images/newrelic_less_known_features/logs_management.png)
 
@@ -95,22 +95,22 @@ NewRelicには前章で紹介したような基本的な機能に加えて、以
 これらの機能は従来の監視ツールではあまり見かけないもので、NewRelicの「**オブザーバビリティ**」のコンセプトをより強く感じる機能のように思います！
 
 ## [Synthetic Monitoring](https://docs.newrelic.com/docs/synthetics/synthetic-monitoring/getting-started/get-started-synthetic-monitoring/)
-Synthetic Monitoringは、実際のユーザーの行動をシミュレートしてウェブサイトやアプリケーションのパフォーマンスをテストする機能です。これにより、ユーザーに影響を与える前に問題を特定し、修正することが可能になります。
+Synthetic Monitoringによって、実際のユーザーの行動をシミュレートしてウェブサイトやアプリケーションのパフォーマンスをテストすることができます。これにより、ユーザーに影響を与える前に問題を特定し、修正することができます。
 
 ![synthetic monitoring](/images/newrelic_less_known_features/synthetic_monitoring.png)
 
 ## [Errors Inbox](https://docs.newrelic.com/docs/errors-inbox/getting-started/)
-Errors Inboxは、アプリケーションのエラーを一箇所に集約し、チームが効率的にエラーを解析し、対応することを助ける機能です。このツールを使用することで、エラーの優先順位付け、割り当て、追跡が簡単になり、エラー対応のプロセスがスムーズになります。
+Errors Inboxによって、アプリケーションのエラーを一箇所に集約し、効率的にエラーを解析し、対応することができます。これにより、エラーの優先順位付け、割り当て、追跡が簡単になり、エラー対応のプロセスがスムーズになります。
 
 ![errors_inbox](/images/newrelic_less_known_features/errors_inbox.png)
 
 ## [分散トレーシング](https://docs.newrelic.com/jp/docs/distributed-tracing/concepts/introduction-distributed-tracing/)
-分散トレーシングは、マイクロサービスや大規模分散システムのパフォーマンスを追跡・分析するためのツールです。複数のサービスやコンポーネントを跨ぐリクエストのフローを視覚化し、それぞれのコンポーネントでの処理時間や通信の遅延をリアルタイムで監視することができます。
+分散トレーシングによって、マイクロサービスや大規模分散システムのパフォーマンスを追跡・分析することができます。これにより、複数のサービスやコンポーネントを跨ぐリクエストのフローを視覚化し、それぞれのコンポーネントでの処理時間や通信の遅延をリアルタイムで監視することができます。
 
 ![分散トレーシング](/images/newrelic_less_known_features/distributed-tracing.png)
 
 ## [CodeStream](https://docs.newrelic.com/docs/codestream/start-here/what-is-codestream/)
-New Relic CodeStreamは、開発プロセスの初期段階でパフォーマンスやエラーに関する問題を特定し、対応を可能にするIDE拡張機能です。CodeStreamを利用することで、開発者はエラー、パフォーマンスの低下、サービスレベル目標（SLO）の違反などの問題をIDE内で直接確認できます。
+New Relic CodeStreamによって、パフォーマンスやエラーに関する問題をIDE内で特定することができます。CodeStreamを利用することで、開発者はエラー、パフォーマンスの低下、サービスレベル目標（SLO）の違反などの問題をIDE内で直接確認できます。
 
 ![code_stream](/images/newrelic_less_known_features/code_stream.png)
 
@@ -120,10 +120,10 @@ New Relic CodeStreamは、開発プロセスの初期段階でパフォーマン
 これまで、弊チームではNewRelicの「[よく知られている機能たち](https://zenn.dev/levtech/articles/newrelic-less-known-features#%E3%82%88%E3%81%8F%E7%9F%A5%E3%82%89%E3%82%8C%E3%81%A6%E3%81%84%E3%82%8B%E6%A9%9F%E8%83%BD%E3%81%9F%E3%81%A1)」の導入を進めてきており、あとは運用に乗せるだけです。
 今後は、システムの問題を定期的に振り返りながら、発見した問題の改善に取り組む運用プロセスの構築に力を入れていきます〜！（これでやるしかなくなったｗ）
 
-一方で、「[実はこんな機能もあるんやで](https://zenn.dev/levtech/articles/newrelic-less-known-features#%E5%AE%9F%E3%81%AF%E3%81%93%E3%82%93%E3%81%AA%E6%A9%9F%E8%83%BD%E3%82%82%E3%81%82%E3%82%8B%E3%82%93%E3%82%84%E3%81%A7)」で紹介した、「Synthetic Monitoring」、「Errors Inbox」、「分散トレーシング」、「CodeStream」については、残念ながらまだ導入が進んでいません🥺
+一方で、「[実はこんな機能もあるんやで](https://zenn.dev/levtech/articles/newrelic-less-known-features#%E5%AE%9F%E3%81%AF%E3%81%93%E3%82%93%E3%81%AA%E6%A9%9F%E8%83%BD%E3%82%82%E3%81%82%E3%82%8B%E3%82%93%E3%82%84%E3%81%A7)」で紹介した機能については、残念ながらまだ導入が進んでいません🥺
 
 「Synthetic Monitoring」は、主にユーザーの体験を向上させるための機能で、より良いサービスを作るために欠かせないものだと思っているので、なるべく早く導入したいです。
-しかし弊チームでは、特にエラーやアラート対応でしんどい思いをしてるので😭、今後は「Errors Inbox」「分散トレーシング」「CodeStream」といった機能の導入に積極的に動いていきます〜！（こっちもやるしかなくなったw）
+しかし弊チームでは、現時点で特にエラーやアラート対応でしんどい思いをしてるので😭、今後は「Errors Inbox」「分散トレーシング」「CodeStream」といった機能の導入に積極的に動いていきます〜！（こっちもやるしかなくなったw）
 
 # おわりに
 NewRelicについて長らく偉そうに話してきましたが、弊社も導入したてで、僕もまだまだ知らないことばかりです。
