@@ -61,28 +61,28 @@ DevOpsの普及に伴い、開発者はコードの開発だけでなく、運�
 # よく知られている機能たち
 これまで、「**オブザーバビリティ**」についてお話ししてきましたが、このセクションでは、一般的によく知られている（であろう）機能をいくつか紹介したいと思います！
 
-## [APM](https://docs.newrelic.com/docs/apm/new-relic-apm/getting-started/introduction-apm/)
+## [APM](https://docs.newrelic.com/jp/docs/apm/new-relic-apm/getting-started/introduction-apm/)
 個人的には、NewRelicの代名詞で、「**オブザーバビリティ**」の真髄だと思っています。
 
 APM機能は、メトリクス、イベント、ログ、トランザクション（MELT）を監視することで、アプリの健全性をリアルタイムで追跡し、エラー発生時の迅速な原因究明と修正を助けます。
 
 ![apm](/images/newrelic_less_known_features/apm.png)
 
-## [ブラウザ監視](https://docs.newrelic.com/docs/browser/browser-monitoring/getting-started/introduction-browser-monitoring/)
+## [ブラウザ監視](https://docs.newrelic.com/jp/docs/browser/browser-monitoring/getting-started/introduction-browser-monitoring/)
 言わずもがなの機能ですね。従来の監視ツールでもお馴染みのやつですね。
 
 ブラウザ監視機能は、Webアプリケーションのフロントエンドのパフォーマンスを測定し、ユーザー体験を向上させるための詳細データを提供します。ページロード時間の分析からJavaScriptエラーの特定まで、フロントエンドの問題を詳細に把握できます。
 
 ![browser](/images/newrelic_less_known_features/browser_monitoring.png)
 
-## [インフラストラクチャ監視](https://docs.newrelic.com/docs/infrastructure/infrastructure-monitoring/get-started/get-started-infrastructure-monitoring/)
+## [インフラストラクチャ監視](https://docs.newrelic.com/jp/docs/infrastructure/infrastructure-monitoring/get-started/get-started-infrastructure-monitoring/)
 これも従来の監視ツールでもお馴染みのやつですね。
 
 インフラストラクチャ監視は、サーバー、仮想マシン、コンテナなどのリソースの健康状態を一元的に視覚化します。リソースの使用状況やパフォーマンスの変動を追跡し、システム全体の最適化を支援します。
 
 ![infrastructure](/images/newrelic_less_known_features/infrastructure_monitoring.png)
 
-## [ログ管理](https://docs.newrelic.com/docs/logs/get-started/get-started-log-management/)
+## [ログ管理](https://docs.newrelic.com/jp/docs/logs/get-started/get-started-log-management/)
 これも従来の監視ツールでもお馴染みのやつですね。
 
 ログ管理機能は、ログデータを集約し、検索や分析が容易な形で表示することで、問題の診断と解決を迅速化します。
@@ -98,22 +98,22 @@ NewRelicには前章で紹介したような基本的な機能に加えて、以
 
 個人的には、これらの機能は従来の監視ツールではあまり見かけないもので、NewRelicの「**オブザーバビリティ**」のコンセプトをより強く感じる機能のように思います！
 
-## [Synthetic Monitors](https://docs.newrelic.com/docs/synthetics/synthetic-monitoring/getting-started/get-started-synthetic-monitoring/)
+## [Synthetic Monitors](https://docs.newrelic.com/jp/docs/synthetics/synthetic-monitoring/getting-started/get-started-synthetic-monitoring/)
 Synthetic Monitorsは、実際のユーザーの行動をシミュレートしてウェブサイトやアプリケーションのパフォーマンスをテストする機能です。これにより、ユーザーに影響を与える前に問題を特定し、修正することが可能になります。
 
 ![synthetic](/images/newrelic_less_known_features/synthetic_monitors.png)
 
-## [Errors Inbox](https://docs.newrelic.com/docs/errors-inbox/getting-started/)
+## [Errors Inbox](https://docs.newrelic.com/jp/docs/errors-inbox/getting-started/)
 Error Inboxは、アプリケーションのエラーを一箇所に集約し、チームが効率的にエラーを解析し、対応することを助ける機能です。このツールを使用することで、エラーの優先順位付け、割り当て、追跡が簡単になり、エラー対応のプロセスがスムーズになります。
 
 ![errors_inbox](/images/newrelic_less_known_features/errors_inbox.png)
 
-## [IAST](https://docs.newrelic.com/docs/iast/introduction/)
+## [IAST](https://docs.newrelic.com/jp/docs/iast/introduction/)
 IAST（Interactive Application Security Testing）は、セキュリティの脆弱性をリアルタイムで検出するためのツールです。開発中のアプリケーションを対象に、動的な分析を行いながら、セキュリティリスクを特定し、修正を促します。
 
 ![iast](/images/newrelic_less_known_features/iast.png)
 
-## [CodeStream](https://docs.newrelic.com/docs/codestream/start-here/what-is-codestream/)
+## [CodeStream](https://docs.newrelic.com/jp/docs/codestream/start-here/what-is-codestream/)
 New Relic CodeStreamは、開発プロセスの初期段階でパフォーマンスやエラーに関する問題を特定し、対応を可能にするIDE拡張機能です。CodeStreamを利用することで、開発者はエラー、パフォーマンスの低下、サービスレベル目標（SLO）の違反などの問題をIDE内で直接確認できます。
 
 ![code_stream](/images/newrelic_less_known_features/code_stream.png)
