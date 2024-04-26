@@ -3,7 +3,8 @@ title: "我々はまだ知らなかった。NewRelicの真の姿を"
 emoji: "🔭"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["newrelic"]
-published: false
+published: true
+published_at: 2024-04-30 11:00
 publication_name: "levtech"
 ---
 
