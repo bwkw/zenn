@@ -26,6 +26,10 @@ OAuthについては、弊チームのxxさんが整理してくださってい�
 
 # 基礎編
 ## とは？
+2007年に米国で設立された非営利の国際標準化団体[OpenID Foundation(OIDF)](https://openid.net/)の公認団体である[OpenID Foundation Japan](https://www.openid.or.jp/)によれば以下のように説明されています。（[参考](https://openid-foundation-japan.github.io/openid-connect-core-1_0.ja.html)）
+
+> OpenID Connect 1.0 は, OAuth 2.0 [RFC6749] プロトコルの上にシンプルなアイデンティティレイヤーを付与したものである. このプロトコルは Client が Authorization Server の認証結果に基づいて End-User のアイデンティティを検証可能にする. また同時に End-User の必要最低限のプロフィール情報を, 相互運用可能かつ RESTful な形で取得することも可能にする.
+
 ## OAuthとの違い
 ## フロー
 ## 脆弱性
