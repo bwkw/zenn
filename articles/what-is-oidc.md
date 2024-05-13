@@ -6,6 +6,10 @@ topics: ["認証", "認可", "OIDC"]
 published: false
 ---
 
+:::message
+本記事では、OAuth 2.0をOAuth、OpenID Connect 1.0をOIDCと表記するため、適宜読み替えていただけますと幸いです。
+:::
+
 # TL;DR
 
 # はじめに
