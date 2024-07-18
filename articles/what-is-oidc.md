@@ -24,10 +24,10 @@ https://authya.booth.pm/items/1296585
 https://authya.booth.pm/items/1550861
 https://authya.booth.pm/items/1877818
 
-先日、この勉強会に際し、弊チームのかにさんがOAuthについての記事を公開しました。
+先日、この勉強会に際し、弊チームのかにさんが **OAuth** についての記事を公開しました。
 https://zenn.dev/levtech/articles/a6e8910df5baa0
 
-今回はそれに続いて、僕がOIDCについて整理していくので、最後までお付き合いいただけると幸いです！
+今回はそれに続いて、僕が **OIDC** について整理していくので、最後までお付き合いいただけると幸いです！
 
 # 基礎編
 ## とは？
