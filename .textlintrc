@@ -5,18 +5,19 @@ module.exports = {
     },
   },
   rules: {
+    "ja-technical-writing/no-mix-dearu-desumasu": false,
     "preset-ja-technical-writing": true,
     "ja-technical-writing/no-exclamation-question-mark": false,
     "ja-technical-writing/no-doubled-joshi": false,
     "ja-technical-writing/sentence-length": false,
     "ja-space-between-half-and-full-width": {
-      "space": ["alphabets", "numbers"]
+      space: ["alphabets", "numbers"],
     },
     prh: {
-      rulePaths: ["./prh.yml"]
-    }
+      rulePaths: ["./prh.yml"],
+    },
   },
   filters: {
-    comments: true
-  }
+    comments: true,
+  },
 };
