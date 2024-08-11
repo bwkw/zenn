@@ -66,20 +66,20 @@ OAuth には様々な認可フローがありますが、セキュリティが�
 まず、インプリシットグラントのフローは以下です。
 ![OAuth インプリシットグラント](/images/what_is_oidc/oauth_implicit_grant.png)
 
-このフローの問題点は、アクセストークンがブラウザに露出していることです。これにより、悪意あるユーザーが他のユーザー X さんのアクセストークンを取得した場合、X さんとして不正にログインできてしまうリスクがあります。
+このフローの問題点は、アクセストークンがブラウザに露出していることです。これにより、悪意あるユーザーが他クライアントでユーザー X さんのアクセストークンを取得した場合、このクライアント上で X さんとして不正にログインできてしまうリスクがあります。
 ![OAuth インプリシットグラント 攻撃](/images/what_is_oidc/oauth_implicit_grant_attack.png)
 
 では、認可コードグラントはどうでしょうか？まず、認可コードグラントのフローは以下です。
 ![OAuth 認可コードグラント](/images/what_is_oidc/oauth_authorization_code_grant.png)
 
-このフローでは、ブラウザに露出しているのは認可コードであるため、悪意あるユーザーが入れ替えることが可能なのは認可コードだけと言うことになります。仮に、悪意あるユーザーがー X さんの認可コードを取得出来たとしても、認可コードはクライアントに紐づいているため、以下のようにアクセストークンの取得に失敗し、ログインすることは出来ません。
+このフローでは、ブラウザに露出しているのは認可コードであるため、悪意あるユーザーが入れ替えることが可能なのは認可コードだけと言うことになります。仮に、悪意あるユーザーが他クライアントでユーザー X さんの認可コードを取得出来たとしても、認可コードはクライアントに紐づいているため、以下のようにアクセストークンの取得に失敗し、ログインすることは出来ません。
 ![OAuth 認可コードグラント 攻撃](/images/what_is_oidc/oauth_authorization_code_grant_attack.png)
 
 このように、OAuth 認証の脆弱性が顕著になるのはインプリシットグラントにおいてであり、認可コードグラントのようなフローではセキュリティ上の問題は少なくなります。しかし、OAuth そのものが認証を目的としたプロトコルではないため、ユーザーのアイデンティティを確認するための標準的なメカニズムを欠いています。その結果、ユーザーの認証情報を正確かつ安全に管理することが難しく、信頼性に欠ける場合があります。例えば、OAuth のアクセストークンは認可のためのものであり、認証を目的としていないため、アイデンティティの確認には適していません。
 
 したがって、認証用途においては OAuth の使用は適切ではないと言えます。ここで、ユーザー認証を安全かつ標準化された方法で提供するために設計されたプロトコルである OIDC が重要となります。少し話が逸れましたが、ここから本題である OIDC について説明していきます。
 
-## OIDCの登場人物
+## OIDC の登場人物
 
 まず、 OIDC で登場するアクターについて定義しておきます。 OIDC では以下 4 つのアクターが定義されています。
 
@@ -156,7 +156,7 @@ JWT は以下の 3 つの部分から構成されています。
 
 OIDC において、クライアントアプリケーションはユーザーのプロフィール情報や認証情報を取得するために、UserInfo エンドポイントにアクセスします。
 
-## OIDCのフロー
+## OIDC のフロー
 
 OIDC には、以下の 3 つの主要なフローがあります。
 
@@ -191,19 +191,17 @@ OIDC には、以下の 3 つの主要なフローがあります。
        &client_id=YOUR_CLIENT_ID
        &redirect_uri=YOUR_REDIRECT_URL
        &scope=openid email profile
-       &state=XXXXXXXXXXXXXXXXXXX
 
    HTTP/1.1
    Host: accounts.google.com
    ```
 
-   | パラメータ    | 説明                                                                                                     |
-   | ------------- | -------------------------------------------------------------------------------------------------------- |
-   | response_type | ここでは認可コード（`code`）を要求していることを示します。                                               |
-   | client_id     | OIDC プロバイダから発行されるアプリケーションの識別子。                                                  |
-   | redirect_uri  | 認証成功後にユーザーがリダイレクトされるURI。                                                            |
-   | scope         | 要求するスコープ。OIDCの `openid`、`email`、`profile` に加え、その他のリソースへのアクセス権を指定する。 |
-   | state         | CSRF攻撃を防ぐためのランダムな文字列。認証リクエストとそのレスポンスを関連付けるために利用する。         |
+   | パラメータ    | 説明                                                                                                      |
+   | ------------- | --------------------------------------------------------------------------------------------------------- |
+   | response_type | ここでは認可コード（`code`）を要求していることを示します。                                                |
+   | client_id     | OIDC プロバイダから発行されるアプリケーションの識別子。                                                   |
+   | redirect_uri  | 認証成功後にユーザーがリダイレクトされるURI。                                                             |
+   | scope         | 要求するスコープ。OIDC の `openid`、`email`、`profile` に加え、その他のリソースへのアクセス権を指定する。 |
 
    ::: details response_type によるフローの切り替え
    認証リクエストに含まれる `response_type` の値によって、使用される認証フローと認証レスポンスに含まれるトークンが変化します。 `response_type` とフローの対応関係は以下です。
@@ -311,15 +309,17 @@ Content-Type: application/json
 
 ## OIDC の脆弱性対策
 
-上記の OIDC の認可コードフローにおいて、CSRF 攻撃とコードインジェクションの脆弱性が存在する可能性があります。これらの脆弱性を防ぐために、以下のようなセキュリティ対策が一般的に使用されています。
-
-### CSRF 攻撃対策: state パラメータ
+上記の OIDC の認可コードフローにおいて、**CSRF 攻撃**の脆弱性が存在する可能性があります。
 
 <!-- textlint-disable -->
 
 CSRF 攻撃は、悪意ある第三者がユーザーのブラウザを介して、意図しないリクエストを送信させることで、不正に操作を実行させる攻撃手法です。この攻撃は、ユーザーが意図しない操作を実行してしまうため、認可フローにおいても重大なセキュリティリスクとなります。
 
 <!-- textlint-enable -->
+
+ここで重要となってくるのが、 state パラメータです。[RFC 6749](https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.1) にも、state パラメータを使用することで、CSRF 攻撃を防止するように記載されています。
+
+> RECOMMENDED. An opaque value used by the client to maintain state between the request and callback. The authorization server includes this value when redirecting the user-agent back to the client. The parameter SHOULD be used for preventing cross-site request forgery as described in Section 10.12.
 
 まず、CSRF 攻撃が成功するケースを示します。（※ 以降では説明の簡略化のため、 UserInfo エンドポイントを省略します。）
 
@@ -333,12 +333,10 @@ state パラメータは、認証リクエスト時にリライング・パー�
 
 ![OIDC CSRF 攻撃失敗](/images/what_is_oidc/oidc_csrf_attack_state.png)
 
-### コードインジェクション対策: nonce パラメータ
+:::details 【コラム】認可コードフローにおいて、リプレイ攻撃は脆弱性にならないのか？
+インプリシットフローやハイブリッドフローにおいては、 nonce パラメータはリプレイ攻撃に対する対策として使用されます。これらのフローでは、ID トークンが直接クライアントに返されるため、リプレイ攻撃のリスクが存在します。リプレイ攻撃とは、攻撃者が有効なトークンを傍受し、後に再利用することで正当なユーザーとして不正に認証を受ける攻撃です。このリスクを軽減するために、nonce パラメータが利用されます。
 
-:::details 【コラム】認可コードフローにおいて、nonce パラメータはリプレイ攻撃対策に利用されないのか？
-インプリシットフローやハイブリッドフローにおいては、 nonce パラメータはリプレイ攻撃に対する対策として使用されます。これらのフローでは、ID トークンが直接クライアントに返されるため、リプレイ攻撃が発生し得ます。リプレイ攻撃とは、攻撃者が有効なトークンを傍受し、後に再利用することで正当なユーザーとして不正に認証を受ける攻撃です。このリスクを軽減するために、nonce パラメータが使用されます。
-
-一方、認可コードフローでは、ブラウザ経由でクライアントに直接送信されるのは認可コードのみです。そして、認可コードは [RFC 6749](https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.2) に記載されている通り一度しか使用できないため、認可コード自体にリプレイ攻撃への対策が取られています。
+一方、認可コードフローでは、ブラウザ経由でクライアントに直接送信されるのは認可コードのみです。そして、認可コードは [RFC 6749](https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.2) に記載されている通り、一度しか使用できないため、認可コード自体がリプレイ攻撃に対する防御策となっています。
 
 > The authorization code MUST expire shortly after it is issued to mitigate the risk of leaks. A maximum authorization code lifetime of 10 minutes is RECOMMENDED. The client MUST NOT use the authorization code more than once. If an authorization code is used more than once, the authorization server MUST deny the request and SHOULD revoke (when possible) all tokens previously issued based on that authorization code. The authorization code is bound to the client identifier and redirection URI.
 
@@ -346,9 +344,7 @@ state パラメータは、認証リクエスト時にリライング・パー�
 
 # 実践編
 
-## Hono × Bun ALBでOIDCを使用して、ユーザーを認証する方法
-
-## GitHubActionsでOIDCを使用して、AWS認証を行う方法
+## Hono × Bun × Google認証 を使用して、ユーザーを認証する方法
 
 # 番外編
 
