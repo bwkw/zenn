@@ -344,6 +344,38 @@ state パラメータは、認証リクエスト時にリライング・パー�
 
 # 実践編: Hono × Bun × Google 認証 を使用して、ユーザーを認証する
 
+## Google Cloud の設定
+
+1. **Google Cloud プロジェクトの作成**
+   まずは、 Google Cloud のプロジェクトを作成します。[こちら](https://console.cloud.google.com/projectcreate)でプロジェクト名を入力し、プロジェクトを作成します。
+
+   ![Google Cloud Project](/images/what_is_oidc/gc_create_new_project.png)
+
+2. **OAuth 同意画面の作成**
+   Google 認証を利用するためには、OAuth 2.0 の同意画面を設定する必要があります。この画面は、ユーザーがアプリケーションにアクセスする際に、どの情報が共有されるかを確認できる場所です。以下の手順で作成します。
+
+   1. **User Type の選択**
+      ![Google OAuth Consent Screen User Type](/images/what_is_oidc/gc_oauth_consent_screen_user_type.png)
+
+   2. **アプリケーションの情報を入力**
+      ![Google OAuth Consent Screen Application](/images/what_is_oidc/gc_oauth_consent_screen_application.png)
+      ![Google OAuth Consent Screen Developer](/images/what_is_oidc/gc_oauth_consent_screen_developer.png)
+
+   3. **スコープの設定**
+      ![Google OAuth Consent Screen Scope](/images/what_is_oidc/gc_oauth_consent_screen_scope.png)
+
+   4. **テストユーザーの追加**
+      ![Google OAuth Consent Screen Test User](/images/what_is_oidc/gc_oauth_consent_screen_test_user.png)
+
+3. **認証情報の作成**
+   Google 認証をアプリケーションに組み込むためには、OAuth 2.0 クライアント ID とクライアントシークレットを取得する必要があります。これらの情報は、アプリケーションがユーザーを認証し、Google API にアクセスする際に使用されます。以下の手順で取得します。
+
+   1. **OAuth Client ID の選択**
+      ![Google OAuth Consent Screen Test User](/images/what_is_oidc/gc_authentication_information.png)
+
+   2. **OAuth Client ID の作成**
+      ![Google OAuth Consent Screen Test User](/images/what_is_oidc/gc_authentication_information_oauth_client_id.png)
+
 # 番外編: JWTの中身を覗いてみよう
 
 JWT の中身を確認するには、以下のサイトが利用できます。
