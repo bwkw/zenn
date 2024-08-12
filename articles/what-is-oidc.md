@@ -345,7 +345,12 @@ state パラメータは、認証リクエスト時にリライング・パー�
 
 > The authorization code MUST expire shortly after it is issued to mitigate the risk of leaks. A maximum authorization code lifetime of 10 minutes is RECOMMENDED. The client MUST NOT use the authorization code more than once. If an authorization code is used more than once, the authorization server MUST deny the request and SHOULD revoke (when possible) all tokens previously issued based on that authorization code. The authorization code is bound to the client identifier and redirection URI.
 
-この意味で、認可コードフローにおいて、リプレイ攻撃は脆弱性ではないと言えると思います。
+<!-- textlint-disable -->
+
+この意味で、認可コードフローにおいて、リプレイ攻撃は脆弱性ではないと言えるかと思います。
+
+<!-- textlint-enable -->
+
 :::
 
 # 実践編: Hono × Bun × Google 認証 を使用して、ユーザーを認証する
@@ -540,7 +545,17 @@ JWT の中身の確認にはとても便利なサイトなので、皆さんも�
 
 # おわりに
 
-# 参考記事
+今回、チームでの認証・認可の勉強会に際し、 OIDC 周りの知識を整理してみました！
+
+<!-- textlint-disable -->
+
+実は、直近弊チームでは認証・認可のリプレースを予定しており、それに伴って勉強会を開きましたが、改めて学習してみると多くの点で理解が不十分であることを痛感しました...
+
+認証・認可はほぼ全ての Web アプリケーションにおいて必須の知識ではありながらも、意外と軽視されがちなものかと思います。以下の参考文献にも載せましたが、[Auth屋](https://authya.booth.pm/) さんの本は認証・認可を学習する上で非常にオススメなので、興味が湧いた方は是非手に取ってみてください！
+
+<!-- textlint-enable -->
+
+# 参考文献
 
 https://authya.booth.pm/items/1296585
 https://authya.booth.pm/items/1550861
