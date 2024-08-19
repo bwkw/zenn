@@ -3,7 +3,7 @@ title: "OIDC を Hono × Bun で完全に理解する"
 emoji: "🔑"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["認証", "OIDC", "JWT", "Hono", "Bun"]
-published: false
+published: true
 publication_name: "levtech"
 ---
 
