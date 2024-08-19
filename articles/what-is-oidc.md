@@ -426,6 +426,7 @@ state パラメータは、認証リクエスト時にリライング・パー�
 https://github.com/bwkw/hono-bun-oidc
 
 実装イメージが湧くように、念の為以下にもコードを記載します。
+:::details リライング・パーティーの実装
 
 ```typescript
 import { Hono } from "hono";
@@ -527,6 +528,8 @@ export default {
 
 console.log("Open http://127.0.0.1:3333/auth");
 ```
+
+:::
 
 ## 動作確認
 
