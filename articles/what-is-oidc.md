@@ -199,7 +199,7 @@ OIDC には、以下の 3 つの主要なフローがあります。
 1. **OIDC 開始**
    エンドユーザーが「Google アカウントでログイン」ボタンを押下することにより、OIDC が開始されます。 リライング・パーティーはこのリクエストを受け付けると、 HTTP 302 リダイレクトを用いて、ID プロバイダが提供する**認可エンドポイント**へエンドユーザーをリダイレクトさせます。これを**認証リクエスト**と呼び、以下のようなクエリパラメータが付加されます。
 
-   ```text
+   ```http
    GET /authorize?
        response_type=code
        &client_id=YOUR_CLIENT_ID
@@ -245,7 +245,7 @@ state パラメータについては、[OIDC の脆弱性対策](#oidc-%E3%81%AE
 3. **ユーザー情報提供に同意**
    ユーザーが承認画面でリライング・パーティーの要求に同意すると、ID プロバイダは認可コードを生成し、ユーザーを指定された `redirect_uri` にリダイレクトします。このリダイレクト先の URI には、以下のようなクエリパラメータが付加されます。
 
-   ```
+   ```http
    HTTP/1.1 302 Found
    Location: https://www.example.com/callback?code=ABCDEFGHIJKLMNOPQRSTUVWXYZ
    ```
@@ -258,7 +258,7 @@ state パラメータについては、[OIDC の脆弱性対策](#oidc-%E3%81%AE
 
 認可コードを取得したリライング・パーティーは、ID プロバイダの**トークンエンドポイント**にリクエストを送り、アクセストークンと ID トークンを取得します。これを**トークンリクエスト**と呼び、以下のようなクエリパラメータが付加されます。
 
-```text
+```http
 POST /token HTTP/1.1
     Host: accounts.google.com
     Content-Type: application/x-www-form-urlencoded
@@ -276,7 +276,7 @@ ID プロバイダは認可コードの検証を行い、検証が成功する�
 
 <!-- textlint-enable -->
 
-```text
+```http
 HTTP/1.1 200 OK
 Content-Type: application/json
 
@@ -315,7 +315,7 @@ ID トークンは JWT 形式で提供され、その正当性を確認するた
 
 リライングパーティーは、アクセストークンを用いて **UserInfo エンドポイント**にリクエストを送り、ユーザーのプロフィール情報を取得します。この情報には、ユーザーの基本情報（名前、メールアドレス、プロフィール写真など）が含まれます。**UserInfo レスポンス**は以下の形式で返されます。
 
-```text
+```http
 HTTP/1.1 200 OK
 Content-Type: application/json
 
