@@ -218,16 +218,18 @@ OIDC には、以下の 3 つの主要なフローがあります。
    | `scope`         | リクエストするアクセス権限の範囲。                         |
 
    ::: details 【コラム】response_type による認証フローの切り替え
-   認証リクエストに含まれる `response_type` の値によって、使用される認証フローと認証レスポンスに含まれるトークンが変化します。 `response_type` と認証フローの対応関係は以下です。
+   認証リクエストに含まれる `response_type` の値によって、使用される認証フローと認証レスポンスに含まれるトークンが変化します。`response_type` と認証フローの対応関係は以下です。（[参考: OAuth 2.0 Multiple Response Type Encoding Practices](https://openid.net/specs/oauth-v2-multiple-response-types-1_0.html)）
 
    | response_type             | 認証フロー           |
    | ------------------------- | -------------------- |
    | `code`                    | 認可コードフロー     |
+   | `token`                   | インプリシットフロー |
    | `id_token`                | インプリシットフロー |
-   | `id_token` `token`        | インプリシットフロー |
-   | `code` `id_token`         | ハイブリッドフロー   |
+   | `token` `id_token`        | インプリシットフロー |
    | `code` `token`            | ハイブリッドフロー   |
-   | `code` `id_token` `token` | ハイブリッドフロー   |
+   | `code` `id_token`         | ハイブリッドフロー   |
+   | `code` `token` `id_token` | ハイブリッドフロー   |
+   | `none`                    | フローなし           |
 
    :::
 
