@@ -13,6 +13,7 @@ module.exports = {
     "ja-space-between-half-and-full-width": {
       space: ["alphabets", "numbers"],
     },
+    "ja-technical-writing/ja-no-weak-phrase": false,
     prh: {
       rulePaths: ["./prh.yml"],
     },
