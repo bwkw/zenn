@@ -3,8 +3,7 @@ title: "組織課題に立ち向かう工数入力 Chrome 拡張を作ってい�
 emoji: "📅"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["chrome拡張", "googlecalendar"]
-published: true
-published_at: 2024-12-12 11:00
+published: false
 ---
 
 # TL;DR
