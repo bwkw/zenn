@@ -4,6 +4,7 @@ emoji: "📅"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["chrome拡張", "googlecalendar"]
 published: false
+publication_name: "levtech"
 ---
 
 # TL;DR
@@ -178,6 +179,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 読者の皆さんも、自分たちの組織で直面している課題に対して、テクノロジーをどのように活用できるかを考えるきっかけになれば幸いです。
 
 最後まで読んでいただき、ありがとうございました！
+
+# アドベントカレンダー
+
+明日は [江間](https://zenn.dev/dema96) さんが投稿します～
+「[レバテック開発部 Advent Calendar 2024](https://qiita.com/advent-calendar/2024/levtech)」をぜひご購読ください🙃
 
 # 参考文献
 
