@@ -7,6 +7,9 @@ published: false
 publication_name: "levtech"
 ---
 
+この記事は「[レバテック開発部 Advent Calendar 2024](https://qiita.com/advent-calendar/2024/levtech)」の 12 日目の記事です！
+昨日の記事は、[azm](https://zenn.dev/azm) さんの「[手戻りを減らしたくて職種間コミュニケーションハードルを下げる活動をした話](https://zenn.dev/levtech/articles/701fd011572f9d)」でした。
+
 # TL;DR
 
 - 営業組織の拡大により、「運用工数の可視化」が課題となっている
