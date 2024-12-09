@@ -3,7 +3,8 @@ title: "営業組織を救え！Chrome 拡張「工数入力くん」で日々�
 emoji: "📅"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["chrome拡張", "googlecalendar"]
-published: false
+published: true
+published_at: 2024-12-12 12:00
 publication_name: "levtech"
 ---
 
