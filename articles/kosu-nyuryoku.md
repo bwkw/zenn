@@ -46,13 +46,13 @@ publication_name: "levtech"
 2. **集計作業の非効率性**
    記録されたデータを集計・分析するプロセスが手動で行われるため、正確性やスピードに欠ける。
 
-結果として、この方法では「**運用工数の可視化」がメンバーへの負担となってしまった**ので、これをより効率的かつ正確に行える仕組みが必要でした。
+結果として、この方法では **「運用工数の可視化」がメンバーへの負担となってしまった** ので、これをより効率的かつ正確に行える仕組みが必要でした。
 
 # 実装している Chrome 拡張
 
 現在、上記の課題を踏まえ、営業メンバーの日々の工数記録と集計作業を効率化するため、Google Calendar と連携し、予定に工数データを同時に入力できる Chrome 拡張機能を開発しています。レバテックでは Google Workspace を日常的に利用しており、Google Calendar は社員全員が使い慣れているツールであるため、この拡張機能は既存の業務フローに無理なく組み込むことができます。
 
-実際の挙動は以下です。 
+実際の挙動は以下です。
 
 ![実際の挙動](/images/kosu_nyuryoku/behavior_on_screen.gif)
 
@@ -70,14 +70,19 @@ publication_name: "levtech"
 Chrome 拡張機能を作成したことがない人にとっては、「どうやって作るんだろう？」と不思議に思うかもしれません（自分も最初はそうでした）。ここでは、初心者でもわかりやすいように、拡張機能の構成要素と Chrome への適用方法について簡単に説明します。
 
 ### 拡張機能の構成要素
+
 Chrome 拡張機能は、ブラウザの機能を拡張するための小さなプログラムです。基本的には、以下の 3 つの主要な要素で構成されています。
 
+<!-- textlint-disable -->
+
 1. **manifest.json**
-  拡張機能全体の設定ファイルです。どのスクリプトがどこで動作するか、必要な権限などを定義します。
+   拡張機能全体の設定ファイルです。どのスクリプトがどこで動作するか、必要な権限などを定義します。
 2. **コンテンツスクリプト（contentScript.js）**
-  特定のウェブページに注入され、そのページ内で DOM 操作やユーザーインタラクションを行います。
+   特定のウェブページに注入され、そのページ内で DOM 操作やユーザーインタラクションを行います。
 3. **バックグラウンドスクリプト（background.js）**
-  拡張機能全体で状態を管理し、イベントリッスンや外部 API との通信を行います。
+   拡張機能全体で状態を管理し、イベントリッスンや外部 API との通信を行います。
+
+<!-- textlint-enable -->
 
 これらを組み合わせることで、特定のウェブページにカスタム要素を追加したり、データを収集して外部サービスと連携したりできます。
 
@@ -129,7 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // バックグラウンドスクリプトとの連携: バックグラウンドスクリプトにメッセージを送信
     chrome.runtime.sendMessage({
       action: "sendData", // アクション名
-      data: { message: "Hello from content script!" } // データ内容
+      data: { message: "Hello from content script!" }, // データ内容
     });
   }
 });
@@ -152,9 +157,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     fetch("https://api.example.com/data", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(request.data) // コンテンツスクリプトから受け取ったデータ
+      body: JSON.stringify(request.data), // コンテンツスクリプトから受け取ったデータ
     })
       .then((response) => response.json())
       .then((data) => {
@@ -202,8 +207,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 # アドベントカレンダー予告
 
+<!-- textlint-disable -->
+
 明日は [dema96](https://zenn.dev/dema96) さんが投稿します～
 「[レバテック開発部 Advent Calendar 2024](https://qiita.com/advent-calendar/2024/levtech)」をぜひご購読ください🙃
+
+<!-- textlint-enable -->
 
 # 参考文献
 
