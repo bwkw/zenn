@@ -1,5 +1,5 @@
 ---
-title: "営業組織を救え！Chrome 拡張「工数入力くん」で日々の工数管理を効率化"
+title: "Chrome 拡張「工数入力くん」で日々の工数管理を効率化"
 emoji: "📅"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["chrome拡張", "googlecalendar"]
