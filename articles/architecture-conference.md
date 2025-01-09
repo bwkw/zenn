@@ -3,7 +3,8 @@ title: "「アーキテクチャカンファレンス 2024」で学んだアー�
 emoji: "⚙️"
 type: "tech"
 topics: ["アーキテクチャ", "architecture"]
-published: false
+published: true
+published_at: 2025-01-10 11:00
 publication_name: "levtech"
 ---
 
