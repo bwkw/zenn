@@ -4,7 +4,6 @@ emoji: "🧭"
 type: "idea" # tech: 技術記事 / idea: アイデア
 topics: ["manifest"]
 published: false
-publication_name: "levtech"
 ---
 
 # TL;DR
