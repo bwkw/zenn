@@ -3,7 +3,8 @@ title: "リプレイス1年の現場で見えた、やって良かった7つの�
 emoji: "🚚"
 type: "idea" # tech: 技術記事 / idea: アイデア
 topics: ["リプレイス"]
-published: false
+published: true
+published_at: 2025-06-20 12:00
 publication_name: "levtech"
 ---
 
