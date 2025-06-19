@@ -111,7 +111,7 @@ publication_name: "levtech"
 
 まず内部品質については、[SonarQube for IDE](https://www.sonarsource.com/jp/products/sonarlint/) の指摘事項がゼロであることを最低限の基準にしています。SonarQube for IDE は、IDE 上でリアルタイムにコード品質をチェックできるので、バグやセキュリティリスク、コードスメルをその場で検出・修正でき、日々のコーディング段階から品質を高めるのにとても役立っています。
 
-もともとリプレイス前のコードベースでは、「Maintainability（保守性）」の Severity（深刻度）が Blocker や High（[参考](https://docs.sonarsource.com/sonarqube-server/10.8/instance-administration/analysis-functions/instance-mode/mqr-mode/#mqr-severity)）の指摘が合計で約5000件ありましたが、現状ではそれを0件まで抑えることができています。
+もともとリプレイス前のコードベースでは、「Maintainability（保守性）」の Severity（深刻度）が Blocker や High（[参考](https://docs.sonarsource.com/sonarqube-server/10.8/instance-administration/analysis-functions/instance-mode/mqr-mode/#mqr-severity)）の指摘が合計で約5,000件ありましたが、現状ではそれを0件まで抑えることができています。
 
 また、セキュリティ面では、[AeyeScan](https://www.aeyescan.jp/) というクラウド型の Web アプリケーション脆弱性診断ツールを CI に組み込み、リリース前のチェックを必須としています。AeyeScan は、Web アプリケーションに対して自動で脆弱性診断を実施し、SQL インジェクションや XSS などの主要な脆弱性を検出できるサービスです。CI/CD パイプラインに組み込むことで、開発中から本番リリース前まで一貫してセキュリティチェックが行えるため、ヒューマンエラーによる脆弱性の見逃しを防ぐのに非常に有効です。
 
