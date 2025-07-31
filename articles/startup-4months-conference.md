@@ -2,7 +2,7 @@
 title: "創業4ヶ月でカンファレンススポンサーをしたことによるこれから"
 emoji: "🦋"
 type: "idea" # tech: 技術記事 / idea: アイデア
-topics: ["conference"]
+topics: ["conference", "開発生産性カンファレンス", "SRE NEXT"]
 published: false
 publication_name: "dress_code"
 ---
