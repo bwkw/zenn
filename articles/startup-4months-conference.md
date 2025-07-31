@@ -1,7 +1,7 @@
 ---
 title: "創業4ヶ月でカンファレンススポンサーをしたことによるこれから"
 emoji: "🦋"
-type: "tech" # tech: 技術記事 / idea: アイデア
+type: "idea" # tech: 技術記事 / idea: アイデア
 topics: ["conference"]
 published: false
 publication_name: "dress_code"
