@@ -101,7 +101,7 @@ https://speakerdeck.com/kawauso/gao-su-napurodakutokai-fa-woshi-xian-chuang-ye-q
 
 この記事が、同じように悩みながら前に進む方や、同じフェーズのスタートアップ、新規事業に挑むみなさんのヒントやエールになれば嬉しいです。
 
-また、来月の [Platform Engineering Kaigi 2025](https://www.cnia.io/pek2025) にもスポンサーとして参加予定です。これからもいろいろな企業の方々と、カジュアルに情報交換したり、悩みや工夫を共有したりして繋がっていけたらと思っています。
+また、来月の [Platform Engineering Kaigi 2025](https://www.cnia.io/pek2025) にもスポンサーとして参加します。今後もさまざまな企業の方々とカジュアルに情報交換したり、悩みや工夫を気軽に共有し合いながら、交流を広げていければと思っています。
 
 https://www.cnia.io/pek2025#sponsor
 
