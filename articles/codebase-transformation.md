@@ -3,7 +3,7 @@ title: "600ファイル、5000箇所の多言語対応を2時間で終わらせ�
 emoji: "🚿"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [""]
-published: true
+published: false
 published_at:
 ---
 
@@ -13,7 +13,7 @@ published_at:
 - AIだけでは“量”で詰まる。AST解析（ts-morph）を使えば圧倒的に効率化できる
 - この考え方は言語追加だけでなく、リファクタリングやセキュリティ対応にも転用可能
 
-# 背景
+# はじめに
 
 私たちは「Dress Code」という、Workforce Management 領域の業務効率化を支援する SaaS を開発しています。現在は東南アジア圏を中心に、日本語・英語・インドネシア語・ベトナム語・タイ語でサービスを提供中です。
 
@@ -74,7 +74,7 @@ AIは毎回ファイル全体の構造を解析し、翻訳対象やキーの形
 
 抽出フェーズでは、これらのパターンを認識し、
 
-1. 多言語対応箇所に `__TRANSLATE__` という文字列を挿入
+1. 多言語対応必要箇所に `__TRANSLATE__` という翻訳マーカーを挿入
 2. 挿入された `__TRANSLATE__` を基に翻訳しやすい Markdown テーブル形式に変換(抽出)
 
 を行います。
@@ -102,7 +102,6 @@ export class InvalidWorker extends ErrorWithDisplayMessages {
 **Selection**は、フォームの選択肢定義などで使われる、構造化された大きめのオブジェクトです。各言語ごとに`label`プロパティが割り当てられています。
 
 ```typescript
-// Before
 export const Selections = {
   GENDER_MALE: {
     key: "MALE",
@@ -118,6 +117,11 @@ export const Selections = {
 ```
 
 まずは、これらのパターンを [ts-morph](https://github.com/dsherret/ts-morph) を使って AST で検出し、新言語のフィールドに `__TRANSLATE__` という文字列を挿入します。
+ts-morph は xxx
+
+以下はコードのサンプルです。
+
+:::details サンプル: 翻訳用マーカーを付与する
 
 ```typescript
 import { Project, SyntaxKind } from "ts-morph";
@@ -203,7 +207,9 @@ for (const file of project.getSourceFiles("src/**/*.ts")) {
 }
 ```
 
-続いて `__TRANSLATE__` を見つけてその位置を基にMarkdown形式でまとめて出力します。
+:::
+
+続いて、翻訳用マーカーを見つけてその位置を基にMarkdown形式でまとめて出力します。
 
 | File        | Line | ja                   | en                | zhCN            |
 | ----------- | ---- | -------------------- | ----------------- | --------------- |
@@ -215,6 +221,86 @@ for (const file of project.getSourceFiles("src/**/*.ts")) {
 - 翻訳のブレを防ぐために日本語と英語両方を抽出（後続での翻訳に活かす）
 - 並列での翻訳を可能にする＆1ファイルあたりのコンテキスト量調整のため100エントリ単位で分解
 
+以下はコードのサンプルです。
+:::details サンプル: 多言語対応必要箇所を Markdown 形式に抽出する
+
+```typescript
+import { Project, Node } from "ts-morph";
+
+/**
+ * __TRANSLATE__ を含む箇所を抽出してMarkdownテーブル化
+ */
+function extractEntries(languageCode) {
+  const project = new Project({ tsConfigFilePath: "tsconfig.json" });
+  const entries = [];
+
+  for (const sourceFile of project.getSourceFiles("src/**/*.ts")) {
+    sourceFile.forEachDescendant((node) => {
+      if (!Node.isObjectLiteralExpression(node)) return;
+
+      // 参照言語（ja, en）のテキストを取得
+      const context = {};
+      for (const lang of ["ja", "en"]) {
+        const prop = node.getProperty(lang);
+        const text = prop?.getInitializer()?.getText();
+        if (text) {
+          context[lang] = text.replace(/^['"`]|['"`]$/g, "");
+        }
+      }
+
+      // __TRANSLATE__ があるか確認
+      const targetProp = node.getProperty(languageCode);
+      const targetValue = targetProp?.getInitializer()?.getText();
+
+      if (targetValue?.includes("__TRANSLATE__")) {
+        entries.push({
+          file: sourceFile.getFilePath(),
+          line: node.getStartLineNumber(),
+          ja: context.ja,
+          en: context.en,
+        });
+      }
+    });
+  }
+
+  return entries;
+}
+
+/**
+ * Markdownテーブルを生成（100件ごとにバッチ分割）
+ */
+function generateMarkdownBatches(entries, languageCode) {
+  const BATCH_SIZE = 100;
+  const batches = [];
+
+  for (let i = 0; i < entries.length; i += BATCH_SIZE) {
+    const batch = entries.slice(i, i + BATCH_SIZE);
+
+    let markdown = `| File | Line | ja | en | ${languageCode} |\n`;
+    markdown += `|------|------|----|----|------|\n`;
+
+    for (const entry of batch) {
+      markdown += `| ${entry.file} | ${entry.line} | ${entry.ja} | ${entry.en} | __TRANSLATE__ |\n`;
+    }
+
+    batches.push(markdown);
+  }
+
+  return batches;
+}
+
+// 実行
+const entries = extractEntries("zhCN");
+const batches = generateMarkdownBatches(entries, "zhCN");
+
+// batch-1.md, batch-2.md, ... として保存
+batches.forEach((markdown, index) => {
+  fs.writeFileSync(`output/batch-${index + 1}.md`, markdown);
+});
+```
+
+:::
+
 ## Step2. 翻訳
 
 翻訳処理そのものの詳細は割愛しますが、抽出済みMarkdownをAIにバッチで投げることで、高速かつ統一的な翻訳を得られます。
@@ -223,7 +309,7 @@ for (const file of project.getSourceFiles("src/**/*.ts")) {
 
 ## Step3. 適用
 
-最後に、Markdownから翻訳を読み取り、ソースコードの `__TRANSLATE__` を置換します。これもts-morphを使って実装しています。
+最後に、Markdownから翻訳を読み取り、ソースコードの翻訳マーカーを置換します。これも ts-morph を使って実装しています。
 
 ```typescript
 import { Project } from "ts-morph";
@@ -297,7 +383,7 @@ applyTranslations("zhCN");
 
 このように工程を、「抽出」「翻訳」「適用」に分割して進めることで、実装には4時間、実行時間は2時間という投資で相当の時間を削減できたように思います。後続での言語追加対応を考えると、投資対効果としては十分です。
 
-## おわりに
+# おわりに
 
 この記事では、AST変換（ts-morph）を用いた多言語対応の高速化手法を紹介しました。
 面倒に見える作業も、構造を分割して自動化すれば一気に現実的になります。
