@@ -1,5 +1,5 @@
 ---
-title: "600ファイル、5000箇所の多言語対応を2時間で終わらせた話"
+title: "600ファイル、5000箇所の多言語対応を半日で終わらせた話"
 emoji: "🚿"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: [""]
@@ -9,15 +9,21 @@ published_at:
 
 # TL;DR
 
-- 約600ファイル、5,000箇所の翻訳追加を「構造分割＋AST自動変換」で実装4時間＋バッチ2時間に短縮
-- AIだけでは“量”で詰まる。AST解析（ts-morph）を使えば圧倒的に効率化できる
-- この考え方は言語追加だけでなく、リファクタリングやセキュリティ対応にも転用可能
+- 約600ファイル、5,000箇所への中国語追加を「構造分割＋AST自動変換」により実装4時間＋実行2時間で完了
+- AIは毎回ファイル全体を解析するため、1ファイル5分×600ファイルで詰まる。AST解析で「抽出→翻訳→適用」に分割することで桁違いの効率化を実現
+- この手法は多言語対応だけでなく、大規模リファクタリング、セキュリティ対応、コーディング規約統一にも応用可能
 
 # はじめに
 
+こんにちは、DressCode でプロダクトエンジニアをしているないとーです。
+
+この記事では、AI だけでは解決できなかった大規模コード変更を、AST(抽象構文木)解析によって効率化した実践例を紹介します。同じような課題に直面しているエンジニアの方々の参考になれば幸いです👋
+
+# 背景
+
 私たちは「Dress Code」という、Workforce Management 領域の業務効率化を支援する SaaS を開発しています。現在は東南アジア圏を中心に、日本語・英語・インドネシア語・ベトナム語・タイ語でサービスを提供中です。
 
-![オールインハウス](/images/codebase-transformation/domain-market.png)
+![挑戦する事業ドメイン/マーケット](/images/codebase-transformation/domain-market.png)
 
 そんな折、CEO から「中国語簡体字も対応してほしいんだよね〜」と言われ、中国語対応に取り組むことになりました。
 
@@ -54,19 +60,26 @@ export const Selections = {
 };
 ```
 
-当初は「まぁAIに任せればすぐ終わるだろうな〜」と安直に考え、ファイル単位でAIに翻訳と書き換えを行わせるアプローチを試しました。しかし1ファイル処理するだけで約5分かかるだけでなく、翻訳対象のファイルを適切に探索するのも困難で、ファイルを処理する度に処理は重くなり、全体では数日〜数週間かかる計算になり実用的ではありませんでした。
+当初は「まぁAIに任せればすぐ終わるだろうな〜」と安直に考え、ファイル単位でAIに翻訳と書き換えを行わせるアプローチを試しました。
 
-AIは毎回ファイル全体の構造を解析し、翻訳対象やキーの形状の違いを逐次判断する必要があるため、同じ形式の構造でも無駄な再計算が発生し、効率が著しく低下していました。
+しかし進めていくうちに以下のような問題が発生し、現実的ではないなと言う判断になりました...
+
+- 1ファイル処理に5分以上かかる → 600ファイルで計算すると3,000分 ≈ 50時間
+- ファイルを処理するたびに処理が重くなる → APIのコンテキスト管理が複雑化
+- 翻訳対象のファイルを適切に探索できない → 漏れと重複が発生
+
+AI は毎回ファイル全体の構造を解析し、翻訳対象やキーの形状の違いを逐次判断する必要があるため、同じ形式の構造でも無駄な再計算が発生し、効率が著しく低下していました。
 
 # 構造的アプローチへの転換
 
 そこで、AIが無駄な再計算を行わないために、処理を「**抽出**」「**翻訳**」「**適用**」の3工程に分割する方針に切り替えました。
 
-- **抽出:** 翻訳すべきテキストをすべて一括で取り出す
-- **翻訳:** 抽出結果をAIで一括翻訳
-- **適用:** 翻訳結果をソースコードに反映
+|工程 |役割 |ツール|
+|抽出| 翻訳すべきテキストをすべて一括で取り出す| ts-morph（AST解析）|
+|翻訳 |抽出結果をAIで一括翻訳 |翻訳できればなんでも|
+|適用 |翻訳結果をソースコードに反映 |ts-morph（AST解析）|
 
-これにより、AIが同じ構造を何度も解析する必要がなくなり、文脈理解も最小限ですむようになりました。各工程ごとに最適なツールとプロンプト設計を採用でき、結果的に作業効率も品質も大幅に改善しました。
+このアプローチにより、AIが同じ構造を何度も解析する必要がなくなり、文脈理解も最小限ですみます。各工程ごとに最適なツールとプロンプト設計を採用でき、結果的に作業効率も品質も大幅に改善しました。
 
 ## Step1. 抽出
 
@@ -116,100 +129,44 @@ export const Selections = {
 };
 ```
 
-まずは、これらのパターンを [ts-morph](https://github.com/dsherret/ts-morph) を使って AST で検出し、新言語のフィールドに `__TRANSLATE__` という文字列を挿入します。
-ts-morph は xxx
-
-以下はコードのサンプルです。
-
-:::details サンプル: 翻訳用マーカーを付与する
+まずは、これらのパターンを [ts-morph](https://github.com/dsherret/ts-morph) を使って AST で検出し、新言語のフィールドに `__TRANSLATE__` という文字列を挿入します。`ts-morph` は TypeScriptのAST(抽象構文木)を JavaScript/TypeScript で自在に操作できるライブラリです。以下はコードサンプルです。
 
 ```typescript
 import { Project, SyntaxKind } from "ts-morph";
 
-// 既存の言語コード
-const EXISTING_LOCALES = ["ja", "en", "id", "th", "vn"];
+const project = new Project({
+  tsConfigFilePath: "./tsconfig.json",
+});
 
-/**
- * パターン1: DictSetObject の変換
- */
-function transformDictSetObject(sourceFile, languageCode) {
-  const objects = sourceFile.getDescendantsOfKind(
+// 対象ファイルを再帰的に探索
+const sourceFiles = project.getSourceFiles("src/**/*.ts");
+
+sourceFiles.forEach((sourceFile) => {
+  // DictSetObjectパターンの検出と処理
+  const objectLiterals = sourceFile.getDescendantsOfKind(
     SyntaxKind.ObjectLiteralExpression
   );
 
-  for (const obj of objects) {
-    const keys = obj
-      .getProperties()
-      .map((p) => p.getName())
-      .filter(Boolean);
+  objectLiterals.forEach((obj) => {
+    const properties = obj.getProperties();
+    const hasLangKeys = ["ja", "en", "id", "vn", "th"].every((lang) =>
+      properties.some((p) => p.getName() === lang)
+    );
 
-    // 既存5言語が全て揃っているか確認
-    const hasAllLocales = EXISTING_LOCALES.every((loc) => keys.includes(loc));
-    if (!hasAllLocales || keys.includes(languageCode)) continue;
+    if (hasLangKeys && !properties.some((p) => p.getName() === "zhCN")) {
+      // 翻訳マーカーを挿入
+      obj.addPropertyAssignment({
+        name: "zhCN",
+        initializer: "'__TRANSLATE__'",
+      });
+    }
+  });
 
-    // 新言語フィールドを追加
-    obj.addPropertyAssignment({
-      name: languageCode,
-      initializer: "'__TRANSLATE__'",
-    });
-  }
-}
-
-/**
- * パターン2: Selection の変換
- */
-function transformSelection(sourceFile, languageCode) {
-  const REQUIRED_STRUCTURE = ["key", "labelKey", "labelDictId"];
-  const REQUIRED_LABELS = [
-    "labelJa",
-    "labelEn",
-    "labelId",
-    "labelTh",
-    "labelVn",
-  ];
-
-  const objects = sourceFile.getDescendantsOfKind(
-    SyntaxKind.ObjectLiteralExpression
-  );
-
-  for (const obj of objects) {
-    const keys = obj
-      .getProperties()
-      .map((p) => p.getName())
-      .filter(Boolean);
-
-    // Selectionパターンかどうかを判定
-    const isSelection =
-      REQUIRED_STRUCTURE.every((f) => keys.includes(f)) &&
-      REQUIRED_LABELS.every((f) => keys.includes(f));
-
-    if (!isSelection) continue;
-
-    // labelZhCN などを追加
-    const labelField = `label${languageCode
-      .charAt(0)
-      .toUpperCase()}${languageCode.slice(1)}`;
-    if (keys.includes(labelField)) continue;
-
-    obj.addPropertyAssignment({
-      name: labelField,
-      initializer: "'__TRANSLATE__'",
-    });
-  }
-}
-
-// 実行
-const project = new Project({ tsConfigFilePath: "tsconfig.json" });
-for (const file of project.getSourceFiles("src/**/*.ts")) {
-  transformDictSetObject(file, "zhCN");
-  transformSelection(file, "zhCN");
-  file.saveSync();
-}
+  sourceFile.saveSync();
+});
 ```
 
-:::
-
-続いて、翻訳用マーカーを見つけてその位置を基にMarkdown形式でまとめて出力します。
+続いて、翻訳用マーカーを見つけてその位置を基に Markdown 形式でまとめて出力します。
 
 | File        | Line | ja                   | en                | zhCN            |
 | ----------- | ---- | -------------------- | ----------------- | --------------- |
@@ -221,178 +178,69 @@ for (const file of project.getSourceFiles("src/**/*.ts")) {
 - 翻訳のブレを防ぐために日本語と英語両方を抽出（後続での翻訳に活かす）
 - 並列での翻訳を可能にする＆1ファイルあたりのコンテキスト量調整のため100エントリ単位で分解
 
-以下はコードのサンプルです。
-:::details サンプル: 多言語対応必要箇所を Markdown 形式に抽出する
-
-```typescript
-import { Project, Node } from "ts-morph";
-
-/**
- * __TRANSLATE__ を含む箇所を抽出してMarkdownテーブル化
- */
-function extractEntries(languageCode) {
-  const project = new Project({ tsConfigFilePath: "tsconfig.json" });
-  const entries = [];
-
-  for (const sourceFile of project.getSourceFiles("src/**/*.ts")) {
-    sourceFile.forEachDescendant((node) => {
-      if (!Node.isObjectLiteralExpression(node)) return;
-
-      // 参照言語（ja, en）のテキストを取得
-      const context = {};
-      for (const lang of ["ja", "en"]) {
-        const prop = node.getProperty(lang);
-        const text = prop?.getInitializer()?.getText();
-        if (text) {
-          context[lang] = text.replace(/^['"`]|['"`]$/g, "");
-        }
-      }
-
-      // __TRANSLATE__ があるか確認
-      const targetProp = node.getProperty(languageCode);
-      const targetValue = targetProp?.getInitializer()?.getText();
-
-      if (targetValue?.includes("__TRANSLATE__")) {
-        entries.push({
-          file: sourceFile.getFilePath(),
-          line: node.getStartLineNumber(),
-          ja: context.ja,
-          en: context.en,
-        });
-      }
-    });
-  }
-
-  return entries;
-}
-
-/**
- * Markdownテーブルを生成（100件ごとにバッチ分割）
- */
-function generateMarkdownBatches(entries, languageCode) {
-  const BATCH_SIZE = 100;
-  const batches = [];
-
-  for (let i = 0; i < entries.length; i += BATCH_SIZE) {
-    const batch = entries.slice(i, i + BATCH_SIZE);
-
-    let markdown = `| File | Line | ja | en | ${languageCode} |\n`;
-    markdown += `|------|------|----|----|------|\n`;
-
-    for (const entry of batch) {
-      markdown += `| ${entry.file} | ${entry.line} | ${entry.ja} | ${entry.en} | __TRANSLATE__ |\n`;
-    }
-
-    batches.push(markdown);
-  }
-
-  return batches;
-}
-
-// 実行
-const entries = extractEntries("zhCN");
-const batches = generateMarkdownBatches(entries, "zhCN");
-
-// batch-1.md, batch-2.md, ... として保存
-batches.forEach((markdown, index) => {
-  fs.writeFileSync(`output/batch-${index + 1}.md`, markdown);
-});
-```
-
-:::
-
 ## Step2. 翻訳
 
-翻訳処理そのものの詳細は割愛しますが、抽出済みMarkdownをAIにバッチで投げることで、高速かつ統一的な翻訳を得られます。
+翻訳処理そのものの詳細は割愛しますが、抽出済み Markdown を AI にバッチで投げることで、高速かつ統一的な翻訳を得られます。
 
 背景文脈を制御できるため、同義語の揺れや誤訳も減りやすく、精度の高い翻訳結果を得ることができました。
 
 ## Step3. 適用
 
-最後に、Markdownから翻訳を読み取り、ソースコードの翻訳マーカーを置換します。これも ts-morph を使って実装しています。
+最後に、Markdown から翻訳を読み取り、ソースコードの翻訳マーカーを置換します。これも `ts-morph` を使って実装しています。
 
 ```typescript
+import fs from "fs";
 import { Project } from "ts-morph";
-import * as fs from "fs";
 
-/**
- * Markdownバッチファイルをパースして翻訳データを取得
- */
-function parseMarkdownBatch(filePath) {
-  const content = fs.readFileSync(filePath, "utf-8");
-  const lines = content.split("\n");
-  const entries = [];
+// Markdown テーブルをパース
+const markdownContent = fs.readFileSync("translations.md", "utf-8");
+const translations = parseMarkdownTable(markdownContent);
 
-  // ヘッダー行をスキップしてデータ行を処理
-  for (let i = 2; i < lines.length; i++) {
-    if (!lines[i].trim()) continue;
+// ts-morph でプロジェクトを開く
+const project = new Project({
+  tsConfigFilePath: "./tsconfig.json",
+});
 
-    const columns = lines[i].split("|").map((c) => c.trim());
-    entries.push({
-      file: columns[1],
-      line: parseInt(columns[2]),
-      translated: columns[5], // zhCN列
-    });
-  }
+const sourceFiles = project.getSourceFiles("src/**/*.ts");
 
-  return entries;
-}
+sourceFiles.forEach((sourceFile) => {
+  const objectLiterals = sourceFile.getDescendantsOfKind(
+    SyntaxKind.ObjectLiteralExpression
+  );
 
-/**
- * __TRANSLATE__ を実際の翻訳テキストに置換
- */
-function applyTranslations(languageCode) {
-  const project = new Project({ tsConfigFilePath: "tsconfig.json" });
+  objectLiterals.forEach((obj) => {
+    const zhCnProp = obj.getProperty("zhCN");
 
-  // 全バッチファイルを読み込み
-  const batchFiles = fs.readdirSync(`output/${languageCode}`);
+    if (zhCnProp?.getText().includes("__TRANSLATE__")) {
+      // マーク位置から対応する翻訳を検索
+      const key = obj.getProperty("labelKey")?.getText();
+      const translation = translations.find((t) => t.key === key);
 
-  for (const batchFile of batchFiles) {
-    const entries = parseMarkdownBatch(`output/${languageCode}/${batchFile}`);
-
-    for (const entry of entries) {
-      const sourceFile = project.getSourceFile(entry.file);
-      if (!sourceFile) continue;
-
-      // 指定行のオブジェクトリテラルを取得
-      const node = sourceFile
-        .getDescendantsAtRange(entry.line, entry.line + 1)
-        .find((n) => Node.isObjectLiteralExpression(n));
-
-      if (!node) continue;
-
-      // 対象言語のプロパティを取得
-      const prop = node.getProperty(languageCode);
-      if (!prop) continue;
-
-      // __TRANSLATE__ を実際の翻訳に置換
-      const initializer = prop.getInitializer();
-      if (initializer?.getText().includes("__TRANSLATE__")) {
-        initializer.replaceWithText(`'${entry.translated}'`);
+      if (translation) {
+        // マーカーを翻訳結果に置換
+        const initializer = zhCnProp.getFirstChildByKind(
+          SyntaxKind.StringLiteral
+        );
+        initializer?.replaceWithText(`'${translation.zhCN}'`);
       }
     }
+  });
 
-    // ファイルを保存
-    sourceFile?.saveSync();
-  }
-}
-
-// 実行
-applyTranslations("zhCN");
+  sourceFile.saveSync();
+});
 ```
 
-このように工程を、「抽出」「翻訳」「適用」に分割して進めることで、実装には4時間、実行時間は2時間という投資で相当の時間を削減できたように思います。後続での言語追加対応を考えると、投資対効果としては十分です。
+このように工程を、「抽出」「翻訳」「適用」に分割して進めることで、実装には4時間、実行時間は2時間という投資で相当の時間を削減できたように思います。後続での言語追加対応も考えると、かなりの投資対効果も見込めました！
 
 # おわりに
 
-この記事では、AST変換（ts-morph）を用いた多言語対応の高速化手法を紹介しました。
-面倒に見える作業も、構造を分割して自動化すれば一気に現実的になります。
+この記事では、AST変換（`ts-morph`）を用いた多言語対応の高速化手法を紹介しました。面倒に見える作業も、構造を分割して自動化すれば一気に現実的になります。
 
-最初の「AIに任せよう」から方向転換しただけで、作業効率は桁違いに向上しました。
+「AIに任せよう」から方向転換しただけで、作業効率は桁違いに向上しました。
 このアプローチは、多言語対応だけでなく以下のような領域にも応用可能です。
 
 - リファクタ（関数名/ロジック差し替え）
 - セキュリティ対応（特定パターン一括置換）
 - コーディング規約、ログ統一 ...etc
 
-もし似たような課題に直面していたら、まずは“構造的に分けられないか”を考えてみてください！
+もし似たような課題に直面していたら、まずは「構造的に分けられないか」を考えてみてください！
