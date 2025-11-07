@@ -17,7 +17,7 @@ publication_name: "dress_code"
 
 こんにちは、DressCode でプロダクトエンジニアをしている[ないとー](https://x.com/_bwkw_)です。
 
-この記事では、AI だけでは解決できなかった大規模コード変更を、AST(抽象構文木)解析によって効率化した実践例を紹介します。同じような課題に直面しているエンジニアの方々の参考になれば幸いです👋
+この記事では、AI だけでは解決できなかった大規模コード変更を、AST（抽象構文木）解析によって効率化した実践例を紹介します。同じような課題に直面しているエンジニアの方々の参考になれば幸いです👋
 
 # 背景
 
@@ -70,7 +70,48 @@ AI は毎回ファイル全体の構造を解析し、翻訳対象やキーの�
 
 # 構造的アプローチへの転換
 
-そこで、AI が無駄な再計算を行わないために、処理を「**抽出**」「**翻訳**」「**適用**」の3工程に分割する方針に切り替えました。
+そこで、AI が無駄な再計算を行わないために、処理を「**抽出**」「**翻訳**」「**適用**」の3工程に分割する方針に切り替えました。処理フローは以下の通りです。
+
+```mermaid
+flowchart LR
+    Start["📁 ソースコード<br/>600ファイル<br/>5,000箇所"]
+
+    subgraph Step1["Step1: 抽出"]
+        direction TB
+        S1["ts-morph で AST 解析"]
+        S1_1["多言語パターンを検出"]
+        S1_2["翻訳用マーカー挿入"]
+        S1 --> S1_1 --> S1_2
+    end
+
+    Mid1["📄<br/>Markdown<br/>テーブル<br/>(100件/batch)"]
+
+    subgraph Step2["Step2: 翻訳"]
+        direction TB
+        S2["AI に一括投入"]
+        S2_1["並列処理で高速化"]
+        S2_2["翻訳精度向上"]
+        S2 --> S2_1 --> S2_2
+    end
+
+    Mid2["✅<br/>翻訳済み<br/>Markdown"]
+
+    subgraph Step3["Step3: 適用"]
+        direction TB
+        S3["翻訳データ読込"]
+        S3_1["ts-morph で AST 走査"]
+        S3_2["翻訳用マーカーを翻訳文に置換"]
+        S3 --> S3_1 --> S3_2
+    end
+
+    End["🎉<br/>完了<br/>計6時間"]
+
+    Start ==> Step1 ==> Mid1 ==> Step2 ==> Mid2 ==> Step3 ==> End
+```
+
+ここで使用した [ts-morph](https://github.com/dsherret/ts-morph) は、TypeScript の AST を操作するためのライブラリです。TypeScript Compiler API をラップしており、型安全にコードの解析・変換ができます。正規表現では困難な「構造を理解した上での変更」が可能で、大規模なコードベース変換には最適なツールです。
+
+各工程の役割とツールをまとめると以下のようになります。
 
 | 工程     | 役割                                     | ツール               |
 | -------- | ---------------------------------------- | -------------------- |
@@ -127,7 +168,7 @@ export const Selections = {
 };
 ```
 
-まず、これらのパターンを [ts-morph](https://github.com/dsherret/ts-morph) を使って AST で検出し、新言語のフィールドに `__TRANSLATE__` という翻訳用マーカーを挿入します。
+まず、これらのパターンを ts-morph を使って AST で検出し、新言語のフィールドに `__TRANSLATE__` という翻訳用マーカーを挿入します。
 
 ```typescript
 import { Project, SyntaxKind } from "ts-morph";
@@ -147,7 +188,7 @@ sourceFiles.forEach((sourceFile) => {
 
   objectLiterals.forEach((obj) => {
     const properties = obj.getProperties();
-    const hasLangKeys = ["ja", "en", "id", "vn", "th"].every((lang) =>
+    const hasLangKeys = ["ja", "en", "id", "vi", "th"].every((lang) =>
       properties.some((p) => p.getName() === lang)
     );
 
@@ -173,9 +214,9 @@ export class InvalidWorker extends ErrorWithDisplayMessages {
       ja: `不正な従業員です。 workerId: ${workerId}`,
       en: `Invalid worker. workerId: ${workerId}`,
       id: `Pekerja tidak valid. workerId: ${workerId}`,
-      vn: `Người lao động không hợp lệ. workerId: ${workerId}`,
+      vi: `Người lao động không hợp lệ. workerId: ${workerId}`,
       th: `คนงานไม่ถูกต้อง workerId: ${workerId}`,
-      zhCN: __TRANSLATE__, ← ⭐️ 翻訳用マーカーを挿入
+      zhCN: "__TRANSLATE__", ← ⭐️ 翻訳用マーカーを挿入
     });
   }
 }
@@ -200,7 +241,7 @@ export class InvalidWorker extends ErrorWithDisplayMessages {
 
 次に、Step1 で生成した Markdown ファイル群を AI に投げて一括翻訳します。
 
-構造化されたデータを入力として使うことで、高速かつ統一的な翻訳を得られます。また、ファイル単位で背景文脈を制御できるため、同義語の揺れや誤訳も減りやすく、精度の高い翻訳結果を得ることができました。
+この工程のポイントは、既に構造化されたデータとして抽出済みであるため、AI はコードの構文解析や判断をする必要がなく、純粋に翻訳作業のみに集中できることです。また、100エントリずつ分割したことで並列処理が可能になり、翻訳時間を大幅に短縮できます。さらに、ファイル単位で背景文脈を制御できるため、同義語の揺れや誤訳も減りやすく、精度の高い翻訳結果を得ることができました。
 
 以下は実際に使用したプロンプトです。
 
@@ -219,15 +260,22 @@ batch-1 から順番に翻訳してください。
 
 ## Step3. 適用
 
-最後に、Step2 で翻訳された Markdown ファイルを読み取り、ソースコード内の `__TRANSLATE__` マーカーを実際の翻訳テキストに置換します。
+最後に、Step2 で翻訳された Markdown ファイルを読み取り、ソースコード内の `__TRANSLATE__` マーカーを実際の翻訳テキストに置換します。以下はコードサンプルです。
 
 ```typescript
 import fs from "fs";
-import { Project } from "ts-morph";
+import path from "path";
+import { Project, SyntaxKind } from "ts-morph";
 
-// Markdown テーブルをパース
-const markdownContent = fs.readFileSync("translations.md", "utf-8");
-const translations = parseMarkdownTable(markdownContent);
+// 全バッチファイルから翻訳データを読み込む
+const batchDir = "project/operation-tools/locale-addition/output/zhCN";
+const batchFiles = fs
+  .readdirSync(batchDir)
+  .filter((f) => f.startsWith("batch-"));
+const translations = batchFiles.flatMap((file) => {
+  const content = fs.readFileSync(path.join(batchDir, file), "utf-8");
+  return parseMarkdownTable(content); // Markdownテーブルをパースして配列に変換
+});
 
 // ts-morph でプロジェクトを開く
 const project = new Project({
@@ -245,9 +293,12 @@ sourceFiles.forEach((sourceFile) => {
     const zhCnProp = obj.getProperty("zhCN");
 
     if (zhCnProp?.getText().includes("__TRANSLATE__")) {
-      // マーク位置から対応する翻訳を検索
-      const key = obj.getProperty("labelKey")?.getText();
-      const translation = translations.find((t) => t.key === key);
+      // ファイル名と行番号から対応する翻訳を検索
+      const fileName = sourceFile.getBaseName();
+      const lineNumber = zhCnProp.getStartLineNumber();
+      const translation = translations.find(
+        (t) => t.file === fileName && t.line === lineNumber
+      );
 
       if (translation) {
         // マーカーを翻訳結果に置換
@@ -269,7 +320,7 @@ sourceFiles.forEach((sourceFile) => {
 
 この記事では、ts-morph を使った AST 変換による多言語対応の効率化手法を紹介しました。
 
-大規模で複雑に見える作業も、構造的に分割し、タスクごとに自動化・省力化することで着実な成果が得られることを実感しました。このアプローチは多言語対応だけでなく、以下のようなさまざまな課題にも応用できます。
+大規模で複雑に見える作業も、構造的に分割し、タスクごとに自動化・省力化することで着実な成果が得られます。このアプローチは多言語対応だけでなく、以下のようなさまざまな課題にも応用可能です。
 
 - リファクタリング（関数名やロジックの差し替え）
 - セキュリティ対応（パターンの一括置換や検出）
