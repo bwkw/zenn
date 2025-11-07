@@ -9,8 +9,8 @@ publication_name: "dress_code"
 
 # TL;DR
 
-- 約600ファイル、5,000箇所への中国語追加を「構造分割＋AST 自動変換」により実装4時間＋実行2時間で完了
-- AI に一からやらせると無駄な再計算が生じ非効率だったので、工程を「抽出」「翻訳」「適用」の3つに分割し AST 解析を利用することで効率化を実現
+- 約600ファイル、5,000箇所への中国語追加を「工程分割 + AST 自動変換」により計6時間（実装4時間、実行2時間）で完了
+- AI にファイル単位で処理させると無駄な再計算が発生して非効率だったため、「抽出」「翻訳」「適用」の3工程に分割し AST 解析で効率化を実現
 - この手法は多言語対応だけでなく、大規模リファクタリング、セキュリティ対応、コーディング規約統一にも応用可能
 
 # はじめに
@@ -205,9 +205,8 @@ export class InvalidWorker extends ErrorWithDisplayMessages {
 以下は実際に使用したプロンプトです。
 
 ```
-project/operation-tools/locale-addition/output/{languageCode}/ 配下の
-全てのバッチファイル（batch-1.md から batch-N.md まで）の {languageCode} カラムを
-{languageName}で翻訳してください。
+project/operation-tools/locale-addition/output/zhCN/ 配下の
+全てのバッチファイル（batch-1.md から batch-N.md まで）の zhCN カラムを中国語簡体字で翻訳してください。
 
 翻訳の指針：
 - ja（日本語）と en（英語）を参考にする
