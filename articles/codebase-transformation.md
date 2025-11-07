@@ -29,7 +29,7 @@ publication_name: "dress_code"
 
 # 最初のアプローチ
 
-どれぐらい手間がかかるのか見積もるため、まずはコードベースを一通り調査してみたところ、下記のようなコード群が約600ファイル、5,000箇所存在していました。
+どれくらい手間がかかるのか見積もるため、まずはコードベースを一通り調査したところ、以下のようなコード群が約600ファイル、5,000箇所に存在していました。
 
 ```typescript
 export class InvalidWorker extends ErrorWithDisplayMessages {
@@ -38,9 +38,8 @@ export class InvalidWorker extends ErrorWithDisplayMessages {
       ja: `不正な従業員です。 workerId: ${workerId}`,
       en: `Invalid worker. workerId: ${workerId}`,
       id: `Pekerja tidak valid. workerId: ${workerId}`,
-      vn: `Người lao động không hợp lệ. workerId: ${workerId}`,
+      vi: `Người lao động không hợp lệ. workerId: ${workerId}`,
       th: `คนงานไม่ถูกต้อง workerId: ${workerId}`,
-      zhCN: `无效的员工。workerId：${workerId}`,
     });
   }
 }
@@ -53,16 +52,15 @@ export const Selections = {
     labelJa: "男性",
     labelEn: "Male",
     labelId: "Pria",
+    labelVi: "Nam",
     labelTh: "ชาย",
-    labelVn: "Nam",
-    labelZhCN: "男性",
   },
 };
 ```
 
 当初は「まぁ AI に任せればすぐ終わるだろうな〜」と安直に考え、ファイル単位で AI に翻訳と書き換えを行わせるアプローチを試しました。
 
-しかし進めていくうちに以下のような問題が発生し、頓挫しました。
+しかし進めていくうちに以下のような問題が発生し、このアプローチは行き詰まりました。
 
 - 1ファイル処理に5分以上かかる → 600ファイルで計算すると3,000分 ≈ 50時間
 - ファイルを処理するたびに処理が重くなる
@@ -86,7 +84,7 @@ AI は毎回ファイル全体の構造を解析し、翻訳対象やキーの�
 - 文脈理解が最小限ですむ → **翻訳精度が向上**
 - 各工程を独立して最適化できる → **工程ごとに最適なツールとプロンプト設計を採用可能**
 
-では、もうちょっと具体的に見ていこうと思います。
+それでは、各工程の詳細を見ていきましょう。
 
 ## Step1. 抽出
 
@@ -103,7 +101,7 @@ export class InvalidWorker extends ErrorWithDisplayMessages {
       ja: `不正な従業員です。 workerId: ${workerId}`,
       en: `Invalid worker. workerId: ${workerId}`,
       id: `Pekerja tidak valid. workerId: ${workerId}`,
-      vn: `Người lao động không hợp lệ. workerId: ${workerId}`,
+      vi: `Người lao động không hợp lệ. workerId: ${workerId}`,
       th: `คนงานไม่ถูกต้อง workerId: ${workerId}`,
     });
   }
@@ -112,7 +110,7 @@ export class InvalidWorker extends ErrorWithDisplayMessages {
 
 ### パターン2: Selection（フォーム選択肢の構造化オブジェクト）
 
-**Selection**は、フォームの選択肢定義などで使われる、構造化された大きめのオブジェクトです。各言語ごとに`label`プロパティが割り当てられています。
+**Selection**は、フォームの選択肢定義などで使われる、構造化された大きめのオブジェクトです。各言語に対応する`label`プロパティが割り当てられています。
 
 ```typescript
 export const Selections = {
@@ -123,15 +121,13 @@ export const Selections = {
     labelJa: "男性",
     labelEn: "Male",
     labelId: "Pria",
+    labelVi: "Nam",
     labelTh: "ชาย",
-    labelVn: "Nam",
   },
 };
 ```
 
-まずは、これらのパターンを [ts-morph](https://github.com/dsherret/ts-morph) を使って AST で検出し、新言語のフィールドに `__TRANSLATE__` という翻訳用マーカーを挿入します。
-
-以下はコードサンプルです。
+まず、これらのパターンを [ts-morph](https://github.com/dsherret/ts-morph) を使って AST で検出し、新言語のフィールドに `__TRANSLATE__` という翻訳用マーカーを挿入します。
 
 ```typescript
 import { Project, SyntaxKind } from "ts-morph";
@@ -168,29 +164,63 @@ sourceFiles.forEach((sourceFile) => {
 });
 ```
 
-続いて、翻訳用マーカーを基に、必要な情報を Markdown 形式でまとめて出力します。
+これにより、翻訳が必要な箇所に以下のような翻訳用マーカーが挿入されます。
+
+```typescript
+export class InvalidWorker extends ErrorWithDisplayMessages {
+  constructor(workerId: string) {
+    super(`invalid worker. workerId is ${workerId}`, {
+      ja: `不正な従業員です。 workerId: ${workerId}`,
+      en: `Invalid worker. workerId: ${workerId}`,
+      id: `Pekerja tidak valid. workerId: ${workerId}`,
+      vn: `Người lao động không hợp lệ. workerId: ${workerId}`,
+      th: `คนงานไม่ถูกต้อง workerId: ${workerId}`,
+      zhCN: __TRANSLATE__, ← ⭐️ 翻訳用マーカーを挿入
+    });
+  }
+}
+```
+
+続いて、コードベース全体をもう一度走査し、挿入した翻訳用マーカーを基に必要な情報を Markdown 形式で出力します。
 
 | File        | Line | ja                   | en                | zhCN            |
 | ----------- | ---- | -------------------- | ----------------- | --------------- |
 | user.dto.ts | 45   | ユーザー名           | Username          | `__TRANSLATE__` |
 | error.ts    | 89   | エラーが発生しました | An error occurred | `__TRANSLATE__` |
+| ...         | ...  | ...                  | ...               | ...             |
 
-ここでのポイントは以下の通りです。
+ここでのポイントは以下の2点です。
 
-- 翻訳のブレを防ぐために日本語と英語両方を抽出
-- 並列での翻訳を可能にする ＆ 1ファイルあたりのコンテキスト量調整のため100エントリ単位で分解
+- 翻訳のブレを防ぐため、日本語と英語の両方を抽出
+- AI への並列処理を可能にし、かつ1回あたりのコンテキスト量を最適化するため、100エントリごとに分割して複数の Markdown ファイル（`batch-1.md`, `batch-2.md`, ...）として出力
+
+これにより、5,000箇所の翻訳対象を構造化されたデータとして抽出できました。
 
 ## Step2. 翻訳
 
-翻訳処理そのものの詳細は割愛しますが、抽出済み Markdown を AI にバッチで投げることで、高速かつ統一的な翻訳を得られます。
+次に、Step1 で生成した Markdown ファイル群を AI に投げて一括翻訳します。
 
-背景文脈を制御できるため、同義語の揺れや誤訳も減りやすく、精度の高い翻訳結果を得ることができました。
+構造化されたデータを入力として使うことで、高速かつ統一的な翻訳を得られます。また、ファイル単位で背景文脈を制御できるため、同義語の揺れや誤訳も減りやすく、精度の高い翻訳結果を得ることができました。
+
+以下は実際に使用したプロンプトです。
+
+```
+project/operation-tools/locale-addition/output/{languageCode}/ 配下の
+全てのバッチファイル（batch-1.md から batch-N.md まで）の {languageCode} カラムを
+{languageName}で翻訳してください。
+
+翻訳の指針：
+- ja（日本語）と en（英語）を参考にする
+- ビジネス用語・技術用語は正確に翻訳
+- 簡潔で自然な表現にする
+
+各ファイルは100エントリ（最後のファイルは端数）の Markdown テーブル形式です。
+batch-1 から順番に翻訳してください。
+```
 
 ## Step3. 適用
 
-最後に、Markdown から翻訳を読み取り、ソースコードの翻訳マーカーを置換します。
-
-以下はコードサンプルです。
+最後に、Step2 で翻訳された Markdown ファイルを読み取り、ソースコード内の `__TRANSLATE__` マーカーを実際の翻訳テキストに置換します。
 
 ```typescript
 import fs from "fs";
@@ -234,16 +264,16 @@ sourceFiles.forEach((sourceFile) => {
 });
 ```
 
-このように工程を「**抽出**」「**翻訳**」「**適用**」に分割して進めることで、当初50時間を想定していた作業を6時間(実装4時間、実行2時間)で完了することができました。今後さらに多言語対応が求められる場面が増えてくることを考えると、このやり方の効果・恩恵は非常に大きいと感じています。
+このように工程を「**抽出**」「**翻訳**」「**適用**」に分割することで、当初50時間を想定していた作業を6時間（実装4時間、実行2時間）で完了できました。今後さらに多言語対応が求められる場面が増えてくることを考えると、この手法の効果は非常に大きいと感じています。
 
 # おわりに
 
-この記事では、ts-morph を使った AST 変換による多言語対応の効率化手法を紹介しました。大掛かりで面倒に見える作業も、構造的に分割し、タスクごとに自動化・省力化することで着実な成果が得られます。
+この記事では、ts-morph を使った AST 変換による多言語対応の効率化手法を紹介しました。
 
-このアプローチは多言語対応だけでなく、以下のようなさまざまな課題にも応用できます。
+大規模で複雑に見える作業も、構造的に分割し、タスクごとに自動化・省力化することで着実な成果が得られることを実感しました。このアプローチは多言語対応だけでなく、以下のようなさまざまな課題にも応用できます。
 
-- リファクタ（関数名やロジック差し替え）
-- セキュリティ対応（パターン一括置換や検出）
-- コーディング規約やログ出力の型統一 など
+- リファクタリング（関数名やロジックの差し替え）
+- セキュリティ対応（パターンの一括置換や検出）
+- コーディング規約の統一やログ出力の型統一
 
-AI 時代は「どの部分を AI に任せ、どこを人が設計・判断すべきか」という線引きが、再現性の高い開発と効率向上の鍵です。もし似たような課題に悩んでいる方がいれば、一度タスクの構造化や AI 活用・自動化の線引きについて見直してみてください！
+AI 時代において、「どの部分を AI に任せ、どこを人が設計・判断すべきか」という線引きが、再現性の高い開発と効率向上の鍵となります。もし似たような課題に悩んでいる方がいれば、タスクの構造化や AI 活用と自動化の線引きについて、ぜひ一度見直してみてください！
