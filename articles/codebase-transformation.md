@@ -3,7 +3,8 @@ title: "600ファイル5000箇所の多言語対応を半日で終わらせた�
 emoji: "🚿"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["TypeScript", "AST"]
-published: false
+published: true
+published_at: 2025-11-17 11:00
 publication_name: "dress_code"
 ---
 
