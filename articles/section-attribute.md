@@ -1,6 +1,6 @@
 ---
-title: "画面が増えても破綻しない Server-Driven UI という設計判断"
-emoji: "🧱"
+title: "画面が増え続けるプロダクトの Server-Driven UI という選択肢"
+emoji: "🧩"
 type: "tech"
 topics:
   [
