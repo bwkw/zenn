@@ -3,7 +3,8 @@ title: "繰り返される問題を3ステップで根絶する氷山モデル"
 emoji: "🧊"
 type: "idea" # tech: 技術記事 / idea: アイデア
 topics: ["設計", "システム思考", "問題解決", "AI"]
-published: false
+published: true
+published_at: 2025-12-18 09:00
 publication_name: "dress_code"
 ---
 
