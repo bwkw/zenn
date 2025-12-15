@@ -16,7 +16,7 @@ publication_name: "dress_code"
 
 # はじめに
 
-こんにちは、DressCode でエンジニアをしている [ないとー](https://x.com/_bwkw_) です。このブログは [Dress Code Advent Calendar 2025](https://adventar.org/calendars/12017) の 18 日目の記事です！
+こんにちは、Dress Code でプロダクトエンジニアをしている[ないとー](https://x.com/_bwkw_)です。この記事は [Dress Code Advent Calendar 2025](https://adventar.org/calendars/12017) の 18 日目の記事です！
 
 AI との共創が当たり前になった今、目の前の問題を解決するスピードは劇的に上がりました。テストが落ちたら AI に聞く、レビューで指摘されたら AI に聞く、障害が起きたら AI に聞く。言われた通りに直せば、大抵のことはその場で収まるかと思います。
 
