@@ -1,5 +1,5 @@
 ---
-title: "画面が増え続けるプロダクトのServer-Driven UIという選択肢"
+title: "画面が増えゆくプロダクトの Server-Driven UI という選択肢"
 emoji: "🧩"
 type: "tech"
 topics:
