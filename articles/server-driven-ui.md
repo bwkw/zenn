@@ -1,9 +1,10 @@
 ---
-title: "画面が増えゆくプロダクトの Server-Driven UI という選択肢"
+title: "画面が増え続けるプロダクトの Server-Driven UI という選択"
 emoji: "🧩"
 type: "tech"
 topics: ["ServerDrivenUI", "設計パターン", "TypeScript"]
-published: false
+published: true
+published_at: 2025-12-19 09:00
 publication_name: "dress_code"
 ---
 
@@ -128,7 +129,7 @@ function EmployeeProfileDetail({ data }: Props) {
 
 ミドルウェアで制御する人もいれば、サービス層で制御する人もいる。フィールド単位で出し分ける人もいれば、エンドポイント自体へのアクセスを制限する人もいる。詳細画面が増えるたびに権限制御のロジックがあちこちに散らばり、「このフィールドは誰が閲覧・編集できるんだっけ？」という問いに答えるには、各エンドポイントの実装を一つ一つ確認するしかなくなります。
 
-# Server-Driven UI という選択肢
+# Server-Driven UI という選択
 
 ## なぜ Server-Driven UI なのか
 
