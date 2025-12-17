@@ -16,7 +16,7 @@ publication_name: "dress_code"
 
 この記事は [Dress Code Advent Calendar 2025](https://adventar.org/calendars/12017) の 19 日目の記事です。
 
-こんにちは、Dress Code でプロダクトエンジニアをしている[ないとー](https://x.com/_bwkw_)です！私は [DRESS CODE](https://www.dress-code.com/ja) という、人事、情報システム、総務、採用、コーポレートなど、複数の部門を横断する業務 OS として機能するコンパウンドプロダクトを開発しています。
+こんにちは、Dress Code でプロダクトエンジニアをしている [ないとー](https://x.com/_bwkw_) です！私は [DRESS CODE](https://www.dress-code.com/ja) という、人事、情報システム、総務、採用、コーポレートなど、複数の部門を横断する業務 OS として機能するコンパウンドプロダクトを開発しています。
 
 ![事業ドメイン](/images/server-driven-ui/business-domain.png)
 
