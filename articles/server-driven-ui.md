@@ -1,5 +1,5 @@
 ---
-title: "コンパウンドプロダクトの Server-Driven UI という選択肢"
+title: "画面が増え続けるプロダクトの Server-Driven UI という選択"
 emoji: "🧩"
 type: "tech"
 topics: ["ServerDrivenUI", "設計パターン", "TypeScript"]
