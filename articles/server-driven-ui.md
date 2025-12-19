@@ -4,7 +4,7 @@ emoji: "🧩"
 type: "tech"
 topics: ["ServerDrivenUI", "設計パターン", "TypeScript"]
 published: true
-published_at: 2025-12-19 09:00
+published_at: 2025-12-19 11:00
 publication_name: "dress_code"
 ---
 
