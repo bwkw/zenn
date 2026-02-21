@@ -1,5 +1,5 @@
 ---
-title: "文字コード自動検出の「その先」をバイト列が教えてくれた"
+title: "文字コード自動検出のその先を、バイト列が教えてくれた"
 emoji: "🔍"
 type: "tech"
 topics: ["encoding", "chardet", "typescript", "nodejs"]
