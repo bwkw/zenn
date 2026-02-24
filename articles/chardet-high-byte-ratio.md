@@ -1,6 +1,6 @@
 ---
 title: "エンコーディング自動検出の「その先」を、バイト列が教えてくれた"
-emoji: "🔍"
+emoji: "🔖"
 type: "tech"
 topics: ["encoding", "chardet", "typescript", "nodejs"]
 published: false
@@ -19,15 +19,15 @@ publication_name: "dress_code"
 
 ![ドメイン / マーケット](/images/chardet-high-byte-ratio/domain-market.png)
 
-DRESS CODE では、日本、タイ、ベトナム、インドネシア、シンガポールなど各国の拠点から業務データが CSV でアップロードされます。エンコーディングは拠点ごとにバラバラですが、内部では UTF-8 に統一して扱いたい。そこで、ICU プロジェクトの文字検出アルゴリズムをベースにした [chardet](https://github.com/runk/node-chardet) でエンコーディングを検出し、[iconv-lite](https://github.com/ashtuchkin/iconv-lite) で UTF-8 に変換する仕組みを入れました。
+DRESS CODE では、日本、タイ、ベトナム、インドネシア、シンガポールなど各国の拠点から業務データが CSV でアップロードされます。エンコーディングは拠点ごとにバラバラですが、内部では UTF-8 に統一して扱いたい。そこで、ICU プロジェクトの文字検出アルゴリズムをベースにした [node-chardet](https://github.com/runk/node-chardet) でエンコーディングを検出し、[iconv-lite](https://github.com/ashtuchkin/iconv-lite) で UTF-8 に変換する仕組みを入れました。
 
 ただ、マルチバイト系はこれでうまくいったのですが、シングルバイト系のエンコーディングでは誤検出が多発し、一筋縄ではいきませんでした。
 
-この記事では、chardet の限界に直面し、バイト列の統計的特徴を見ることで突破した話を紹介します。同じようにエンコーディング自動検出で苦戦している方の参考になれば幸いです👋
+この記事では、node-chardet の限界に直面し、バイト列の統計的特徴を見ることで突破した話を紹介します。同じようにエンコーディング自動検出で苦戦している方の参考になれば幸いです👋
 
-# chardet の限界
+# node-chardet の限界
 
-chardet は、バイト列からエンコーディングと使用言語を推定する判定器です。
+node-chardet は、バイト列からエンコーディングと使用言語を推定する判定器です。
 
 内部は [ICU（International Components for Unicode）](https://icu.unicode.org/) の文字検出アルゴリズムをベースにしており、エンコーディングの種類に応じて異なる判定手法を使い分けています。
 
@@ -44,17 +44,17 @@ EUC-KR や GB18030、Big5 などは、高い confidence で安定して検出で
 
 一方で、**SBCS はそうはいきません**。
 
-まず、chardet がサポートする SBCS は ISO-8859 系や Windows-125x 系が中心で、**TIS-620（タイ語）や Windows-1258（ベトナム語）はそもそも検出対象に含まれていません**。そのため、タイ語やベトナム語の CSV を入力しても、chardet は候補として返すことができず、代わりに trigram パターンが近い別のエンコーディングを返してしまいます。
+まず、node-chardet がサポートする SBCS は ISO-8859 系や Windows-125x 系が中心で、**TIS-620（タイ語）や Windows-1258（ベトナム語）はそもそも検出対象に含まれていません**。そのため、タイ語やベトナム語の CSV を入力しても、node-chardet は候補として返すことができず、代わりに trigram パターンが近い別のエンコーディングを返してしまいます。
 
 そもそも SBCS は 0x00〜0xFF の 256 個のバイトを 1 文字ずつ割り当てる方式で、ISO-8859-1（西ヨーロッパ言語）、ISO-8859-7（ギリシャ語）、TIS-620（タイ語）、Windows-1258（ベトナム語）などは、同じ 256 スロットを「どの文字を置くか」だけ変えて共有しています。どの SBCS も ASCII 領域（0x00〜0x7F）の使い方がほぼ同じため、CSV のようにカンマや数字が多いデータでは trigram パターンが言語間で似通いやすくなります。
 
-その結果、私たちの環境では、タイ語（TIS-620）の CSV がギリシャ語（ISO-8859-7）として、ベトナム語（Windows-1258）の CSV が西ヨーロッパ言語（ISO-8859-1）として検出されるケースが多く見られました。これは chardet のバグではなく、TIS-620 / Windows-1258 が検出対象外であること、そしてサポート済みの SBCS 同士でも同じ 1 バイト空間を共有しており trigram パターンの差が小さいという、方式そのものの限界です。
+その結果、私たちの環境では、タイ語（TIS-620）の CSV がギリシャ語（ISO-8859-7）として、ベトナム語（Windows-1258）の CSV が西ヨーロッパ言語（ISO-8859-1）として検出されるケースが多く見られました。これは node-chardet のバグではなく、TIS-620 / Windows-1258 が検出対象外であること、そしてサポート済みの SBCS 同士でも同じ 1 バイト空間を共有しており trigram パターンの差が小さいという、方式そのものの限界です。
 
-そのため、「chardet を入れたから終わり」ではなく、「特に 1 バイト系は誤検出を前提に、何かしらガードを足す必要がある」というのが、この時点での結論でした。
+そのため、「node-chardet を入れたから終わり」ではなく、「特に 1 バイト系は誤検出を前提に、何かしらガードを足す必要がある」というのが、この時点での結論でした。
 
 # バイト列で候補を絞る
 
-そこで、chardet が見ている「trigram パターンとの一致度」とは別に、**生のバイト列そのもの**に手がかりがないかを探しました。ここからは、完璧ではないが実用的に十分な判定手法、いわゆる [Heuristic](https://en.wikipedia.org/wiki/Heuristic) を自前で組み立てていきます。
+そこで、node-chardet が見ている「trigram パターンとの一致度」とは別に、**生のバイト列そのもの**に手がかりがないかを探しました。ここからは、完璧ではないが実用的に十分な判定手法、いわゆる [Heuristic](https://en.wikipedia.org/wiki/Heuristic) を自前で組み立てていきます。
 
 > A heuristic is any approach to problem solving that employs a pragmatic method that is not fully optimized, perfected, or rationalized, but is nevertheless "good enough" as an approximation.
 
@@ -139,7 +139,7 @@ function highByteRatio(buffer: Buffer): number {
 high byte ratio で絞った候補が本当に正しいかを、実際にデコードして検証します。候補のエンコーディングでサンプルをデコードし、以下の 2 つの条件を両方満たした場合だけ採用します。
 
 1. **言語固有文字が 1 文字以上含まれている** — タイ語なら Unicode の Thai ブロック（U+0E00〜U+0E7F）、ベトナム語なら ơ, ư, ă, đ といった固有のラテン拡張文字
-2. **U+FFFD（文字化け）が増えていない** — 候補でデコードした結果の U+FFFD の数が、元の chardet 結果以下であること
+2. **U+FFFD（文字化け）が増えていない** — 候補でデコードした結果の U+FFFD の数が、元の node-chardet 結果以下であること
 
 ```typescript
 function selectBestEncoding(sample: Buffer, initialEncoding: string): string {
@@ -186,7 +186,7 @@ U+FFFD を 1 文字でも検出したらエラーでストリームを停止し�
 
 # おわりに
 
-chardet はマルチバイト系（CJK）には強い一方で、TIS-620 やWindows-1258 はそもそも検出対象外であり、サポート済みの SBCS 同士でも構造的に区別が難しい。これはライブラリのバグではなく、検出対象の範囲と、シングルバイトエンコーディングという仕組みの本質的な限界です。
+node-chardet はマルチバイト系には強い一方で、TIS-620 や Windows-1258 はそもそも検出対象外であり、サポート済みの SBCS 同士でも構造的に区別が難しい。これはライブラリのバグではなく、検出対象の範囲と、シングルバイトエンコーディングという仕組みの本質的な限界です。
 
 しかし、今回紹介したようにバイト列を観察すると、言語によって high byte（0x80 以上）の割合が大きく違うことがわかります。この差を利用した閾値判定とデコード検証を組み合わせることで、タイ語・ベトナム語を含む多言語の CSV が文字化けなく通るようになりました。
 
