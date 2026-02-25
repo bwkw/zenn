@@ -2,7 +2,7 @@
 title: "エンコーディング自動検出の「その先」を、バイト列が教えてくれた"
 emoji: "🔖"
 type: "tech"
-topics: ["encoding", "chardet", "typescript", "nodejs"]
+topics: ["encoding", "typescript", "nodejs"]
 published: false
 publication_name: "dress_code"
 ---
