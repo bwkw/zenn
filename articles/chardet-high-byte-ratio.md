@@ -3,7 +3,8 @@ title: "エンコーディング自動検出の「その先」を、バイト列
 emoji: "🔖"
 type: "tech"
 topics: ["encoding", "typescript", "nodejs"]
-published: false
+published: true
+published_at: 2026-02-26 11:00
 publication_name: "dress_code"
 ---
 
