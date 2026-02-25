@@ -168,7 +168,7 @@ function selectBestEncoding(sample: Buffer, initialEncoding: string): string {
 
 `candidateScore > 0`（固有文字あり）かつ `candidateBadChars <= initialBadChars`（文字化けが増えていない）を満たさなければ、候補は棄却して `initialEncoding` をそのまま返します。Heuristic が外れても既存の動作を壊さない、安全に試行できる設計です。
 
-さらに、UTF-8 変換後のストリームでも、最終防衛ラインとして全体を監視しています。
+ここまでの node-chardet による初期検出、Heuristic による補正、デコード検証でエンコーディングが確定したら、iconv-lite で UTF-8 に変換します。さらに、その変換後のストリームでも、最終防衛ラインとして全体を監視しています。
 
 ```typescript
 class ReplacementCharDetector extends Transform {
@@ -186,7 +186,7 @@ class ReplacementCharDetector extends Transform {
 }
 ```
 
-U+FFFD を 1 文字でも検出したらエラーでストリームを停止します。正常な業務 CSV に `�` が含まれることは実質ないので、1 文字でもあれば判定ミス確定。文字化けデータを後続に流すよりも、その場で止めるほうが安全です。
+U+FFFD を 1 文字でも検出したらエラーでストリームを停止します。正常な業務 CSV に `�` が含まれることは実質ないので、1 文字でもあれば判定ミスとみなし、文字化けデータを後続に流すよりもその場で止めるほうが安全という判断です。
 
 # おわりに
 
