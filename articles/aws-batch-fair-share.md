@@ -96,7 +96,7 @@ https://aws.amazon.com/blogs/hpc/introducing-fair-share-scheduling-for-aws-batch
 
 Fair Share Scheduling は、先着順ではなく **「最近あまりリソースを使っていない share を優先する」** という発想のスケジューリングポリシーです。`shareIdentifier` ごとに累積リソース使用量を追跡し、使用量の少ない share のジョブを優先して実行します。
 
-`shareIdentifier` には任意の文字列を設定できます。今回はジョブ投入時に組織IDを `shareIdentifier` として渡すことで、この仕組みを**組織間の公平なリソース分配**として活用しています。
+`shareIdentifier` には任意の文字列を設定できます。今回はジョブ投入時に組織 ID を `shareIdentifier` として渡すことで、この仕組みを**組織間の公平なリソース分配**として活用しています。
 
 ただし、この仕組みが期待通りに機能するかはパラメータ設計に依存します。主に設定するのは以下の 3 つです。
 
@@ -123,11 +123,11 @@ Fair Share Scheduling は、先着順ではなく **「最近あまりリソー�
 
 Fair Share を使うには、ジョブ投入時に `shareIdentifier` を指定する必要があります。どの組織のジョブかをスケジューラーが識別できなければ、公平な配分が機能しないためです。
 
-最初は EventBridge の Input Transformer だけで完結させられないかと考えました。しかし Input Transformer では**正規表現が使えない**ため、イベントから動的に値を解決するのが難しい。加えて `shareIdentifier` を未指定のままジョブを投入するとエラーになるため、設定漏れをコードレベルで排除したいという事情もありました。これらを踏まえ、EventBridge と AWS Batch の間に **Lambda Dispatcher** を挟む構成を選びました。
+最初は EventBridge の Input Transformer だけで完結させられないかと考えました。しかし Input Transformer では**正規表現が使えない**ため、イベントから動的に値を解決するのが難しかった。加えて `shareIdentifier` を未指定のままジョブを投入するとエラーになるため、設定漏れをコードレベルで排除したいという事情もありました。これらを踏まえ、EventBridge と AWS Batch の間に **Lambda Dispatcher** を挟む構成を選びました。
 
 ただ、Lambda を挟む理由はこれだけではありません。将来、組織をプランや契約に応じて Tier 分けし優先度に差をつける構成（Tiered Share）へ移行することを見据えていました。そうなると「この組織はどの Tier に属するか」を判定したうえで `shareIdentifier` を決める必要が出てきます。このマッピングをアプリケーションの各所に散らすのではなく、Lambda という専用の解決レイヤーに集約しておけば、変更が必要な箇所をこのハンドラーだけに絞ることができます。
 
-今は組織 ID をそのまま `shareIdentifier` として渡すだけです。それでも、拡張の余地を構造として持っておく。それが Lambda Dispatcher を選んだ本当の理由です。
+今は組織 ID をそのまま `shareIdentifier` として渡すだけです。しかし、拡張の余地を構造として残しておくこと——それが Lambda Dispatcher を選んだ本当の理由です。
 
 ```mermaid
 flowchart LR
