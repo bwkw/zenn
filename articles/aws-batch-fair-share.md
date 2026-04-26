@@ -96,7 +96,7 @@ https://aws.amazon.com/blogs/hpc/introducing-fair-share-scheduling-for-aws-batch
 
 Fair Share Scheduling は、先着順ではなく **「最近あまりリソースを使っていない share を優先する」** という発想のスケジューリングポリシーです。`shareIdentifier` ごとに累積リソース使用量を追跡し、使用量の少ない share のジョブを優先して実行します。
 
-`shareIdentifier` には任意の文字列を設定できます。今回はジョブ投入時に `organizationId` を `shareIdentifier` として渡すことで、この仕組みを**組織間の公平なリソース分配**として活用しています。
+`shareIdentifier` には任意の文字列を設定できます。今回はジョブ投入時に組織IDを `shareIdentifier` として渡すことで、この仕組みを**組織間の公平なリソース分配**として活用しています。
 
 ただし、この仕組みが期待通りに機能するかはパラメータ設計に依存します。主に設定するのは以下の 3 つです。
 
@@ -104,11 +104,11 @@ Fair Share Scheduling は、先着順ではなく **「最近あまりリソー�
 
 今回の環境は `maxvCpus: 10`、`containerCpu: 1` のため、同時実行できるジョブ数は最大 10 です。以下のパラメータはこの 10 並列を前提にした設定値です。
 
-| パラメータ           | 意味                                                                                                                               | 設定値            | 理由                                                                                                                                                                                           |
-| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `shareDecaySeconds`  | 過去の使用量が「忘れられる」までの時間。この期間の累積使用量をもとに次のジョブ優先度を決める                                                                           | 3600 秒（1 時間） | バースト後に 1 時間は優先度を下げたい。データ連携はリアルタイム性不要なのでこのペナルティ期間は許容できる |
+| パラメータ           | 意味                                                                                                                                                         | 設定値            | 理由                                                                                                                                   |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `shareDecaySeconds`  | 過去の使用量が「忘れられる」までの時間。この期間の累積使用量をもとに次のジョブ優先度を決める                                                                 | 3600 秒（1 時間） | バースト後に 1 時間は優先度を下げたい。データ連携はリアルタイム性不要なのでこのペナルティ期間は許容できる                              |
 | `computeReservation` | 現在アクティブでない（キューにジョブがない状態の）組織のために予約するリソースの割合（%）。予約比率は `(computeReservation / 100) ^ ActiveFairShares` で計算 | 10                | 1 組織が独占しているとき 1 スロット（10%）を他組織用に確保したい。複数組織がアクティブなら予約は指数的に減るのでリソース効率も落ちない |
-| `weightFactor`       | 組織ごとの配分の重み。値が小さいほど優先度が高く、より多くのリソースが割り当てられる                                               | 全組織 1.0        | 現時点では全組織同一優先度で十分なため |
+| `weightFactor`       | 組織ごとの配分の重み。値が小さいほど優先度が高く、より多くのリソースが割り当てられる                                                                         | 全組織 1.0        | 現時点では全組織同一優先度で十分なため                                                                                                 |
 
 `computeReservation` の数式は少し直感的でないので補足します。
 
@@ -121,51 +121,47 @@ Fair Share Scheduling は、先着順ではなく **「最近あまりリソー�
 
 # Lambda Dispatcher という設計選択
 
-Fair Share を使うには、ジョブ投入時に `shareIdentifier`（どの組織のジョブか）を指定する必要があります。今回は S3 のキーパスに含まれる `organizationId` を抽出して使います。
+Fair Share を使うには、ジョブ投入時に `shareIdentifier` を指定する必要があります。どの組織のジョブかをスケジューラーが識別できなければ、公平な配分が機能しないためです。
 
-最初は EventBridge の Input Transformer で解決できないかと考えました。しかし Input Transformer では**正規表現が使えない**ため、S3 キーパスから動的に値を抽出するのが難しいことがわかりました。また `shareIdentifier` を未指定のままジョブを投入するとエラーになるため、設定漏れのリスクをコードレベルでゼロにしたいという事情もありました。
+最初は EventBridge の Input Transformer だけで完結させられないかと考えました。しかし Input Transformer では**正規表現が使えない**ため、イベントから動的に値を解決するのが難しい。加えて `shareIdentifier` を未指定のままジョブを投入するとエラーになるため、設定漏れをコードレベルで排除したいという事情もありました。これらを踏まえ、EventBridge と AWS Batch の間に **Lambda Dispatcher** を挟む構成を選びました。
 
-そこで EventBridge と AWS Batch の間に **Lambda Dispatcher** を挟む構成に変更しました。
+ただ、Lambda を挟む理由はこれだけではありません。将来、組織をプランや契約に応じて Tier 分けし優先度に差をつける構成（Tiered Share）へ移行することを見据えていました。そうなると「この組織はどの Tier に属するか」を判定したうえで `shareIdentifier` を決める必要が出てきます。このマッピングをアプリケーションの各所に散らすのではなく、Lambda という専用の解決レイヤーに集約しておけば、変更が必要な箇所をこのハンドラーだけに絞ることができます。
+
+今は組織 ID をそのまま `shareIdentifier` として渡すだけです。それでも、拡張の余地を構造として持っておく。それが Lambda Dispatcher を選んだ本当の理由です。
+
+```mermaid
+flowchart LR
+    S3["S3\nファイルアップロード"] --> EB["EventBridge"]
+    EB --> Lambda["Lambda Dispatcher\n（組織ID → shareIdentifier 解決）"]
+    Lambda -->|"shareIdentifier 付きで投入"| JQ
+
+    subgraph batch ["AWS Batch"]
+        direction LR
+        FSP["Fair Share\nScheduling Policy"]
+        JQ["ジョブキュー"]
+        CE["Fargate\nコンテナ"]
+        FSP -. "優先度制御" .-> JQ --> CE
+    end
+```
 
 ```typescript
 // Lambda Dispatcher（擬似コード）
 export const handler = async (event: EventBridgeEvent) => {
-  const s3Key = event.detail.object.key;
+  // 将来の Tiered Share 移行時はこの解決ロジックを拡張する
+  const shareIdentifier = resolveShareIdentifier(event);
 
-  // S3 キーパスから organizationId を抽出
-  const organizationId = extractOrganizationId(s3Key); // 正規表現で解決
-
-  // shareIdentifier を明示してジョブ投入
   await batchClient.submitJob({
     jobName: "...",
     jobQueue: "...",
     jobDefinition: "...",
-    shareIdentifier: organizationId,
+    shareIdentifier,
   });
 };
 ```
 
-Lambda を挟むことで、`shareIdentifier` の設定漏れがコード上でありえなくなります。また、将来 Tiered Share に移行する際もマッピングロジックを Lambda に追加するだけで対応できるため、将来の拡張にも備えやすい構成です。
-
-アーキテクチャはこのようになります。
-
-```mermaid
-flowchart LR
-    S3["S3 Event"] --> EB["EventBridge"]
-    EB --> Lambda["Lambda Dispatcher"]
-    Lambda -->|"shareIdentifier=orgId"| Batch["AWS Batch"]
-
-    subgraph batch ["AWS Batch"]
-        FSS["Fair Share Policy"]
-        JQ["Job Queue"]
-        CE["Compute Environment"]
-        FSS --> JQ --> CE
-    end
-```
-
 # Noisy Neighbor は「軽減」できる
 
-改めて、組織 A が 100 件・組織 B が 5 件を同時投入したケースで比較します。
+構成が整ったところで、改めて組織 A が 100 件・組織 B が 5 件を同時投入したケースで Before/After を比較します。
 
 **Before（Fair Share なし・先着順）**
 
@@ -179,29 +175,20 @@ flowchart LR
 **After（Fair Share あり・computeReservation=10）**
 
 ```
-実行順: A A A A A A A A A B B B B B A A A A A A A ...
-                          ^^^^^^^^^
-                          computeReservation により 1 スロット（10%）が
-                          新規組織用に予約されているため、組織 A は最大 9 並列。
-                          組織 B はジョブ投入直後から実行開始でき、
-                          スロットが空くたびに累積使用量の少ない組織 Bが優先される。
+実行順（概念図）:
+  A A A A A A A A A B  ← computeReservation で投入直後から B が 1 スロット確保
+  A A A A A A A B B    ← 空きが出るたびに累積使用量の少ない B が優先
+  A A A A A B B B B B  ← B の 5 件完了
+  A A A A A A A A A A  ← 残りの A が続く
 ```
 
-Fair Share は「スロットが空いたとき、過去の累積使用量が少ない組織のジョブを優先する」仕組みです。`computeReservation=10` により、1 組織が独占している状態でも 1 スロットが新規組織用に確保されるため、組織 B はキューに入った直後から処理が始まります。
+Fair Share は「スロットが空いたとき、過去の累積使用量が少ない組織のジョブを優先する」仕組みです。`computeReservation=10` により、1 組織が独占している状態でも 1 スロットが新規組織用に確保されるため、組織 B はキューに入った直後から処理を開始できます。その後も空きスロットは累積使用量の少ない B が優先的に取得するため、B の 5 件は A の 100 件が終わるのを待たずに短時間で消化されます。
 
 :::message
 ただし、これは **完全な解消ではなく、あくまで軽減** です。
 
-組織 A の 100 件が消えるわけではありません。組織 B が理不尽に後回しにされ続ける状態を防ぎつつ、お互いのジョブを並走させるのが Fair Share の役割です。特定の組織に対して厳密な SLA 保証が必要なケースや、他組織の影響をゼロにしたい場合は、Tiered Share の `weightFactor` 調整や専用キューの検討が別途必要になります。
+組織 A の 100 件が消えるわけではありません。組織 B が理不尽に後回しにされ続ける状態を防ぎつつ、お互いのジョブを並走させるのが Fair Share の役割です。特定の組織に対して厳密な SLA 保証が必要なケースや、他組織の影響をゼロにしたい場合は、専用キューの検討が別途必要になります。
 :::
-
-# 将来の移行パス
-
-現状は `weightFactor` を全組織 1.0（同一優先度）にしていますが、Fair Share Policy の `active share` には **500（同時にジョブを持つ組織数）** という上限があります。
-
-現時点では問題ありませんが、将来この上限に近づいた場合は **Tiered Share** への移行を検討します。組織をプランや契約に応じて tier（例：gold / silver / bronze）にグルーピングし、tier ごとに `weightFactor` を設定することで、組織数が増えても公平性とリソース効率を保ちながら優先度の差をつけられます。
-
-Lambda Dispatcher にマッピングロジックを追加するだけで移行できるよう設計しておいたのは、この将来のことを念頭においてのことでもあります。
 
 # おわりに
 
