@@ -1,5 +1,5 @@
 ---
-title: "マルチテナント Batch の Noisy Neighbor 問題を AWS Fair Share Scheduling で軽減した話"
+title: "AWS Batch でテナント間の順番待ちを緩和した話"
 emoji: "⚖️"
 type: "tech"
 topics: ["AWS", "AWSBatch", "SaaS", "マルチテナント"]
@@ -9,7 +9,7 @@ publication_name: "dress_code"
 
 # TL;DR
 
-![tl;dr](/images/aws-batch-fair-share/tldr.png)
+![tl;dr](/images/aws-batch-fair-share/tldr.jpeg)
 
 # はじめに
 
@@ -78,7 +78,7 @@ https://docs.aws.amazon.com/ja_jp/batch/latest/userguide/service_limits.html
 
 では、大量投入しがちな組織だけを専用キューに分け、残りは共有キューに流すハイブリッドな方法はどうでしょうか。
 
-キューの上限という問題は変わりません。専用キューを追加するたびに上限に近づいていくのは同じです。
+しかし、キューの上限という問題は変わりません。専用キューを追加するたびに上限に近づいていくのは同じです。
 
 さらに、「どの組織が大口か」という分類を誰かが判断し続ける必要があります。組織の規模は時間とともに変わるため、一度決めたら終わりではありません。今日は小口だった組織が、来月には大量投入するようになる可能性は十分あります。この分類をリアルタイムに正確に維持しようとすると、解決したかった問題よりも分類ロジックの方が複雑になってしまいます。
 
@@ -123,9 +123,9 @@ Fair Share Scheduling は、先着順ではなく **「最近あまりリソー�
 
 Fair Share を使うには、ジョブ投入時に `shareIdentifier` を指定する必要があります。どの組織のジョブかをスケジューラーが識別できなければ、公平な配分が機能しないためです。
 
-最初は EventBridge の Input Transformer だけで完結させられないかと考えました。しかし Input Transformer では**正規表現が使えない**ため、イベントから動的に値を解決するのが難しかった。加えて `shareIdentifier` を未指定のままジョブを投入するとエラーになるため、設定漏れをコードレベルで排除したいという事情もありました。これらを踏まえ、EventBridge と AWS Batch の間に **Lambda Dispatcher** を挟む構成を選びました。
+最初は EventBridge の Input Transformer だけで完結させられないかと考えました。しかし Input Transformer では**正規表現が使えない**ため、イベントから動的に値を解決するのが難しく、加えて `shareIdentifier` を未指定のままジョブを投入するとエラーになるため、設定漏れをコードレベルで排除したいという事情もありました。これらを踏まえ、EventBridge と AWS Batch の間に **Lambda Dispatcher** を挟む構成を選びました。
 
-ただ、Lambda を挟む理由はこれだけではありません。将来、組織をプランや契約に応じて Tier 分けし優先度に差をつける構成（Tiered Share）へ移行することを見据えていました。そうなると「この組織はどの Tier に属するか」を判定したうえで `shareIdentifier` を決める必要が出てきます。このマッピングをアプリケーションの各所に散らすのではなく、Lambda という専用の解決レイヤーに集約しておけば、変更が必要な箇所をこのハンドラーだけに絞ることができます。
+ただし、Lambda を挟む理由はこれだけではありません。将来、組織をプランや契約に応じて Tier 分けし優先度に差をつける構成（Tiered Share）へ移行することを見据えていました。そうなると「この組織はどの Tier に属するか」を判定したうえで `shareIdentifier` を決める必要が出てきます。このマッピングをアプリケーションの各所に散らすのではなく、Lambda という専用の解決レイヤーに集約しておけば、変更が必要な箇所をこのハンドラーだけに絞ることができます。
 
 今は組織 ID をそのまま `shareIdentifier` として渡すだけです。しかし、拡張の余地を構造として残しておくこと——それが Lambda Dispatcher を選んだ本当の理由です。
 
@@ -166,10 +166,11 @@ export const handler = async (event: EventBridgeEvent) => {
 **Before（Fair Share なし・先着順）**
 
 ```
-実行順: A A A A A A A A A A A A ... (100件すべて消化) ... B B B B B
-                                                          ^^^^^^^^
-                                                          組織 B は組織 A の 100 件が
-                                                          完了するまで実行されない
+実行順（先着順）:
+  A A A A A A A A A A  ← A の 100 件が全スロットを占有し続ける
+  A A A A A A A A A A
+  ... （残り 80 件）
+  B B B B B            ← A がすべて終わってから B が実行される
 ```
 
 **After（Fair Share あり・computeReservation=10）**
@@ -177,8 +178,8 @@ export const handler = async (event: EventBridgeEvent) => {
 ```
 実行順（概念図）:
   A A A A A A A A A B  ← computeReservation で投入直後から B が 1 スロット確保
-  A A A A A A A B B    ← 空きが出るたびに累積使用量の少ない B が優先
-  A A A A A B B B B B  ← B の 5 件完了
+  A A A A A A A A B B  ← 空きが出るたびに累積使用量の少ない B が優先（B 累計: 3）
+  A A A A A A A A B B  ← B の 5 件完了（B 累計: 5）
   A A A A A A A A A A  ← 残りの A が続く
 ```
 
