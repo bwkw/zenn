@@ -126,10 +126,6 @@ Fair Share を使うには、ジョブ投入時に `shareIdentifier` を指定�
 
 最初は EventBridge の Input Transformer だけで完結させられないかと考えました。しかし Input Transformer では**正規表現が使えない**ため、イベントから動的に値を解決するのが難しく、加えて `shareIdentifier` の付与漏れを防ぐためにも設定漏れをコードレベルで排除したいという事情がありました。これらを踏まえ、EventBridge と AWS Batch の間に **Lambda Dispatcher** を挟む構成を選びました。
 
-ただし、Lambda を挟む理由はこれだけではありません。将来、組織をプランや契約に応じて Tier 分けし優先度に差をつける構成（Tiered Share）へ移行することを見据えていました。そうなると「この組織はどの Tier に属するか」を判定したうえで `shareIdentifier` を決める必要が出てきます。このマッピングをアプリケーションの各所に散らすのではなく、Lambda という専用の解決レイヤーに集約しておけば、変更が必要な箇所をこのハンドラーだけに絞ることができます。
-
-今は組織 ID をそのまま `shareIdentifier` として渡すだけです。しかし、拡張の余地を構造として残しておくこと、それが Lambda Dispatcher を選んだ本当の理由です。
-
 ```mermaid
 flowchart LR
     S3["S3\nファイルアップロード"] --> EB["EventBridge"]
@@ -144,6 +140,10 @@ flowchart LR
         FSP -. "優先度制御" .-> JQ --> CE
     end
 ```
+
+ただし、Lambda を挟む理由はこれだけではありません。将来、組織をプランや契約に応じて Tier 分けし優先度に差をつける構成（Tiered Share）へ移行することを見据えていました。そうなると「この組織はどの Tier に属するか」を判定したうえで `shareIdentifier` を決める必要が出てきます。このマッピングをアプリケーションの各所に散らすのではなく、Lambda という専用の解決レイヤーに集約しておけば、変更が必要な箇所をこのハンドラーだけに絞ることができます。
+
+今は組織 ID をそのまま `shareIdentifier` として渡すだけです。しかし、拡張の余地を構造として残しておくこと、それが Lambda Dispatcher を選んだ本当の理由です。
 
 ```typescript
 // Lambda Dispatcher（擬似コード）
