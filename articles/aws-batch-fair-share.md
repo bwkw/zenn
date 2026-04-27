@@ -162,7 +162,7 @@ export const handler = async (event: EventBridgeEvent) => {
 
 # Noisy Neighbor は「軽減」できる
 
-構成が整ったところで、改めて組織 A が 100 件・組織 B が 5 件を同時投入したケースで Before/After を比較します。
+構成が整ったところで、改めて組織 A が 100 件・組織 B が 5 件を同時投入したケースで Before / After を比較します。
 
 **Before（Fair Share なし・先着順）**
 
