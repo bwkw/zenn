@@ -9,26 +9,41 @@ published: false
 # TL;DR
 
 - 拡張性は、パターン名より先に「誰が何を変えるか」で決めると判断がぶれにくくなります。
-- 実装差し替えなら Strategy / Factory、参加者を足すなら Registry / Observer / Plugin、流れを組み替えるなら Decorator や Chain of Responsibility が候補になります。
-- 実行時に種類が増えない「閉じた世界」では、まず discriminated union で型に閉じるのが安全です。
+- 表の横軸に沿うと、実装差し替えは Strategy / Factory、手順の組み替えは Decorator や Chain of Responsibility、参加者の追加は Registry / Observer / Plugin、型やルールの宣言は discriminated union や DSL が候補になります。
+- 実行時に種類が増えない **閉じた世界** では、まず discriminated union で型に閉じるのが安全です。
 
 # はじめに
 
 こんにちは、Dress Code でプロダクトエンジニアをしている [ないとー](https://x.com/_bwkw_) です！
 
-私たちは [DRESS CODE](https://www.dress-code.com/ja) という、グローバル向けの Workforce Management プロダクトを開発しています。
+私たちは [DRESS CODE](https://www.dress-code.com/ja) という、グローバル向けの Workforce Management プロダクトを開発しています。人事・情報システム・総務・採用・コーポレートなど複数部門を横断する業務 OS として動くコンパウンドプロダクトで、複数の機能が同居し相互に参照し合います。
 
-プロダクトを育てていると、機能追加や外部連携、運用の変化に合わせて、どこを差し替え可能にするか、どこまで境界を開くか、という判断を何度も迫られます。拡張点を増やすほど保守や後方互換の負担も積み上がり、一度入れた境界を後から畳むのは簡単ではありません。
+![事業ドメイン](/images/design-extensibility-who-what/business-domain.png)
 
-設計の文脈で「拡張性」と聞くと、まず Strategy を思い浮かべる人も多いと思いますが、選択肢はそれだけではありません。Registry / パイプライン / イベント / Plugin / 型で閉じる方法まで、幅は広いです。名前が文献ごとに揺れるので、パターン名から入ると迷子になりやすい。
+このようなプロダクトを開発していると、「どこを差し替え可能にするか」「どこまで境界を開くか」という問いに何度も向き合うことになります。機能を増やすたびに、外部連携を広げるたびに、拡張点の判断は積み重なります。グローバル向けであることも重なって、国・地域ごとに労務法制や運用が異なるため、同じ機能でも振る舞いの差や種別の追加が継続的に求められます。
 
-そこでこの記事では、**「誰が拡張するか」と「何を変えるか」** の 2 軸で見取り図を置き、代表パターンをその上に載せていきます。以下、この 2 つを **主体** と **やること** と呼びます。タイトルどおり、**拡張性は「誰が何を変えるか」で設計する**、という整理です。
+「拡張性」という話題が出ると、まず Strategy を思い浮かべる人が多いでしょう。ただ、選択肢はそこで終わりません。Decorator、Chain of Responsibility、Registry、Observer、Plugin、さらには discriminated union で型に閉じるやり方まで、候補は幅広くあります。パターン名から入ると文献ごとに呼び方が揺れるため、どれを選べばよいか判断の軸が定まりにくくなります。
+
+そこでこの記事では、「**誰が拡張するか**」と「**何を変えるか**」の 2 軸で見取り図を置き、その上に代表パターンを載せます。以降、前者を **主体**、後者を **やること** と呼びます。
 
 同じように拡張点の切り方で迷っている方の参考になれば幸いです👋
 
 # 拡張点の見取り図
 
-縦軸が **主体**（誰が拡張するか）、横軸が **やること**（どう変えるか）です。セルに載っているのは代表例で、本文の見出しへ飛べます。
+縦軸は **主体**（誰が拡張するか）、横軸は **やること**（何を変えるか）です。
+
+**主体**は、誰がその拡張に責任を持つかで読みます。
+
+- **自分（コア開発者）**: コアが拡張点と採用する実装を決める。同じリポジトリで済む。
+- **チーム内**: コアは入口だけ用意し、各チームが後から登録やラップを足す。
+- **第三者**: 公開 API をまたいで社外が参加する。社内の話とは前提が違う。
+
+**やること**は、次の 4 つに「何を変えるか」を当てはめて読みます。
+
+- **実装を差し替える**: interface はそのまま、中身の実装を入れ替える。
+- **手順を組み替える**: 処理の流れや、前後に挟む責務を変える。
+- **参加者を足す**: 同じ呼び出し口に、後から実装を足す。
+- **型やルールで宣言する**: 分岐や条件を、型やルールの形で並べる。
 
 | 主体 \\ やること   | 実装を差し替える                                                                     | 手順を組み替える                                                              | 参加者を足す                                  | 型やルールで宣言する                                                                 |
 | ------------------ | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------ |
@@ -36,28 +51,17 @@ published: false
 | チーム内           | -                                                                                    | [Decorator](#decorator) / [Chain of Responsibility](#chain-of-responsibility) | [Registry](#registry) / [Observer](#observer) | [DSL](#dsl-%E3%81%A8%E3%83%AB%E3%83%BC%E3%83%AB%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%B3) |
 | 第三者             | -                                                                                    | -                                                                             | [Plugin](#plugin-%E3%81%A8-spi)               | -                                                                                    |
 
-空白セルは「技術的には可能でも、実務ではコストが見合いにくい」組み合わせです。たとえば第三者に手順や宣言を開く設計は可能でも、互換性維持のコストが大きく、実務では Plugin で参加者を足す形に寄せられます。
+表の `-` は、この記事では代表例を載せていない、という意味です。組み合わせが不可能なわけではありません。第三者が手順や型の境界まで触れる設計もありえますが、公開 API と互換維持の負担が一気に重くなるので、実務ではまず **参加者を足す** 列の Plugin で切るほうが現実的です。
 
-セル例:
+迷ったら、設計メモに次の 3 行だけ書くと、表のどのセルかがだいたい決まります。
 
-- Strategy / Factory：決済プロバイダや Logger の切り替え。
-- Template Method：レポート生成や ETL ジョブの骨格を固定し、ステップだけ差し替える。
-- Decorator / Chain of Responsibility：認証・ログ・レート制限などのミドルウェア。
-- Registry / Observer：イベント種別ごとの handler 登録、購読者通知。
-- Plugin：ESLint・Prettier・VS Code のような第三者拡張。
-- discriminated union / DSL：状態遷移、決済イベント種別、業務ルール表。
+1. **主体**: その拡張は誰の責任で増える？（自分 / チーム内 / 第三者）
+2. **やること**: 何を変える？（実装 / 手順 / 参加者 / 型・ルール）
+3. 交点のセルに当てはめて、本文の該当節を読む。
 
-迷ったら、次の 3 つを順に言語化すると、表のどのセルに乗るかがほぼ決まります。
+このあとは、表の横軸に沿って章を並べます。必要なところから読んでもらってかまいません。
 
-1. 主体（誰が拡張するか）：自分／チーム内／第三者。
-2. やること（どう変えるか）：実装を差し替える／手順を組み替える／参加者を足す／型やルールで宣言する。
-3. 一度開いた境界を、あとから畳めるか：互換性・移行コストの見積り。
-
-この見方は新しいものではなく、ホスト側が拡張点を宣言し、拡張側がそこへ差し込むという語彙は Eclipse の extension point / extension に近いです（[Eclipse plugin architecture](https://www.eclipse.org/articles/Article-Plug-in-architecture/plugin_architecture.html)）。
-
-# 実装を差し替える：Strategy / Factory
-
-interface（呼び出し側との取り決め）を固定して、その実装を差し替える章です。主に自分（コア開発者）が静的に手を打つ場面を想定します。
+# 実装を差し替える
 
 ## Strategy
 
@@ -92,7 +96,7 @@ class CheckoutService {
 
 実装の種類がそう増えず、interface が長く安定している場面で向きます。差し替えはコンパイル時や DI コンテナ、環境変数などで決めることが多いです。
 
-一方、interface は「最大公約数」になりがちで、ある実装だけの固有機能を前面に出したくなると無理が出ます。ダミー実装や意味の薄い分岐が増えてきたら、一度立ち止まってください。Registry で種別を増やすのか、discriminated union やルールで宣言側に逃がすのか、別のセルに移ったほうがすっきりすることがあります。
+一方、interface は「最大公約数」になりがちで、ある実装だけの固有機能を前面に出したくなると無理が出ます。ダミー実装や意味の薄い分岐が増えてきたら、一度立ち止まってください。Registry で種別を増やすのか、discriminated union やルールで宣言側に逃がすのか、別のセルに移ったほうがすっきりすることもあります。
 
 Strategy と Registry の境目で迷ったら、「実装を 1 つだけ選んで使う」のか「種別ごとにエントリを増やす」のかで分けると素直です。決済プロバイダのように 1 ユースケースに 1 実装なら Strategy、イベント種別ごとに違う handler を増やし続けるなら Registry が向きます。種別が増え続けるなら Registry、実行時に種類が増えないなら discriminated union が次の検討先です。
 
@@ -146,9 +150,9 @@ DI コンテナを置いていないコードベースで、`new` の分岐を�
 
 一方で Factory が機能ごとに散在すると、どこで何が生成されるか追いにくくなります。生成条件が肥大化してきたら、アプリ起動時に組み立てを行う場所へ集約するか、DI コンテナや Registry に寄せる判断が必要です。
 
-# 手順を組み替える：Template Method / Decorator / Chain of Responsibility
+# 手順を組み替える
 
-処理の手順や、前後に挟む責務を組み替える章です。チーム内でモジュールを組み立てる場面で出番が多くなります。
+見取り図の「手順を組み替える」の列の話です。
 
 ## Template Method
 
@@ -191,7 +195,7 @@ class DailySalesReport extends ReportJob {
 
 ## Decorator
 
-[Decorator](https://en.wikipedia.org/wiki/Decorator_pattern) は、本体の処理や interface は固定したまま、外側から責務を足すやり方です。Express や Koa のミドルウェアのように、関数を包んで連鎖させる形もこの一種です。
+[Decorator](https://en.wikipedia.org/wiki/Decorator_pattern) は、本体の処理や interface は固定したまま、外側から責務を足すやり方です。
 
 ```typescript
 type Handler = (req: Request) => Response;
@@ -256,9 +260,9 @@ const handler = async (req: Request) => new Response("OK");
 
 認証 → 認可 → レート制限 → 本体のように、順序付きで段を増やしたいときに向きます。常に同じ 1 ハンドラしか使わないなら直接呼ぶほうが素直です。ハンドラ同士が密に状態共有する構成や、チェーンが極端に長い場合は別の形を検討したほうがよいです。
 
-# 参加者を足す：Registry / Observer / Plugin
+# 参加者を足す
 
-同じ呼び出し口のまま、後から参加者を足していく章です。イベントの入口や dispatch（呼び分け）の仕組みは固定し、後から増えていく実装の集合を用意します。ただし Plugin は、足す主体が第三者（社外の開発者など）になります。
+見取り図の「参加者を足す」の列の話です。Plugin だけは足す側が社外の開発者など第三者になります。
 
 ## Registry
 
@@ -293,7 +297,7 @@ register("order.cancelled", async (p) => {
 await dispatch("order.created", { orderId: "123" });
 ```
 
-種別が後から増え続けるが、dispatch 側に `if` や `switch` を足したくないときに向きます。キーが素の文字列だとリネーム漏れが実行時まで気付けない不具合になりやすいので、`as const` や discriminated union で型を効かせると安全です。同じ種別に複数の反応が要るようになったら Observer、社外の開発者が登録するなら Plugin が次の検討先です。
+種別が後から増え続けるが、dispatch 側に `if` や `switch` を足したくないときに向きます。キーが素の文字列だとリネーム漏れが実行時まで気付けない不具合になりやすいので、イベント名などをユニオン型で宣言し、`register` と `dispatch` の引数にその型を載せると安全です。同じ種別に複数の反応が要るようになったら Observer、社外の開発者が登録するなら Plugin が次の検討先です。
 
 ## Observer
 
@@ -333,7 +337,7 @@ bus.emit("user.created", { id: "u-1" });
 
 ## Plugin と SPI
 
-[Plugin](<https://en.wikipedia.org/wiki/Plug-in_(computing)>) は、第三者（社外の開発者など）が拡張を独立して配布し、ホストが動的に取り込む仕組みです。Registry に動的読み込みと公開 API を足した形で実現することが多いです。Java の SPI（Service Provider Interface）の [`ServiceLoader`](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/ServiceLoader.html)（[SPI チュートリアル](https://docs.oracle.com/javase/tutorial/ext/basics/spi.html)）で説明される読み込み方も、同じ棚に並びます。
+[Plugin](<https://en.wikipedia.org/wiki/Plug-in_(computing)>) は、第三者（社外の開発者など）が拡張を独立して配布し、ホストが動的に取り込む仕組みです。Registry に動的読み込みと公開 API を足した形で実現することが多いです。Java の SPI（Service Provider Interface）の [`ServiceLoader`](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/ServiceLoader.html) で説明される読み込み方も、同じ棚に並びます。
 
 ```typescript
 // ホストが提供する API（Plugin から見える世界）
@@ -342,8 +346,8 @@ interface HostApi {
   onEvent(event: string, fn: () => void): void;
 }
 
-// Plugin の interface
-interface Plugin {
+// ホストが読み込むモジュールの形
+interface PluginModule {
   name: string;
   setup(host: HostApi): void;
 }
@@ -352,8 +356,8 @@ interface Plugin {
 async function loadPlugins(pluginNames: string[], host: HostApi) {
   for (const name of pluginNames) {
     const mod = await import(`./plugins/${name}.js`);
-    const plugin: Plugin = mod.default;
-    plugin.setup(host); // Plugin が自分で必要な登録をする
+    const plugin: PluginModule = mod.default;
+    plugin.setup(host); // モジュールが自分で必要な登録をする
   }
 }
 ```
@@ -362,19 +366,15 @@ ESLint・Prettier・VS Code のように、第三者が拡張を持ち寄るプ�
 
 公開 API を長く守るコストに見合わない社内ツールでは、Plugin まで行かずに済むことが多いです。
 
-Observer や Registry が「内輪の参加者追加」だとすれば、Plugin は **境界の外へ参加者を開く別格の選択** です。社外の開発者が使う公開 API になると、ドキュメントに書いた契約だけでなく、実際に観測できる挙動まで依存されやすくなります（[Hyrum's Law](https://www.hyrumslaw.com/)）。設計パターンというより、公開プラットフォームを運営する判断に近いです。
+Observer や Registry が内輪での参加者追加だとすれば、Plugin は境界の外へ参加者を開く別格の選択です。社外の開発者が使う公開 API になると、ドキュメントに書いた契約だけでなく、実際に観測できる挙動まで依存されやすくなります（[Hyrum's Law](https://www.hyrumslaw.com/)）。設計パターンというより、公開プラットフォームを運営する判断に近いです。
 
-### Plugin を公開するときの注意
+# 型やルールで宣言する
 
-一度公開した API は、[Hyrum's Law](https://www.hyrumslaw.com/) が言うように、ドキュメントに書かれていない振る舞いまで依存として固定されやすくなります。バージョン方針は [Semantic Versioning](https://semver.org/lang/ja/) とセットで決め、SDK・サンプル・移行ガイドまでコストに含めて判断する必要があります。「将来 Plugin 化」と言い始めたら、まず Strategy や Registry で足りないかを確認するのが無難です。
-
-# 型やルールで宣言する：discriminated union / DSL
-
-実行時に差し込む代わりに、型やルールという宣言の形で「変えてよい場所」を決めておく章です。コアとチーム内の両方に顔を出すパターンがあるので、見取り図では行が分かれています。
+見取り図の「型やルールで宣言する」の列の話です。コアの行にもチーム内の行にも載せられるパターンがあるので、見取り図では行を分けています。
 
 ## discriminated union と exhaustiveness checking
 
-[discriminated union（判別可能ユニオン）](https://www.typescriptlang.org/docs/handbook/2/narrowing.html) と exhaustiveness checking（網羅性チェック）を使うと、種類を足したときにコンパイルが漏れを教えてくれます。種類が増えたときの分岐漏れを、コンパイラに見つけてもらえます（Open-Closed Principle、[Bertrand Meyer, OOSC2](https://bertrandmeyer.com/wp-content/upLoads/OOSC2.pdf) の精神に近い扱いです）。
+[discriminated union（判別可能ユニオン）](https://www.typescriptlang.org/docs/handbook/2/narrowing.html) と exhaustiveness checking（網羅性チェック）を併用すると、種類を足したあとに分岐の書き忘れがあればコンパイラが教えてくれます。
 
 ```typescript
 // 種類を増やすとき → ここに種類（バリアント）を足すだけ
@@ -399,11 +399,11 @@ function handle(event: PaymentEvent): string {
 }
 ```
 
-種類がアプリと一緒にデプロイされ、実行時に第三者が新しい型を持ち込まない「閉じた世界」なら第一候補です。「まず設定 DB に」と考える前に、型で表現できないかを検討する価値があります。データ型を固定したまま操作だけ増やす形（古典的には Visitor）も、TypeScript ではこの discriminated union と関数分割でそのまま書けます。
+アプリと一緒にデプロイされる型だけで完結し、実行中に第三者が新しいバリアントを持ち込まない閉じた世界なら、まず手を出しやすい選択です。すぐ設定 DB に逃がす前に、型に載せられないか一度見るだけでも違います。
 
 ## DSL とルールエンジン
 
-分岐がコード中に増えてきたとき、ルールを宣言として並べ直すアプローチです（[Internal Reprogrammability](https://martinfowler.com/bliki/InternalReprogrammability.html)、[Rules Engine](https://martinfowler.com/bliki/RulesEngine.html)、[DSL ガイド](https://martinfowler.com/dsl.html)）。
+分岐がコード中に増えてきたとき、ルールを宣言として並べ直すアプローチです。
 
 ```typescript
 type Ctx = { tenureMonths: number; region: string };
@@ -425,20 +425,12 @@ function calcVacation(ctx: Ctx): number {
 
 ルールの見え方をレビュアや業務担当に合わせたいとき、分岐がコードの中に散らばるよりも一覧で見たいときに向きます。Fowler が書いているように、非エンジニアが直接書けることを目標にすると失敗しやすく、「読みやすさ・レビューしやすさ」を目的にするのが現実的です。
 
-# 設計レビューでの使い方
-
-レビューでは、次の 3 つを言語化すると議論がぶれにくくなります（見取り図の直後にも同じ問いを置いています）。
-
-1. **主体（誰が拡張するか）**（コア開発者 / チーム内 / 第三者）
-2. **やること（どう変えるか）**（実装を差し替える / 手順を組み替える / 参加者を足す / 型やルールで宣言する）
-3. **一度開いた境界を、あとから畳めるか**（互換性・移行コストの見積り）
-
-ここまで決まれば、Plugin か Strategy か、Registry か discriminated union か、といった選択は「表のどのセルか」にほぼ収まります。迷ったら表のセルから本文の該当節に戻るのが速いです。
-
 # おわりに
 
-拡張点の設計は、パターン名より先に**主体とやること**を決めたほうが、あとからの負債と向き合いやすいと感じています。文献の呼び方は揺れますが、軸さえ共有できればレビューで同じ地図を見られます。
+拡張点の設計は、パターン名より先に **主体** と **やること** を決めたほうが、あとからの負債と向き合いやすいと感じています。文献の呼び方は揺れますが、軸さえ共有できればレビューで同じ地図を見られます。
 
-一度足した境界を畳むのは簡単ではありません。想定外の要件が来たときは、コードを書く前に主体とやることをメモに書き出すだけでも、判断の質は変わることがあります。段階的な置き換えは [Strangler Fig Application](https://martinfowler.com/bliki/StranglerFigApplication.html) の話も参照してください。
+一度足した境界を畳むのは簡単ではありません。想定外の要件が来たときは、コードを書く前に **主体** と **やること** をメモに書き出すだけでも、判断は変わることがあります。
+
+コンパウンドで機能が絡み合いつつ、グローバルでは国・地域差が重なるように、拡張要求が複数方向から長く続くプロダクトほど、軸を共有できたときの効きが大きいと感じています。
 
 銀の弾丸ではありませんが、名前に振り回されたときに「誰が何を変えるのか」へ戻れる足場になればうれしいです👋
