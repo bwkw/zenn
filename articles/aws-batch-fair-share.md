@@ -1,5 +1,5 @@
 ---
-title: "AWS Batch でテナント間の順番待ちを緩和した話"
+title: "AWS Batch で Noisy Neighbor に向き合う"
 emoji: "⚖️"
 type: "tech"
 topics: ["AWS", "AWSBatch", "SaaS", "マルチテナント"]
