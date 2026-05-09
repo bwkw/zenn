@@ -9,8 +9,7 @@ published: false
 # TL;DR
 
 - 拡張性は、パターン名より先に「誰が何を変えるか」で決めると判断がぶれにくくなります。
-- 表の横軸に沿うと、実装差し替えは Strategy / Factory、手順の組み替えは Decorator や Chain of Responsibility、参加者の追加は Registry / Observer / Plugin、型やルールの宣言は discriminated union や DSL が候補になります。
-- 実行時に種類が増えない **閉じた世界** では、まず discriminated union で型に閉じるのが安全です。
+- 表の横軸に沿うと、実装差し替えは Strategy / Factory、手順の組み替えは Decorator や Chain of Responsibility、参加者の追加は Registry / Observer / Plugin が候補になります。
 
 # はじめに
 
@@ -22,7 +21,7 @@ published: false
 
 このようなプロダクトを開発していると、「どこを差し替え可能にするか」「どこまで境界を開くか」という問いに何度も向き合うことになります。機能を増やすたびに、外部連携を広げるたびに、拡張点の判断は積み重なります。グローバル向けであることも重なって、国・地域ごとに労務法制や運用が異なるため、同じ機能でも振る舞いの差や種別の追加が継続的に求められます。
 
-「拡張性」という話題が出ると、まず Strategy を思い浮かべる人が多いでしょう。ただ、選択肢はそこで終わりません。Decorator、Chain of Responsibility、Registry、Observer、Plugin、さらには discriminated union で型に閉じるやり方まで、候補は幅広くあります。パターン名から入ると文献ごとに呼び方が揺れるため、どれを選べばよいか判断の軸が定まりにくくなります。
+「拡張性」の話になると、まず「どんなやり方があるか」の整理に時間がかかります。実装を差し替えるのか、手順を組み替えるのか、後から参加者を足すのか、切り口からして違います。文献ごとに呼び方も揺れるため、パターン名から入ると判断の軸が定まりにくくなります。
 
 そこでこの記事では、「**誰が拡張するか**」と「**何を変えるか**」の 2 軸で見取り図を置き、その上に代表パターンを載せます。以降、前者を **主体**、後者を **やること** と呼びます。
 
@@ -30,47 +29,42 @@ published: false
 
 # 拡張点の見取り図
 
-縦軸は **主体**（誰が拡張するか）、横軸は **やること**（何を変えるか）です。
+縦軸が **主体**（誰が拡張するか）、横軸が **やること**（何を変えるか）です。
 
-**主体**は、誰がその拡張に責任を持つかで読みます。
+**主体**は、その拡張の責任を誰が持つかで 3 段階あります。
 
-- **自分（コア開発者）**: コアが拡張点と採用する実装を決める。同じリポジトリで済む。
-- **チーム内**: コアは入口だけ用意し、各チームが後から登録やラップを足す。
-- **第三者**: 公開 API をまたいで社外が参加する。社内の話とは前提が違う。
+- **自分**: 拡張点も実装もコアが決める。変更はリポジトリ内で完結する。
+- **チーム内**: 拡張点はコアが決め、実装は各チームが後から加える。
+- **第三者**: 拡張点を社外に公開する。互換を守る責任が生まれる。
 
-**やること**は、次の 4 つに「何を変えるか」を当てはめて読みます。
+**やること**は、拡張が何を変えるかを 3 つに分けています。
 
 - **実装を差し替える**: interface はそのまま、中身の実装を入れ替える。
 - **手順を組み替える**: 処理の流れや、前後に挟む責務を変える。
 - **参加者を足す**: 同じ呼び出し口に、後から実装を足す。
-- **型やルールで宣言する**: 分岐や条件を、型やルールの形で並べる。
 
-| 主体 \\ やること   | 実装を差し替える                                                                     | 手順を組み替える                                                              | 参加者を足す                                  | 型やルールで宣言する                                                                 |
-| ------------------ | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------ |
-| 自分（コア開発者） | [Strategy](#strategy) / [Factory Method](#factory-method-%E3%81%A8-abstract-factory) | [Template Method](#template-method)                                           | -                                             | [discriminated union](#discriminated-union-%E3%81%A8-exhaustiveness-checking)        |
-| チーム内           | -                                                                                    | [Decorator](#decorator) / [Chain of Responsibility](#chain-of-responsibility) | [Registry](#registry) / [Observer](#observer) | [DSL](#dsl-%E3%81%A8%E3%83%AB%E3%83%BC%E3%83%AB%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%B3) |
-| 第三者             | -                                                                                    | -                                                                             | [Plugin](#plugin-%E3%81%A8-spi)               | -                                                                                    |
+| 主体 \\ やること | 実装を差し替える                                                                     | 手順を組み替える                                                              | 参加者を足す                                  |
+| ---------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------- | --------------------------------------------- |
+| 自分             | [Strategy](#strategy) / [Factory Method](#factory-method-%E3%81%A8-abstract-factory) | [Template Method](#template-method)                                           | -                                             |
+| チーム内         | -                                                                                    | [Decorator](#decorator) / [Chain of Responsibility](#chain-of-responsibility) | [Registry](#registry) / [Observer](#observer) |
+| 第三者           | -                                                                                    | -                                                                             | [Plugin](#plugin-%E3%81%A8-spi)               |
 
-表の `-` は、この記事では代表例を載せていない、という意味です。組み合わせが不可能なわけではありません。第三者が手順や型の境界まで触れる設計もありえますが、公開 API と互換維持の負担が一気に重くなるので、実務ではまず **参加者を足す** 列の Plugin で切るほうが現実的です。
+表の `-` は、この記事では代表例を省いた組み合わせです。設計として不可能なわけではなく、第三者が手順や型の境界まで触れる形もありえます。ただしそこまで開くと公開 API と互換維持の負担が一気に重くなるため、実務ではまず **参加者を足す** 列の Plugin で境界を引くほうが現実的です。
 
-迷ったら、設計メモに次の 3 行だけ書くと、表のどのセルかがだいたい決まります。
+迷ったときは、「主体は誰か」と「何を変えるか」の 2 点を先に決めてみてください。その交点のセルが、この記事で参照すべき節と対応しています。
 
-1. **主体**: その拡張は誰の責任で増える？（自分 / チーム内 / 第三者）
-2. **やること**: 何を変える？（実装 / 手順 / 参加者 / 型・ルール）
-3. 交点のセルに当てはめて、本文の該当節を読む。
-
-このあとは、表の横軸に沿って章を並べます。必要なところから読んでもらってかまいません。
+ここからは見取り図の 1 つ 1 つを具体的にみていきます。
 
 # 実装を差し替える
 
 ## Strategy
 
-[Strategy](https://en.wikipedia.org/wiki/Strategy_pattern) は、役割の interface を固定し、その中身の実装を差し替えるやり方です。DI（Dependency Injection、依存の差し込み）や設定で実装を切り替えます。
+[Strategy](https://en.wikipedia.org/wiki/Strategy_pattern) は、役割の interface を固定し、DI や設定でその中身の実装を差し替えるやり方です。呼び出し元は interface の形だけを知っていれば足りて、どの実装が渡ってくるかは関知しません。
 
 ```typescript
-// 役割（決済）だけを先に固定し、実装は後から差し替える
+// 役割（interface）を先に固定し、実装の詳細は外から差し込む
 interface PaymentGateway {
-  charge(amount: number, currency: string): Promise<ChargeResult>;
+  charge(amount: number, currency: string): Promise<void>;
 }
 
 class StripeGateway implements PaymentGateway {
@@ -78,14 +72,14 @@ class StripeGateway implements PaymentGateway {
     // Stripe API に委譲
   }
 }
-class PaypalGateway implements PaymentGateway {
+class PayPalGateway implements PaymentGateway {
   async charge(amount: number, currency: string) {
     // PayPal API に委譲
   }
 }
 
+// DI で受け取った実装だけを使う（中身は関知しない）
 class CheckoutService {
-  // DI で渡された実装だけを使う（中身は知らない）
   constructor(private gateway: PaymentGateway) {}
 
   async checkout(amount: number, currency: string) {
@@ -94,69 +88,81 @@ class CheckoutService {
 }
 ```
 
-実装の種類がそう増えず、interface が長く安定している場面で向きます。差し替えはコンパイル時や DI コンテナ、環境変数などで決めることが多いです。
+実装の種類がそう増えず、interface が長く安定している場面に向きます。差し替えはコンパイル時や DI コンテナ・環境変数などで決めることが多く、「どの実装を使うかの判断を呼び出し元から切り離したい」という動機がはっきりしているときに、パターンの価値が出ます。
 
-一方、interface は「最大公約数」になりがちで、ある実装だけの固有機能を前面に出したくなると無理が出ます。ダミー実装や意味の薄い分岐が増えてきたら、一度立ち止まってください。Registry で種別を増やすのか、discriminated union やルールで宣言側に逃がすのか、別のセルに移ったほうがすっきりすることもあります。
-
-Strategy と Registry の境目で迷ったら、「実装を 1 つだけ選んで使う」のか「種別ごとにエントリを増やす」のかで分けると素直です。決済プロバイダのように 1 ユースケースに 1 実装なら Strategy、イベント種別ごとに違う handler を増やし続けるなら Registry が向きます。種別が増え続けるなら Registry、実行時に種類が増えないなら discriminated union が次の検討先です。
+ただ、interface は「最大公約数」になりがちです。ある実装だけが持つ固有機能を前面に出したくなると無理が出てきて、ダミー実装や意味の薄い分岐が少しずつ積み重なっていきます。そうなったら一度立ち止まってください。1 つの実装を選んで使うのではなく、種別ごとに処理を増やし続けたいなら、別の形が向きます。
 
 ## Factory Method と Abstract Factory
 
-[Factory Method](https://en.wikipedia.org/wiki/Factory_method_pattern) / [Abstract Factory](https://en.wikipedia.org/wiki/Abstract_factory_pattern) は、生成の判断を呼び出し側から分離するパターンです。固定点は「生成後に使う interface」で、変えるのは「どの具象を返すか」です。Factory Method は単一オブジェクトの生成切り替え、Abstract Factory は関連するオブジェクト群を一貫した組で返すときに使います。
+[Factory Method](https://en.wikipedia.org/wiki/Factory_method_pattern) / [Abstract Factory](https://en.wikipedia.org/wiki/Abstract_factory_pattern) は、生成の判断を呼び出し側から分離するパターンです。固定するのは「生成後に使う interface」で、変えるのは「どの具象を返すか」です。Factory Method は単一オブジェクトの生成切り替え、Abstract Factory は関連するオブジェクト群を一貫した組で返すときに使います。
 
 ```typescript
+// Factory Method: 生成の判断を一か所に閉じる
 interface Logger {
   info(msg: string): void;
 }
-
 class ConsoleLogger implements Logger {
   info(msg: string) {
-    console.log(msg);
+    console.log(`[INFO] ${msg}`);
   }
 }
 class NoopLogger implements Logger {
-  info() {}
+  info() {} // テスト環境では何もしない
 }
 
-// 生成の判断はここだけ。呼び出し側は Logger だけ知っていればよい
+// 環境ごとの生成判断はここだけ。呼び出し側は Logger の形だけ知ればよい
 function createLogger(env: string): Logger {
   return env === "production" ? new ConsoleLogger() : new NoopLogger();
 }
 
-// Abstract Factory: まとまりで整合した実装を返す
-interface UiFactory {
-  createButton(): { render(): string };
-  createDialog(): { render(): string };
+const logger = createLogger(process.env.NODE_ENV ?? "development");
+logger.info("起動しました"); // 呼び出し側は実装の種類を知らない
+
+// Abstract Factory: 関連するオブジェクト群をまとめて切り替える
+// 例: リージョンによって Storage と Mailer を一貫した組で差し替える
+interface Storage {
+  save(path: string, data: Buffer): Promise<void>;
 }
-class LightUiFactory implements UiFactory {
-  createButton() {
-    return { render: () => "light-button" };
+interface Mailer {
+  send(to: string, body: string): Promise<void>;
+}
+
+interface InfraFactory {
+  createStorage(): Storage;
+  createMailer(): Mailer;
+}
+
+// AWS リージョン向け：S3 + SES の組み合わせ
+class AwsInfraFactory implements InfraFactory {
+  createStorage() {
+    return new S3Storage();
   }
-  createDialog() {
-    return { render: () => "light-dialog" };
+  createMailer() {
+    return new SesMailer();
   }
 }
-class DarkUiFactory implements UiFactory {
-  createButton() {
-    return { render: () => "dark-button" };
+
+// GCP リージョン向け：GCS + SendGrid の組み合わせ
+class GcpInfraFactory implements InfraFactory {
+  createStorage() {
+    return new GcsStorage();
   }
-  createDialog() {
-    return { render: () => "dark-dialog" };
+  createMailer() {
+    return new SendGridMailer();
   }
 }
+
 ```
 
-DI コンテナを置いていないコードベースで、`new` の分岐を一か所に閉じたいときに向きます。テストで fake に切り替えたいときや、環境・プラン別に生成物を変えたいときにも使います。
+生成の判断を一か所に閉じることで、呼び出し側は「何が返ってくるか」だけに集中できます。テストでフェイクへ差し替えたい場面や、環境・設定によって生成物を変えたい場面が典型で、「生成の詳細を意識させたくない境界」に挟むほど効きます。
 
-一方で Factory が機能ごとに散在すると、どこで何が生成されるか追いにくくなります。生成条件が肥大化してきたら、アプリ起動時に組み立てを行う場所へ集約するか、DI コンテナや Registry に寄せる判断が必要です。
+ただ、Factory が機能ごとに散在すると、どこで何が生成されているか全体が見えにくくなります。生成条件が肥大化してきたら、アプリ起動時に組み立てを一か所へ集約するか、DI コンテナに任せる判断が必要です。
 
 # 手順を組み替える
 
-見取り図の「手順を組み替える」の列の話です。
-
 ## Template Method
 
-[Template Method](https://en.wikipedia.org/wiki/Template_method_pattern) は、処理の骨格（手順）を固定し、特定のステップだけ差し替える形です。Strategy が実装全体を入れ替えるのに対し、こちらは「流れは固定で、埋める場所だけ開ける」イメージです。
+[Template Method](https://en.wikipedia.org/wiki/Template_method_pattern) は、処理の骨格（手順）を固定し、特定のステップだけサブクラスに委ねる形です。Strategy が「どのアルゴリズムを使うか」を外から差し込むのに対し、こちらは「この順序で実行する」という流れ自体をコードに固め、穴になる場所だけを開けておきます。
 
 ```typescript
 abstract class ReportJob {
@@ -189,61 +195,72 @@ class DailySalesReport extends ReportJob {
 }
 ```
 
-処理の流れは共通のまま、一部ステップだけ種別ごとに変えたいときに向きます。共通フローを基盤側で固定し、差分だけ実装側に任せたい場面でよく使われます。
+処理の流れを共通のまま保ちながら、一部のステップだけ種別ごとに変えたいときに向きます。レポートやバッチ処理が典型で、「fetch → transform → save という手順は固定でも、データの取得先や保存先は種別によって違う」という状況です。骨格がコードに固まっていることに価値があるので、「この後に必ずこの処理が走る」という保証がロジックの正しさに関わるほど、パターンが力を発揮します。
 
-差し替えが一ステップだけなら、Strategy やコールバックのほうが軽いこともあります。親クラスが肥大化して継承が深くなると変更が連鎖しやすいので、早い段階で合成（composition）へ寄せるかは意識しておくとよいです。
+Strategy と悩む場面では、「アルゴリズム全体を外から差し込みたいのか、処理の順序を固定して穴だけ埋めたいのか」が分岐点になります。実行時に実装を切り替えたいなら Strategy が向き、Template Method は「この順序で実行する」骨格自体に意味があるので、その順序を変えたくなった時点でパターンの意味が薄れます。
+
+差し替えが一ステップだけなら、サブクラスを立てるほど重くはなく、コールバックや Strategy のほうがシンプルに書けることが多いです。バリアントが増えて継承階層が膨らんできたら、合成への切り替えを検討するとよいです。
 
 ## Decorator
 
-[Decorator](https://en.wikipedia.org/wiki/Decorator_pattern) は、本体の処理や interface は固定したまま、外側から責務を足すやり方です。
+[Decorator](https://en.wikipedia.org/wiki/Decorator_pattern) は、本体の処理や interface を固定したまま、外側から責務を足すやり方です。ラッパーを順に重ねることで、本体に触れずに横断的な処理を差し込めます。
 
 ```typescript
-type Handler = (req: Request) => Response;
+type Handler = (req: Request) => Promise<Response>;
 
-const handleOrder: Handler = (req) => {
-  // 本体の処理はここだけに閉じる
-  return { ok: true } as Response;
+// 本体：処理だけに集中する
+const handleOrder: Handler = async (req) => {
+  return Response.json({ ok: true });
 };
 
-function withAuth(inner: Handler): Handler {
-  // 前処理を追加（認証）
-  return (req) => {
-    if (!req.headers.authorization) throw new Error("unauthorized");
-    return inner(req);
+// Decorator 1：実行時間を計測する（必ず inner を呼ぶ、止まらない）
+function withTiming(inner: Handler): Handler {
+  return async (req) => {
+    const start = Date.now();
+    const res = await inner(req); // 必ず inner を呼ぶ
+    console.log(`${Date.now() - start}ms`);
+    return res;
   };
 }
 
-function withLogging(inner: Handler): Handler {
-  // 前後にログを追加（計測・監査にも置き換えやすい）
-  return (req) => {
-    console.log(req.url);
-    return inner(req);
+// Decorator 2：エラーをキャプチャしてログに残す（必ず inner を呼ぶ、止まらない）
+function withErrorReporting(inner: Handler): Handler {
+  return async (req) => {
+    try {
+      return await inner(req); // 必ず inner を呼ぶ
+    } catch (err) {
+      console.error("[error]", err);
+      throw err; // 報告して再スロー
+    }
   };
 }
 
-const decorated = withLogging(withAuth(handleOrder));
+// 組み合わせ：全ラッパーが必ず通る（どれも途中で打ち切らない）
+const decorated = withTiming(withErrorReporting(handleOrder));
 ```
 
-認証・ログ・キャッシュのように、interface を変えずに横から責務を足したいときに向きます。既存ロジックを残したまま、前処理・後処理だけ差し込みたい場面で扱いやすいです。
+認証・ログ・キャッシュのように、本体のコードに触れずに前処理・後処理を差し込みたいときに向きます。ラッパーは何層でも組み合わせられ、本体の関数が「処理だけに集中する」ままでいられるのが利点です。
 
-ラッパーが深くなるとデバッグやスタックトレースは読みにくくなります。公開する関数の形、ログの粒度、ラップ順序のルールは、チームで最初に決めておくと運用が楽です。
+Chain of Responsibility と混同されやすいですが、違いは「止めるかどうか」です。Decorator は全ラッパーが必ず通ります。一方、Chain of Responsibility は途中のハンドラが処理を打ち切れます。「条件によってここで止める」という分岐が生まれた時点で、それはもう Decorator ではなく Chain of Responsibility の仕事になっています。
+
+ラッパーが深くなるほどスタックトレースは読みにくくなります。関数の形・ログの粒度・ラップ順序のルールはチームで最初に決めておくと、あとから増える局面でも一貫して運用できます。
 
 ## Chain of Responsibility
 
-[Chain of Responsibility](https://en.wikipedia.org/wiki/Chain-of-responsibility_pattern) は、複数ハンドラを鎖状につなぎ、順に渡して「誰かが引き取る or 全員が処理する」形です。途中で止める必要がなければ、単なる関数合成（`reduce` で順に適用するだけ）で足ります。Chain of Responsibility は「順に渡し、途中で止めるかどうか」が焦点です。
+[Chain of Responsibility](https://en.wikipedia.org/wiki/Chain-of-responsibility_pattern) は、複数のハンドラを鎖状につなぎ、順に渡して「誰かが引き取る or 全員が処理する」形です。途中で止める必要がなければ `reduce` で順に適用する関数合成で十分なので、「条件によって処理を打ち切る」という制御が必要になったときに初めて出番になります。
 
 ```typescript
 type Next = () => Promise<Response>;
 type Middleware = (req: Request, next: Next) => Promise<Response>;
 
-// 認証ミドルウェア：条件を満たさなければここで止まる
+// 認証：トークンがなければここで止める（これが Chain of Responsibility の核心）
 const auth: Middleware = async (req, next) => {
   if (!req.headers.get("authorization"))
-    return new Response("Unauthorized", { status: 401 });
-  return next();
+    return new Response("Unauthorized", { status: 401 }); // 止まる
+  return next(); // 通過したら次へ渡す
 };
 
-// ログミドルウェア：前後に処理を挟んで次へ渡す
+// ロギング：前後に処理を挟みつつ、必ず next を呼ぶ
 const logging: Middleware = async (req, next) => {
   console.log(`--> ${req.method} ${req.url}`);
   const res = await next();
@@ -252,92 +269,124 @@ const logging: Middleware = async (req, next) => {
 };
 
 // 本体
-const handler = async (req: Request) => new Response("OK");
+const handler = async (_req: Request) => new Response("OK");
 
-// 組み立て：順番を変えるだけで振る舞いが変わる
-// logging -> auth -> handler
+// チェーンを組み立てる：順番が振る舞いを決める
+function buildChain(
+  middlewares: Middleware[],
+  final: (req: Request) => Promise<Response>
+): (req: Request) => Promise<Response> {
+  return middlewares.reduceRight(
+    (next, mw) => (req) => mw(req, () => next(req)),
+    final
+  );
+}
+
+// logging → auth → handler の順で処理される
+const app = buildChain([logging, auth], handler);
 ```
 
-認証 → 認可 → レート制限 → 本体のように、順序付きで段を増やしたいときに向きます。常に同じ 1 ハンドラしか使わないなら直接呼ぶほうが素直です。ハンドラ同士が密に状態共有する構成や、チェーンが極端に長い場合は別の形を検討したほうがよいです。
+認証 → 認可 → レート制限 → 本体のように、順序付きで処理の段を増やしたい場面に向きます。ハンドラをリストで持ちさえすれば段を追加でき、各ハンドラが「自分の判断だけ」に集中できるため、処理が増えても全体の見通しが保たれます。
+
+ただ、ハンドラが 1 つだけなら直接呼ぶほうがシンプルで、このパターンを持ち出す必要はありません。ハンドラ同士が状態を共有していたり、チェーンが極端に長くなっているようなら、責務の分け方から見直すほうがよいことが多いです。
 
 # 参加者を足す
 
-見取り図の「参加者を足す」の列の話です。Plugin だけは足す側が社外の開発者など第三者になります。
+この 3 パターンは「同じ呼び出し口に後から参加者を増やす」という点では共通です。ただし、1 種別に対して何人が反応するか、そして参加できるのは誰かで性格が変わります。Registry は 1:1 の対応、Observer は 1:N のファンアウト、Plugin は組織の外まで開く、という段階的な拡張です。
 
 ## Registry
 
-[Registry](https://martinfowler.com/eaaCatalog/registry.html) は、キーと実装の対応を登録し、あとからキーで引いて呼び出す仕組みです。Strategy が「同じ interface の差し替え」だとすれば、Registry は「種別を増やしても dispatch（呼び分け）側のコードを触らない」ための形です。
+[Registry](https://martinfowler.com/eaaCatalog/registry.html) は、キーと実装の対応を登録し、あとからキーで引いて呼び出す仕組みです。Strategy が「同じ interface の差し替え」だとすれば、Registry は「種別を増やしても dispatch 側のコードを触らない」ための形です。
 
 ```typescript
-// キーと処理の対応を保持する
-const handlers = new Map<string, (payload: unknown) => Promise<void>>();
+// イベント種別をユニオン型で宣言（typo やリネーム漏れをコンパイルで検出できる）
+type OrderEventType = "order.created" | "order.cancelled" | "order.shipped";
 
-// 新しい種別を足すときはここだけ
+const handlers = new Map<OrderEventType, (payload: unknown) => Promise<void>>();
+
+// 新しい種別を追加するときはここだけ
 export function register(
-  event: string,
+  type: OrderEventType,
   handler: (payload: unknown) => Promise<void>
 ) {
-  handlers.set(event, handler);
+  handlers.set(type, handler);
 }
 
 // dispatch 側は種別が増えても変わらない
-export async function dispatch(event: string, payload: unknown) {
-  const handler = handlers.get(event);
-  if (!handler) throw new Error(`No handler for ${event}`);
+export async function dispatch(type: OrderEventType, payload: unknown) {
+  const handler = handlers.get(type);
+  if (!handler) throw new Error(`handler not found: ${type}`);
   await handler(payload);
 }
 
-// 使い方
+// 種別を増やしても dispatch のコードには触れない
 register("order.created", async (p) => {
-  /* 注文処理 */
+  /* 注文確定処理 */
 });
 register("order.cancelled", async (p) => {
   /* キャンセル処理 */
 });
+register("order.shipped", async (p) => {
+  /* 出荷通知処理 */
+});
+
 await dispatch("order.created", { orderId: "123" });
 ```
 
-種別が後から増え続けるが、dispatch 側に `if` や `switch` を足したくないときに向きます。キーが素の文字列だとリネーム漏れが実行時まで気付けない不具合になりやすいので、イベント名などをユニオン型で宣言し、`register` と `dispatch` の引数にその型を載せると安全です。同じ種別に複数の反応が要るようになったら Observer、社外の開発者が登録するなら Plugin が次の検討先です。
+種別が後から増えても、dispatch 側の `if` や `switch` を触らずに済みます。新しい処理を追加するときは `register` を呼ぶだけで、呼び分けのロジックには手を入れなくてよいため、種別の追加コストが局所化されます。
+
+ただ、キーに素の文字列を使うとリネーム漏れが実行時まで気づけず、障害になったときに原因を追いにくいです。イベント名などをユニオン型で宣言し、`register` と `dispatch` の引数にその型を載せておくと、コンパイル時に誤りを検出できます。同じ種別に複数の反応が要るようになったら Observer、社外の開発者にも参加を開くなら Plugin が次の検討先です。
 
 ## Observer
 
 [Observer](https://en.wikipedia.org/wiki/Observer_pattern) は、ひとつのイベント（状態変化）に対して複数の独立した購読者を後から足す仕組みです。Registry が「1 キー＝1 ハンドラ」なのに対し、Observer は「1 イベント＝ N 個のリスナ」です。
 
 ```typescript
-type Listener<T> = (event: T) => void;
+type Listener<T> = (payload: T) => void;
 
 class EventBus<Events extends Record<string, unknown>> {
-  private listeners = new Map<string, Listener<any>[]>();
+  private listeners = new Map<keyof Events & string, Listener<any>[]>();
 
-  // 購読者を後から足せる
+  // 購読者はいつでも後から追加できる
   on<K extends keyof Events & string>(event: K, fn: Listener<Events[K]>) {
     const list = this.listeners.get(event) ?? [];
-    list.push(fn);
-    this.listeners.set(event, list);
+    this.listeners.set(event, [...list, fn]);
   }
 
-  // 発火すると全購読者が呼ばれる
+  // 発火すると登録された全購読者が呼ばれる（止められない）
   emit<K extends keyof Events & string>(event: K, payload: Events[K]) {
     for (const fn of this.listeners.get(event) ?? []) fn(payload);
   }
 }
 
-// 使い方：購読者同士は互いを知らない
-const bus = new EventBus<{ "user.created": { id: string } }>();
-bus.on("user.created", (e) => {
-  /* メール送信 */
+type AppEvents = {
+  "employee.created": { employeeId: string; name: string };
+};
+
+const bus = new EventBus<AppEvents>();
+
+// 購読者を増やしても emit 側のコードは変わらない（これが Registry との違い）
+bus.on("employee.created", ({ employeeId }) => {
+  /* ウェルカムメール送信 */
 });
-bus.on("user.created", (e) => {
-  /* 監査ログ */
+bus.on("employee.created", ({ employeeId }) => {
+  /* 初期権限を付与 */
 });
-bus.emit("user.created", { id: "u-1" });
+bus.on("employee.created", ({ name }) => {
+  /* 監査ログに記録 */
+});
+
+// 発行側：何人が聞いているかを知らずに発火する
+bus.emit("employee.created", { employeeId: "emp-001", name: "山田 太郎" });
 ```
 
-ひとつの変化に対して複数の独立した反応（メール・ログ・キャッシュ破棄など）を後から足したいときに向きます。通知順に依存すると壊れやすいので、順序不定で動く設計にしておくのが安全です。
+ひとつの変化に対して複数の独立した反応（メール通知・監査ログ・キャッシュ破棄など）を後から足したいときに向きます。従業員が作成されたとき、どのチームが何をするかを emit 側は知らなくてよく、購読者が増えても発火側のコードは変わりません。Registry との違いは「何人が聞くか」で、1 イベントに対して N 個の独立した反応が成立するのが Observer の設計です。
+
+ただ、通知順に依存する実装が紛れ込むと、購読者が増えた段階で予期しない挙動が出ることがあります。どの順で呼ばれても結果が同じになる設計を前提にしておくのが安全で、順序の制御が必要な処理は Chain of Responsibility で明示的に扱うほうが向きます。社外の開発者にも参加を開きたいなら、Plugin が次の検討先です。
 
 ## Plugin と SPI
 
-[Plugin](<https://en.wikipedia.org/wiki/Plug-in_(computing)>) は、第三者（社外の開発者など）が拡張を独立して配布し、ホストが動的に取り込む仕組みです。Registry に動的読み込みと公開 API を足した形で実現することが多いです。Java の SPI（Service Provider Interface）の [`ServiceLoader`](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/ServiceLoader.html) で説明される読み込み方も、同じ棚に並びます。
+[Plugin](<https://en.wikipedia.org/wiki/Plug-in_(computing)>) は、第三者（社外の開発者など）が拡張を独立して配布し、ホストが動的に取り込む仕組みです。Registry に動的読み込みと公開 API を足した形で実現することが多いです。Java の SPI（Service Provider Interface）の [`ServiceLoader`](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/ServiceLoader.html) で説明される読み込み方も、同じ発想に収まります。
 
 ```typescript
 // ホストが提供する API（Plugin から見える世界）
@@ -362,75 +411,16 @@ async function loadPlugins(pluginNames: string[], host: HostApi) {
 }
 ```
 
-ESLint・Prettier・VS Code のように、第三者が拡張を持ち寄るプロダクトで向きます。
+ESLint・Prettier・VS Code のように、第三者が拡張を持ち寄るプロダクトに向きます。社内では気軽に壊せる API も、外部に公開した途端に互換を守り続ける義務が生まれ、ドキュメントの維持や破壊的変更への対処が継続的なコストになります。そのコストに見合わない社内ツールでは、Observer や Registry で十分なことがほとんどです。
 
-公開 API を長く守るコストに見合わない社内ツールでは、Plugin まで行かずに済むことが多いです。
-
-Observer や Registry が内輪での参加者追加だとすれば、Plugin は境界の外へ参加者を開く別格の選択です。社外の開発者が使う公開 API になると、ドキュメントに書いた契約だけでなく、実際に観測できる挙動まで依存されやすくなります（[Hyrum's Law](https://www.hyrumslaw.com/)）。設計パターンというより、公開プラットフォームを運営する判断に近いです。
-
-# 型やルールで宣言する
-
-見取り図の「型やルールで宣言する」の列の話です。コアの行にもチーム内の行にも載せられるパターンがあるので、見取り図では行を分けています。
-
-## discriminated union と exhaustiveness checking
-
-[discriminated union（判別可能ユニオン）](https://www.typescriptlang.org/docs/handbook/2/narrowing.html) と exhaustiveness checking（網羅性チェック）を併用すると、種類を足したあとに分岐の書き忘れがあればコンパイラが教えてくれます。
-
-```typescript
-// 種類を増やすとき → ここに種類（バリアント）を足すだけ
-type PaymentEvent =
-  | { kind: "charged"; amount: number }
-  | { kind: "refunded"; amount: number; reason: string }
-  | { kind: "disputed"; caseId: string };
-
-function handle(event: PaymentEvent): string {
-  switch (event.kind) {
-    case "charged":
-      return `charged ${event.amount}`;
-    case "refunded":
-      return `refunded ${event.amount}: ${event.reason}`;
-    case "disputed":
-      return `disputed: ${event.caseId}`;
-    default:
-      // バリアントを足して case を書き忘れるとここでコンパイルエラー
-      const _: never = event;
-      return _;
-  }
-}
-```
-
-アプリと一緒にデプロイされる型だけで完結し、実行中に第三者が新しいバリアントを持ち込まない閉じた世界なら、まず手を出しやすい選択です。すぐ設定 DB に逃がす前に、型に載せられないか一度見るだけでも違います。
-
-## DSL とルールエンジン
-
-分岐がコード中に増えてきたとき、ルールを宣言として並べ直すアプローチです。
-
-```typescript
-type Ctx = { tenureMonths: number; region: string };
-type Rule = { test: (c: Ctx) => boolean; grantDays: number };
-
-// ルールを宣言的に並べる（レビュアが読みやすい）
-const vacationRules: Rule[] = [
-  { test: (c) => c.tenureMonths >= 12, grantDays: 15 },
-  { test: (c) => c.region === "EU", grantDays: 5 },
-];
-
-// 評価は単純にマッチしたルールの合計
-function calcVacation(ctx: Ctx): number {
-  return vacationRules
-    .filter((r) => r.test(ctx))
-    .reduce((sum, r) => sum + r.grantDays, 0);
-}
-```
-
-ルールの見え方をレビュアや業務担当に合わせたいとき、分岐がコードの中に散らばるよりも一覧で見たいときに向きます。Fowler が書いているように、非エンジニアが直接書けることを目標にすると失敗しやすく、「読みやすさ・レビューしやすさ」を目的にするのが現実的です。
+Registry や Observer が組織内での参加者追加だとすれば、Plugin は境界の外へ拡張を開く、性質の違う選択です。社外向けの公開 API になると、ドキュメントに書いた契約だけでなく、実際に観測できる挙動まで依存されやすくなります（[Hyrum's Law](https://www.hyrumslaw.com/)）。設計パターンというより、公開プラットフォームを運営する判断に近いです。
 
 # おわりに
 
-拡張点の設計は、パターン名より先に **主体** と **やること** を決めたほうが、あとからの負債と向き合いやすいと感じています。文献の呼び方は揺れますが、軸さえ共有できればレビューで同じ地図を見られます。
+拡張点の設計は、パターン名より先に **主体** と **やること** を決めたほうが、あとで見直すときの判断が安定しやすいと感じています。文献の呼び方は揺れますが、軸さえ共有できればレビューで同じ地図を見られます。
 
 一度足した境界を畳むのは簡単ではありません。想定外の要件が来たときは、コードを書く前に **主体** と **やること** をメモに書き出すだけでも、判断は変わることがあります。
 
-コンパウンドで機能が絡み合いつつ、グローバルでは国・地域差が重なるように、拡張要求が複数方向から長く続くプロダクトほど、軸を共有できたときの効きが大きいと感じています。
+機能が絡み合うコンパウンドに、国・地域ごとの差異まで重なると、拡張要求は複数方向から長く続きます。そういったプロダクトほど、判断の軸をチームで共有できたときの効きが大きいと感じています。
 
 銀の弾丸ではありませんが、名前に振り回されたときに「誰が何を変えるのか」へ戻れる足場になればうれしいです👋
