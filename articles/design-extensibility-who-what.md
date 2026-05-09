@@ -68,12 +68,12 @@ interface PaymentGateway {
 }
 
 class StripeGateway implements PaymentGateway {
-  async charge(amount: number, currency: string) {
+  async charge(amount: number, currency: string): Promise<void> {
     // Stripe API に委譲
   }
 }
 class PayPalGateway implements PaymentGateway {
-  async charge(amount: number, currency: string) {
+  async charge(amount: number, currency: string): Promise<void> {
     // PayPal API に委譲
   }
 }
@@ -82,7 +82,7 @@ class PayPalGateway implements PaymentGateway {
 class CheckoutService {
   constructor(private gateway: PaymentGateway) {}
 
-  async checkout(amount: number, currency: string) {
+  async checkout(amount: number, currency: string): Promise<void> {
     await this.gateway.charge(amount, currency);
   }
 }
@@ -102,12 +102,12 @@ interface Logger {
   info(msg: string): void;
 }
 class ConsoleLogger implements Logger {
-  info(msg: string) {
+  info(msg: string): void {
     console.log(`[INFO] ${msg}`);
   }
 }
 class NoopLogger implements Logger {
-  info() {} // テスト環境では何もしない
+  info(): void {} // テスト環境では何もしない
 }
 
 // 環境ごとの生成判断はここだけ。呼び出し側は Logger の形だけ知ればよい
@@ -118,40 +118,40 @@ function createLogger(env: string): Logger {
 const logger = createLogger(process.env.NODE_ENV ?? "development");
 logger.info("起動しました"); // 呼び出し側は実装の種類を知らない
 
-// Abstract Factory: 関連するオブジェクト群をまとめて切り替える
-// 例: リージョンによって Storage と Mailer を一貫した組で差し替える
-interface Storage {
-  save(path: string, data: Buffer): Promise<void>;
+// Abstract Factory: 関連するオブジェクト群を一貫した組で返す
+// 例: DB の種類によって Connection と QueryBuilder を一貫した組で差し替える
+//   （Postgres と MySQL ではプレースホルダ記法が違うため、組を間違えると壊れる）
+interface Connection {
+  execute(sql: string, params: unknown[]): Promise<unknown[]>;
 }
-interface Mailer {
-  send(to: string, body: string): Promise<void>;
-}
-
-interface InfraFactory {
-  createStorage(): Storage;
-  createMailer(): Mailer;
+interface QueryBuilder {
+  selectById(table: string, id: number): { sql: string; params: unknown[] };
 }
 
-// AWS リージョン向け：S3 + SES の組み合わせ
-class AwsInfraFactory implements InfraFactory {
-  createStorage() {
-    return new S3Storage();
-  }
-  createMailer() {
-    return new SesMailer();
-  }
+interface DbDriver {
+  createConnection(): Connection;
+  createQueryBuilder(): QueryBuilder;
 }
 
-// GCP リージョン向け：GCS + SendGrid の組み合わせ
-class GcpInfraFactory implements InfraFactory {
-  createStorage() {
-    return new GcsStorage();
+// Postgres 向け：プレースホルダは $1, $2, ...
+class PostgresDriver implements DbDriver {
+  createConnection(): Connection {
+    return new PostgresConnection();
   }
-  createMailer() {
-    return new SendGridMailer();
+  createQueryBuilder(): QueryBuilder {
+    return new PostgresQueryBuilder();
   }
 }
 
+// MySQL 向け：プレースホルダは ?, ?, ...
+class MysqlDriver implements DbDriver {
+  createConnection(): Connection {
+    return new MysqlConnection();
+  }
+  createQueryBuilder(): QueryBuilder {
+    return new MysqlQueryBuilder();
+  }
+}
 ```
 
 生成の判断を一か所に閉じることで、呼び出し側は「何が返ってくるか」だけに集中できます。テストでフェイクへ差し替えたい場面や、環境・設定によって生成物を変えたい場面が典型で、「生成の詳細を意識させたくない境界」に挟むほど効きます。
@@ -186,10 +186,11 @@ abstract class ReportJob {
 }
 
 class DailySalesReport extends ReportJob {
-  protected async fetch() {
+  protected async fetch(): Promise<unknown> {
     // DB から日次売上を取得
+    return [];
   }
-  protected async save(out: unknown) {
+  protected async save(out: unknown): Promise<void> {
     // 集計結果を S3 に保存
   }
 }
@@ -206,44 +207,55 @@ Strategy と悩む場面では、「アルゴリズム全体を外から差し�
 [Decorator](https://en.wikipedia.org/wiki/Decorator_pattern) は、本体の処理や interface を固定したまま、外側から責務を足すやり方です。ラッパーを順に重ねることで、本体に触れずに横断的な処理を差し込めます。
 
 ```typescript
-type Handler = (req: Request) => Promise<Response>;
+import { readFile } from "node:fs/promises";
 
-// 本体：処理だけに集中する
-const handleOrder: Handler = async (req) => {
-  return Response.json({ ok: true });
-};
-
-// Decorator 1：実行時間を計測する（必ず inner を呼ぶ、止まらない）
-function withTiming(inner: Handler): Handler {
-  return async (req) => {
-    const start = Date.now();
-    const res = await inner(req); // 必ず inner を呼ぶ
-    console.log(`${Date.now() - start}ms`);
-    return res;
-  };
+interface DataSource {
+  read(key: string): Promise<string>;
 }
 
-// Decorator 2：エラーをキャプチャしてログに残す（必ず inner を呼ぶ、止まらない）
-function withErrorReporting(inner: Handler): Handler {
-  return async (req) => {
-    try {
-      return await inner(req); // 必ず inner を呼ぶ
-    } catch (err) {
-      console.error("[error]", err);
-      throw err; // 報告して再スロー
-    }
-  };
+// 本体：データを取り出すことだけに集中する
+class FileDataSource implements DataSource {
+  async read(key: string): Promise<string> {
+    return readFile(key, "utf-8");
+  }
 }
 
-// 組み合わせ：全ラッパーが必ず通る（どれも途中で打ち切らない）
-const decorated = withTiming(withErrorReporting(handleOrder));
+// Decorator 1：結果をキャッシュする（同じ interface を保ったまま外側から包む）
+class CachingDataSource implements DataSource {
+  private cache = new Map<string, string>();
+
+  constructor(private inner: DataSource) {}
+
+  async read(key: string): Promise<string> {
+    const hit = this.cache.get(key);
+    if (hit !== undefined) return hit;
+    const value = await this.inner.read(key); // 必ず inner を呼ぶ
+    this.cache.set(key, value);
+    return value;
+  }
+}
+
+// Decorator 2：呼び出しをログに残す（同じ interface を保ったまま外側から包む）
+class LoggingDataSource implements DataSource {
+  constructor(private inner: DataSource) {}
+
+  async read(key: string): Promise<string> {
+    console.log(`read: ${key}`);
+    return this.inner.read(key); // 必ず inner を呼ぶ
+  }
+}
+
+// 組み合わせ：呼び出し元は DataSource としてしか扱わない
+const ds: DataSource = new LoggingDataSource(
+  new CachingDataSource(new FileDataSource())
+);
 ```
 
-認証・ログ・キャッシュのように、本体のコードに触れずに前処理・後処理を差し込みたいときに向きます。ラッパーは何層でも組み合わせられ、本体の関数が「処理だけに集中する」ままでいられるのが利点です。
+ログ・キャッシュ・計測のように、本体のコードに触れずに横断的な処理を足したいときに向きます。同じ interface を保ったまま外側から包めるので、呼び出し元は何層に包まれているかを意識せずに済みます。
 
-Chain of Responsibility と混同されやすいですが、違いは「止めるかどうか」です。Decorator は全ラッパーが必ず通ります。一方、Chain of Responsibility は途中のハンドラが処理を打ち切れます。「条件によってここで止める」という分岐が生まれた時点で、それはもう Decorator ではなく Chain of Responsibility の仕事になっています。
+Chain of Responsibility と混同されやすいですが、違いは「止めるかどうか」です。Decorator は外側のラッパーが必ず内側を呼びます。一方、Chain of Responsibility は途中のハンドラが処理を打ち切れます。「条件によってここで止める」という分岐が生まれた時点で、それはもう Decorator ではなく Chain of Responsibility の仕事になっています。
 
-ラッパーが深くなるほどスタックトレースは読みにくくなります。関数の形・ログの粒度・ラップ順序のルールはチームで最初に決めておくと、あとから増える局面でも一貫して運用できます。
+ラップが深くなるほどスタックトレースは読みにくくなります。クラスの粒度・ログの粒度・ラップ順序のルールはチームで最初に決めておくと、あとから増える局面でも一貫して運用できます。
 
 ## Chain of Responsibility
 
@@ -299,43 +311,38 @@ const app = buildChain([logging, auth], handler);
 [Registry](https://martinfowler.com/eaaCatalog/registry.html) は、キーと実装の対応を登録し、あとからキーで引いて呼び出す仕組みです。Strategy が「同じ interface の差し替え」だとすれば、Registry は「種別を増やしても dispatch 側のコードを触らない」ための形です。
 
 ```typescript
-// イベント種別をユニオン型で宣言（typo やリネーム漏れをコンパイルで検出できる）
-type OrderEventType = "order.created" | "order.cancelled" | "order.shipped";
+// 拡張子をユニオン型で宣言（typo やリネーム漏れをコンパイルで検出できる）
+type Extension = "json" | "csv" | "yaml";
 
-const handlers = new Map<OrderEventType, (payload: unknown) => Promise<void>>();
+interface Parser {
+  parse(content: string): unknown;
+}
+
+const parsers = new Map<Extension, Parser>();
 
 // 新しい種別を追加するときはここだけ
-export function register(
-  type: OrderEventType,
-  handler: (payload: unknown) => Promise<void>
-) {
-  handlers.set(type, handler);
+export function register(extension: Extension, parser: Parser): void {
+  parsers.set(extension, parser);
 }
 
-// dispatch 側は種別が増えても変わらない
-export async function dispatch(type: OrderEventType, payload: unknown) {
-  const handler = handlers.get(type);
-  if (!handler) throw new Error(`handler not found: ${type}`);
-  await handler(payload);
+// parse 側は種別が増えても変わらない
+export function parse(extension: Extension, content: string): unknown {
+  const parser = parsers.get(extension);
+  if (!parser) throw new Error(`parser not found: ${extension}`);
+  return parser.parse(content);
 }
 
-// 種別を増やしても dispatch のコードには触れない
-register("order.created", async (p) => {
-  /* 注文確定処理 */
-});
-register("order.cancelled", async (p) => {
-  /* キャンセル処理 */
-});
-register("order.shipped", async (p) => {
-  /* 出荷通知処理 */
-});
+// 種別を増やしても parse のコードには触れない
+register("json", { parse: (c) => JSON.parse(c) });
+register("csv", { parse: (c) => c.split("\n").map((row) => row.split(",")) });
+register("yaml", { parse: (c) => parseYaml(c) });
 
-await dispatch("order.created", { orderId: "123" });
+const data = parse("json", '{"name":"Alice"}');
 ```
 
-種別が後から増えても、dispatch 側の `if` や `switch` を触らずに済みます。新しい処理を追加するときは `register` を呼ぶだけで、呼び分けのロジックには手を入れなくてよいため、種別の追加コストが局所化されます。
+種別が後から増えても、`parse` 側の `if` や `switch` を触らずに済みます。新しい処理を追加するときは `register` を呼ぶだけで、呼び分けのロジックには手を入れなくてよいため、種別の追加コストが局所化されます。
 
-ただ、キーに素の文字列を使うとリネーム漏れが実行時まで気づけず、障害になったときに原因を追いにくいです。イベント名などをユニオン型で宣言し、`register` と `dispatch` の引数にその型を載せておくと、コンパイル時に誤りを検出できます。同じ種別に複数の反応が要るようになったら Observer、社外の開発者にも参加を開くなら Plugin が次の検討先です。
+ただ、キーに素の文字列を使うとリネーム漏れが実行時まで気づけず、障害になったときに原因を追いにくいです。種別をユニオン型で宣言し、`register` と `parse` の引数にその型を載せておくと、コンパイル時に誤りを検出できます。同じ種別に複数の反応が要るようになったら Observer、社外の開発者にも参加を開くなら Plugin が次の検討先です。
 
 ## Observer
 
@@ -348,13 +355,13 @@ class EventBus<Events extends Record<string, unknown>> {
   private listeners = new Map<keyof Events & string, Listener<any>[]>();
 
   // 購読者はいつでも後から追加できる
-  on<K extends keyof Events & string>(event: K, fn: Listener<Events[K]>) {
+  on<K extends keyof Events & string>(event: K, fn: Listener<Events[K]>): void {
     const list = this.listeners.get(event) ?? [];
     this.listeners.set(event, [...list, fn]);
   }
 
   // 発火すると登録された全購読者が呼ばれる（止められない）
-  emit<K extends keyof Events & string>(event: K, payload: Events[K]) {
+  emit<K extends keyof Events & string>(event: K, payload: Events[K]): void {
     for (const fn of this.listeners.get(event) ?? []) fn(payload);
   }
 }
@@ -365,7 +372,7 @@ type AppEvents = {
 
 const bus = new EventBus<AppEvents>();
 
-// 購読者を増やしても emit 側のコードは変わらない（これが Registry との違い）
+// 購読者を増やしても emit 側のコードは変わらない（1 イベントに N 人が反応する）
 bus.on("employee.created", ({ employeeId }) => {
   /* ウェルカムメール送信 */
 });
@@ -380,7 +387,7 @@ bus.on("employee.created", ({ name }) => {
 bus.emit("employee.created", { employeeId: "emp-001", name: "山田 太郎" });
 ```
 
-ひとつの変化に対して複数の独立した反応（メール通知・監査ログ・キャッシュ破棄など）を後から足したいときに向きます。従業員が作成されたとき、どのチームが何をするかを emit 側は知らなくてよく、購読者が増えても発火側のコードは変わりません。Registry との違いは「何人が聞くか」で、1 イベントに対して N 個の独立した反応が成立するのが Observer の設計です。
+ひとつの変化に対して複数の独立した反応（メール通知・監査ログ・キャッシュ破棄など）を後から足したいときに向きます。従業員が作成されたとき、どのチームが何をするかを emit 側は知らなくてよく、購読者が増えても発火側のコードは変わりません。Registry が「種別 → 実装」を 1:1 で引くのに対し、Observer は 1 イベントに対して N 個の独立した反応が成立する、というのが両者の違いです。
 
 ただ、通知順に依存する実装が紛れ込むと、購読者が増えた段階で予期しない挙動が出ることがあります。どの順で呼ばれても結果が同じになる設計を前提にしておくのが安全で、順序の制御が必要な処理は Chain of Responsibility で明示的に扱うほうが向きます。社外の開発者にも参加を開きたいなら、Plugin が次の検討先です。
 
@@ -402,7 +409,7 @@ interface PluginModule {
 }
 
 // ホスト側：動的に読み込んで初期化する
-async function loadPlugins(pluginNames: string[], host: HostApi) {
+async function loadPlugins(pluginNames: string[], host: HostApi): Promise<void> {
   for (const name of pluginNames) {
     const mod = await import(`./plugins/${name}.js`);
     const plugin: PluginModule = mod.default;
