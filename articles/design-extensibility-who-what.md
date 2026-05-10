@@ -2,7 +2,7 @@
 title: "拡張性は「誰が何を変えるか」で設計する"
 emoji: "🧭"
 type: "tech"
-topics: ["設計", "アーキテクチャ", "拡張性", "TypeScript", "デザインパターン"]
+topics: ["設計", "アーキテクチャ", "拡張性", "デザインパターン"]
 publication_name: "dress_code"
 published: true
 published_at: 2026-05-11 11:00
