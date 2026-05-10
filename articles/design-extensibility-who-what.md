@@ -10,8 +10,7 @@ published_at: 2026-05-11 11:00
 
 # TL;DR
 
-- 拡張性は、パターン名より先に「誰が何を変えるか」で決めると判断がぶれにくくなります。
-- 表の横軸に沿うと、実装差し替えは Strategy / Factory / Template Method、手順の組み替えは Decorator / Chain of Responsibility、参加者の追加は Registry / Observer / Plugin が候補になります。
+![tl;dr](/images/design-extensibility-who-what/tldr.jpeg)
 
 # はじめに
 
@@ -23,11 +22,13 @@ published_at: 2026-05-11 11:00
 
 このようなプロダクトを開発していると、「どこを差し替え可能にするか」「どこまで境界を開くか」という問いに何度も向き合うことになります。機能を増やすたびに、外部連携を広げるたびに、拡張点の判断は積み重なります。グローバル向けでもあることから、国・地域ごとに労務法制や運用が異なるため、同じ機能でも振る舞いの差や種別の追加が継続的に求められます。
 
-拡張性の話になると、まずどんなやり方があるかの整理に時間がかかります。実装を差し替えるのか、手順を組み替えるのか、後から参加者を足すのか、切り口からして違います。文献によっては Strategy が Policy と呼ばれていたり、Registry と Plugin の境界が曖昧だったりして、パターン名から入ると判断の軸が定まりにくくなります。
+拡張性の話になると、まずどんなやり方があるかの整理に時間がかかります。実装を差し替えるのか、手順を組み替えるのか、後から参加者を足すのか、切り口からして違います。パターン名から入ると判断の軸が定まりにくくなります。
 
 そこでこの記事では、拡張性に関わる代表的なパターンを「誰が拡張するか」「何を変えるか」の 2 軸で整理します。以降、前者を **主体**、後者を **やること** と呼びます。
 
 どのパターンがどんな場面に向くか、迷ったときに開ける一覧として使ってもらえれば幸いです👋
+
+なお、本記事は GoF などの厳密な分類を提示するものではなく、設計判断を進めるための実務的な整理として読んでください。パターン名の定義は出典を都度示すので、必要に応じて原典に当たってもらえればと思います。
 
 # 拡張点の見取り図
 
@@ -45,15 +46,15 @@ published_at: 2026-05-11 11:00
 - **手順を組み替える**: 処理の流れや、前後に挟む責務を変える。
 - **参加者を足す**: 同じ呼び出し口に、後から実装を足す。
 
+以下の表を読む前に補足です。表の `-` は設計として不可能という意味ではなく、軸の定義上「拡張点として外に開いていない」組み合わせです。なお、第三者の行は開くほど公開 API と互換維持のコストが重くなるため、まず Plugin の境界で引くのが現実的だと考え、Plugin 以外は `-` にしています。
+
+表の「自分 × 実装を差し替える」のセルにある（※）について。[Template Method](#template-method) は厳密には「実装の差し替え」というより「サブクラスがステップを埋める」形ですが、本記事では「interface はそのまま、中身の実装を入れ替える」を広義の「実装の差し替え」として同じ列に置いています。詳細は節内を参照してください。
+
 | 主体 \ やること | 実装を差し替える                                                                                                                | 手順を組み替える                                                              | 参加者を足す                                  |
 | --------------- | ------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------- |
 | 自分            | [Strategy](#strategy) / [Factory Method](#factory-method-%E3%81%A8-abstract-factory) / [Template Method](#template-method)（※） | -                                                                             | -                                             |
 | チーム内        | -                                                                                                                               | [Decorator](#decorator) / [Chain of Responsibility](#chain-of-responsibility) | [Registry](#registry) / [Observer](#observer) |
-| 第三者          | -                                                                                                                               | -                                                                             | [Plugin](#plugin-%E3%81%A8-spi)               |
-
-※ [Template Method](#template-method) は厳密には「実装の差し替え」というより「サブクラスがステップを埋める」形ですが、本記事では「interface はそのまま、中身の実装を入れ替える」を広義の「実装の差し替え」として同じ列に置いています。詳細は節内を参照してください。
-
-表の `-` は設計として不可能という意味ではなく、軸の定義上「拡張点として外に開いていない」組み合わせです。なお、第三者の行は開くほど公開 API と互換維持のコストが重くなるため、まず Plugin の境界で引くのが現実的だと考え、Plugin 以外は `-` にしています。
+| 第三者          | -                                                                                                                               | -                                                                             | [Plugin](#plugin)                             |
 
 迷ったときは、「主体は誰か」と「何を変えるか」の 2 点を先に決めてみてください。その交点のセルが、この記事で参照すべき節と対応しています。
 
@@ -107,6 +108,8 @@ class CartService {
 ## Factory Method と Abstract Factory
 
 [Factory Method](https://en.wikipedia.org/wiki/Factory_method_pattern) / [Abstract Factory](https://en.wikipedia.org/wiki/Abstract_factory_pattern) は、生成の判断を呼び出し側から分離するパターンです。固定するのは生成後に使う interface で、変えるのはどの具象を返すかです。Factory Method は単一オブジェクトの生成切り替え、Abstract Factory は関連するオブジェクト群を一貫した組で返すときに使います。
+
+Strategy が振る舞いそのものの差し替えを動機とするのに対し、Factory Method / Abstract Factory は生成判断を呼び出し側から切り離すことが動機です。同じ「中身を入れ替える」列に置いていますが、判断軸が少し異なる点に注意してください。
 
 ```typescript
 // Factory Method: 生成の判断を一か所に閉じる
@@ -211,8 +214,6 @@ class DailySalesReport extends ReportJob {
 処理の流れを共通のまま保ちながら、一部のステップだけ種別ごとに変えたいときに使います。レポートやバッチ処理が典型で、fetch → transform → save という手順は固定でも、データの取得先や保存先は種別によって違うという状況です。骨格がコードに固まっていることに価値があるので、この後に必ずこの処理が走るという保証がロジックの正しさに関わる場面で効きます。
 
 私たちのプロダクトでも、外部システムへ申請を出してから結果を受け取るまでのジョブで、この形を使っています。基底クラスに「外部からデータを取りに行く → 取下げ可否などのゲート判定 → 受け取り後のフォームを組み立てる」という骨格を固定し、申請の種類ごとにデータの取り方だけをサブクラスで埋めています。手続きが増えても、骨格に書かれた順序が崩れる心配はありません。
-
-Strategy と悩む場面では、アルゴリズム全体を外から差し込みたいのか、処理の順序を固定して穴だけ埋めたいのかが分岐点になります。実行時に実装を切り替えたいなら Strategy が向き、Template Method はこの順序で実行するという骨格自体に意味があるので、その順序を変えたくなった時点でパターンの意味が薄れます。
 
 差し替えが一ステップだけなら、サブクラスを立てるほど重くはなく、コールバックや Strategy のほうがシンプルに書けることが多いです。バリアントが増えて継承階層が膨らんできたら、合成への切り替えを検討するとよいです。
 
@@ -324,7 +325,7 @@ const app = buildChain([logging, auth], handler);
 
 ## Registry
 
-[Registry](https://martinfowler.com/eaaCatalog/registry.html) は、キーと実装の対応を登録し、あとからキーで引いて呼び出す仕組みです。Martin Fowler の原典ではもう少し広く「共通のオブジェクトやサービスを見つけるための参照点」を指しますが、本記事ではキーで実装を引く登録表（dispatch table）として扱います。Strategy が同じ interface の差し替えだとすれば、Registry は種別を増やしても dispatch 側のコードを触らないための形です。
+[Registry](https://martinfowler.com/eaaCatalog/registry.html) は Martin Fowler のカタログにおいて「共通のオブジェクトやサービスを見つけるための参照点」という広い概念です。**本記事では**扱いを狭め、キーと実装の対応を登録し、あとからキーで引いて呼び出す dispatch table として説明します。Strategy が同じ interface の差し替えだとすれば、Registry は種別を増やしても dispatch 側のコードを触らないための形です。
 
 ```typescript
 // 拡張子をユニオン型で宣言（typo やリネーム漏れをコンパイルで検出できる）
@@ -366,7 +367,7 @@ const data = parse("json", '{"name":"Alice"}');
 
 ## Observer
 
-[Observer](https://en.wikipedia.org/wiki/Observer_pattern) は、ひとつのイベントに対して複数の購読者を後から足す仕組みです。Registry が 1 キー＝1 ハンドラだったのに対し、Observer は 1 イベント＝ N 個のリスナです。古典的には subject が observer のリストを持って通知する 1 対多の関係を指しますが、本記事では in-process の event bus も同じ扱いとして含めます。
+[Observer](https://en.wikipedia.org/wiki/Observer_pattern) は、ひとつのイベントに対して複数の購読者を後から足す仕組みです。Registry が 1 キー＝1 ハンドラだったのに対し、Observer は 1 イベント＝ N 個のリスナです。本記事では in-process の event bus を例にします。
 
 ```typescript
 type Listener<T> = (payload: T) => void;
@@ -412,9 +413,9 @@ bus.emit("employee.created", { employeeId: "emp-001", name: "山田 太郎" });
 
 ただ、通知順に依存する実装が紛れ込むと、購読者が増えた段階で予期しない挙動が出ることがあります。どの順で呼ばれても結果が同じになる設計を前提にしておくのが安全で、順序の制御が必要な処理は Chain of Responsibility で明示的に扱うほうが向きます。社外の開発者にも参加を開きたいなら、外部公開を視野に入れたうえで Plugin が次の検討先です。
 
-## Plugin と SPI
+## Plugin
 
-[Plugin](<https://en.wikipedia.org/wiki/Plug-in_(computing)>) は、第三者（社外の開発者など）が拡張を独立して配布し、ホストが動的に取り込む仕組みです。Registry に動的読み込みと公開 API を足した形で実現することが多いです。Java の SPI（Service Provider Interface）の [`ServiceLoader`](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/ServiceLoader.html) で説明される読み込み方も、同じ発想に収まります。SPI のキモは、ホストが契約となる interface だけを公開し、Provider 側がそれに従って実装を持ち寄るという分離で、本節のコード例の `HostApi` と `PluginModule` が同じ役割分担を担っています。
+[Plugin](<https://en.wikipedia.org/wiki/Plug-in_(computing)>) は、第三者（社外の開発者など）が拡張を独立して配布し、ホストが動的に取り込む仕組みです。Registry に動的読み込みと公開 API を足した形で実現することが多いです。
 
 ```typescript
 // ホストが提供する API（Plugin から見える世界）
@@ -434,8 +435,7 @@ async function loadPlugins(
   pluginNames: string[],
   host: HostApi
 ): Promise<void> {
-  // 本来の SPI では、pluginNames は package.json の依存関係や
-  // META-INF/services のような所定の場所から自動発見される
+  // ホストが読み込むプラグインを列挙して動的に初期化する
   for (const name of pluginNames) {
     const mod = await import(`./plugins/${name}.js`);
     const plugin: PluginModule = mod.default;
@@ -443,6 +443,8 @@ async function loadPlugins(
   }
 }
 ```
+
+なお、上のコードは Plugin の構造を示すための最小構成です。実運用では、プラグインの発見方法、ホストと Provider のバージョン整合、ロード失敗時の取り扱い、権限制御などが別途必要になります。
 
 ESLint・Prettier・VS Code のように、第三者が拡張を持ち寄るプロダクトで真価を発揮します。社内では気軽に壊せる API も、外部に公開した途端に互換を守り続ける義務が生まれ、ドキュメントの維持や破壊的変更への対処が継続的なコストになります。負債になるのは公開 API の互換だけではありません。Plugin をどう発見させるか、ホストと Provider のバージョン整合をどう取るか、ロード・初期化・失敗時の取り扱いをどうするかまで含めて、運用し続ける覚悟が必要です。そのコストに見合わない社内ツールでは、Observer や Registry で十分なことがほとんどです。
 
