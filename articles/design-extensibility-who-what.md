@@ -10,6 +10,11 @@ published_at: 2026-05-11 11:00
 
 # TL;DR
 
+- 拡張性は、パターン名より先に「誰が拡張するか（自分 / チーム内 / 第三者）」と「何を変えるか（実装を差し替える / 手順を組み替える / 参加者を足す）」の 2 軸で考えると判断がぶれにくい。
+- 実装を差し替える: 役割の interface を固定して中身を入れ替えるなら Strategy、生成判断を呼び出し側から切り離すなら Factory Method / Abstract Factory、処理の骨格を固定して一部のステップだけ差し替えるなら Template Method。
+- 手順を組み替える: 同じ interface を保ったまま外側から責務を足すなら Decorator、各段が「打ち切るか通すか」を判断する短絡が要るなら Chain of Responsibility。
+- 参加者を足す: 種別ごとに 1 対 1 で実装を引くなら Registry、1 イベントに N 個の独立した反応を後から足すなら Observer、第三者が拡張を持ち寄る境界を開くなら Plugin。
+
 ![tl;dr](/images/design-extensibility-who-what/tldr.jpeg)
 
 # はじめに
