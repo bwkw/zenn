@@ -45,15 +45,15 @@ published_at: 2026-05-11 11:00
 - **手順を組み替える**: 処理の流れや、前後に挟む責務を変える。
 - **参加者を足す**: 同じ呼び出し口に、後から実装を足す。
 
-| 主体＼やること | 実装を差し替える                                                                                                                | 手順を組み替える                                                              | 参加者を足す                                  |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------- |
-| 自分           | [Strategy](#strategy) / [Factory Method](#factory-method-%E3%81%A8-abstract-factory) / [Template Method](#template-method)（※） | -                                                                             | -                                             |
-| チーム内       | -                                                                                                                               | [Decorator](#decorator) / [Chain of Responsibility](#chain-of-responsibility) | [Registry](#registry) / [Observer](#observer) |
-| 第三者         | -                                                                                                                               | -                                                                             | [Plugin](#plugin-%E3%81%A8-spi)               |
+| 主体 \ やること | 実装を差し替える                                                                                                                | 手順を組み替える                                                              | 参加者を足す                                  |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------- |
+| 自分            | [Strategy](#strategy) / [Factory Method](#factory-method-%E3%81%A8-abstract-factory) / [Template Method](#template-method)（※） | -                                                                             | -                                             |
+| チーム内        | -                                                                                                                               | [Decorator](#decorator) / [Chain of Responsibility](#chain-of-responsibility) | [Registry](#registry) / [Observer](#observer) |
+| 第三者          | -                                                                                                                               | -                                                                             | [Plugin](#plugin-%E3%81%A8-spi)               |
 
 ※ [Template Method](#template-method) は厳密には「実装の差し替え」というより「サブクラスがステップを埋める」形ですが、本記事では「interface はそのまま、中身の実装を入れ替える」を広義の「実装の差し替え」として同じ列に置いています。詳細は節内を参照してください。
 
-表の `-` は、設計として不可能なわけではなく、軸の定義に照らすと「拡張点として外に開いていない」組み合わせです。たとえば「自分 × 参加者を足す」は Registry を自分のためだけに使う形ですが、呼び出し元と実装が同じリポジトリにあり、後から誰かが参加できる拡張点としては機能しません。「自分 × 手順を組み替える」も、Decorator や Chain of Responsibility を内製で閉じる構図になるケースが多く、本記事の「チーム内で後から段や参加者を足す」という意味での拡張点としては `-` にしています。「第三者 × 実装を差し替える」「第三者 × 手順を組み替える」は、ホストと Provider の契約だけでは収まりにくく、実運用では Plugin の発見・読み込み・互換維持まで含めて設計することになるため、まずは「参加者を足す」列の Plugin に寄せて整理しています。第三者の行は、開けば開くほど公開 API と互換維持の負担が一気に重くなるため、まず Plugin の境界で引くのが現実的です。
+表の `-` は設計として不可能という意味ではなく、軸の定義上「拡張点として外に開いていない」組み合わせです。なお、第三者の行は開くほど公開 API と互換維持のコストが重くなるため、まず Plugin の境界で引くのが現実的だと考え、Plugin 以外は `-` にしています。
 
 迷ったときは、「主体は誰か」と「何を変えるか」の 2 点を先に決めてみてください。その交点のセルが、この記事で参照すべき節と対応しています。
 
@@ -174,7 +174,7 @@ class MysqlDriver implements DbDriver {
 
 [Template Method](https://en.wikipedia.org/wiki/Template_method_pattern) は、処理の骨格（手順）を固定し、特定のステップだけサブクラスに委ねる形です。Strategy がどのアルゴリズムを使うかを外から差し込むのに対し、こちらは「この順序で実行する」という流れ自体をコードに固め、穴になる場所だけを開けておきます。
 
-Strategy / Factory と比べるときの決定的な違いは制御の所在です。Strategy / Factory はクライアント側が実装を選んで注入するのに対し、Template Method は親クラスが描いた骨格の穴をサブクラスが埋めます。表での列の置き方の理由は、拡張点の見取り図セクション末の※注を参照してください。
+Strategy / Factory と比べるときの決定的な違いは制御の所在です。Strategy / Factory はクライアント側が実装を選んで注入するのに対し、Template Method は親クラスが描いた骨格の穴をサブクラスが埋めます。
 
 ```typescript
 abstract class ReportJob {
@@ -324,9 +324,7 @@ const app = buildChain([logging, auth], handler);
 
 ## Registry
 
-[Registry](https://martinfowler.com/eaaCatalog/registry.html) は、キーと実装の対応を登録し、あとからキーで引いて呼び出す仕組みです。Strategy が同じ interface の差し替えだとすれば、Registry は種別を増やしても dispatch 側のコードを触らないための形です。
-
-Martin Fowler の原典では Registry は「共通のオブジェクトやサービスを見つけるための、よく知られた参照点」を指しますが、本記事ではそれを広く取って、キーで実装を引く登録表（dispatch table）として扱います。
+[Registry](https://martinfowler.com/eaaCatalog/registry.html) は、キーと実装の対応を登録し、あとからキーで引いて呼び出す仕組みです。Martin Fowler の原典ではもう少し広く「共通のオブジェクトやサービスを見つけるための参照点」を指しますが、本記事ではキーで実装を引く登録表（dispatch table）として扱います。Strategy が同じ interface の差し替えだとすれば、Registry は種別を増やしても dispatch 側のコードを触らないための形です。
 
 ```typescript
 // 拡張子をユニオン型で宣言（typo やリネーム漏れをコンパイルで検出できる）
@@ -368,9 +366,7 @@ const data = parse("json", '{"name":"Alice"}');
 
 ## Observer
 
-[Observer](https://en.wikipedia.org/wiki/Observer_pattern) は、ひとつのイベント（状態変化）に対して複数の独立した購読者を後から足す仕組みです。Registry が 1 キー＝1 ハンドラなのに対し、Observer は 1 イベント＝ N 個のリスナです。
-
-古典的な Observer は、subject が observer のリストを保持して状態変化を通知する 1 対多の関係を指しますが、本記事ではそれを広く取って、in-process の event bus 的な実装まで含めて扱います。
+[Observer](https://en.wikipedia.org/wiki/Observer_pattern) は、ひとつのイベントに対して複数の購読者を後から足す仕組みです。Registry が 1 キー＝1 ハンドラだったのに対し、Observer は 1 イベント＝ N 個のリスナです。古典的には subject が observer のリストを持って通知する 1 対多の関係を指しますが、本記事では in-process の event bus も同じ扱いとして含めます。
 
 ```typescript
 type Listener<T> = (payload: T) => void;
