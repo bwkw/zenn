@@ -3,13 +3,15 @@ title: "拡張性は「誰が何を変えるか」で設計する"
 emoji: "🧭"
 type: "tech"
 topics: ["設計", "アーキテクチャ", "拡張性", "TypeScript", "デザインパターン"]
-published: false
+publication_name: "dress_code"
+published: true
+published_at: 2026-05-11 11:00
 ---
 
 # TL;DR
 
 - 拡張性は、パターン名より先に「誰が何を変えるか」で決めると判断がぶれにくくなります。
-- 表の横軸に沿うと、実装差し替えは Strategy / Factory、手順の組み替えは Decorator や Chain of Responsibility、参加者の追加は Registry / Observer / Plugin が候補になります。
+- 表の横軸に沿うと、実装差し替えは Strategy / Factory / Template Method、手順の組み替えは Decorator / Chain of Responsibility、参加者の追加は Registry / Observer / Plugin が候補になります。
 
 # はじめに
 
@@ -19,7 +21,7 @@ published: false
 
 ![事業ドメイン](/images/design-extensibility-who-what/business-domain.png)
 
-このようなプロダクトを開発していると、「どこを差し替え可能にするか」「どこまで境界を開くか」という問いに何度も向き合うことになります。機能を増やすたびに、外部連携を広げるたびに、拡張点の判断は積み重なります。グローバル向けであることも重なって、国・地域ごとに労務法制や運用が異なるため、同じ機能でも振る舞いの差や種別の追加が継続的に求められます。
+このようなプロダクトを開発していると、「どこを差し替え可能にするか」「どこまで境界を開くか」という問いに何度も向き合うことになります。機能を増やすたびに、外部連携を広げるたびに、拡張点の判断は積み重なります。グローバル向けでもあることから、国・地域ごとに労務法制や運用が異なるため、同じ機能でも振る舞いの差や種別の追加が継続的に求められます。
 
 拡張性の話になると、まずどんなやり方があるかの整理に時間がかかります。実装を差し替えるのか、手順を組み替えるのか、後から参加者を足すのか、切り口からして違います。文献によっては Strategy が Policy と呼ばれていたり、Registry と Plugin の境界が曖昧だったりして、パターン名から入ると判断の軸が定まりにくくなります。
 
@@ -28,6 +30,8 @@ published: false
 どのパターンがどんな場面に向くか、迷ったときに開ける一覧として使ってもらえれば幸いです👋
 
 # 拡張点の見取り図
+
+本記事の分類は GoF の厳密分類ではなく、拡張点を決めるための実務上の判断軸として整理しています。パターン定義のとおりに座標が一意に決まるわけではないので、迷ったときの引き出しとして使ってください。
 
 縦軸が **主体**（誰が拡張するか）、横軸が **やること**（何を変えるか）です。
 
@@ -43,13 +47,15 @@ published: false
 - **手順を組み替える**: 処理の流れや、前後に挟む責務を変える。
 - **参加者を足す**: 同じ呼び出し口に、後から実装を足す。
 
-| 主体 \\ やること | 実装を差し替える                                                                                                                | 手順を組み替える                                                              | 参加者を足す                                  |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------- |
-| 自分             | [Strategy](#strategy) / [Factory Method](#factory-method-%E3%81%A8-abstract-factory) / [Template Method](#template-method)      | -                                                                             | -                                             |
-| チーム内         | -                                                                                                                               | [Decorator](#decorator) / [Chain of Responsibility](#chain-of-responsibility) | [Registry](#registry) / [Observer](#observer) |
-| 第三者           | -                                                                                                                               | -                                                                             | [Plugin](#plugin-%E3%81%A8-spi)               |
+| 主体＼やること | 実装を差し替える                                                                                                                | 手順を組み替える                                                              | 参加者を足す                                  |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | --------------------------------------------- |
+| 自分           | [Strategy](#strategy) / [Factory Method](#factory-method-%E3%81%A8-abstract-factory) / [Template Method](#template-method)（※） | -                                                                             | -                                             |
+| チーム内       | -                                                                                                                               | [Decorator](#decorator) / [Chain of Responsibility](#chain-of-responsibility) | [Registry](#registry) / [Observer](#observer) |
+| 第三者         | -                                                                                                                               | -                                                                             | [Plugin](#plugin-%E3%81%A8-spi)               |
 
-表の `-` は、設計として不可能なわけではなく、実務であえて代表例として挙げる必要が薄い組み合わせです。たとえば「自分 × 参加者を足す」は Registry を自分のためだけに使う形になり、わざわざ拡張点として用意する動機が薄くなります。第三者の行は、開けば開くほど公開 API と互換維持の負担が一気に重くなるため、まず Plugin の境界で引くのが現実的です。
+※ [Template Method](#template-method) は厳密には「実装の差し替え」というより「サブクラスがステップを埋める」形ですが、本記事では「interface はそのまま、中身の実装を入れ替える」を広義の「実装の差し替え」として同じ列に置いています。詳細は節内を参照してください。
+
+表の `-` は、設計として不可能なわけではなく、軸の定義に照らすと「拡張点として外に開いていない」組み合わせです。たとえば「自分 × 参加者を足す」は Registry を自分のためだけに使う形ですが、呼び出し元と実装が同じリポジトリにあり、後から誰かが参加できる拡張点としては機能しません。「自分 × 手順を組み替える」も、Decorator や Chain of Responsibility を内製で閉じる構図になるケースが多く、本記事の「チーム内で後から段や参加者を足す」という意味での拡張点としては `-` にしています。「第三者 × 実装を差し替える」「第三者 × 手順を組み替える」は、ホストと Provider の契約だけでは収まりにくく、実運用では Plugin の発見・読み込み・互換維持まで含めて設計することになるため、まずは「参加者を足す」列の Plugin に寄せて整理しています。第三者の行は、開けば開くほど公開 API と互換維持の負担が一気に重くなるため、まず Plugin の境界で引くのが現実的です。
 
 迷ったときは、「主体は誰か」と「何を変えるか」の 2 点を先に決めてみてください。その交点のセルが、この記事で参照すべき節と対応しています。
 
@@ -62,28 +68,36 @@ published: false
 [Strategy](https://en.wikipedia.org/wiki/Strategy_pattern) は、役割の interface を固定し、DI や設定でその中身の実装を差し替えるやり方です。呼び出し元は interface の形だけを知っていれば足りて、どの実装が渡ってくるかは関知しません。
 
 ```typescript
-// 役割（interface）を先に固定し、実装の詳細は外から差し込む
-interface PaymentGateway {
-  charge(amount: number, currency: string): Promise<void>;
+// 役割（interface）を先に固定し、計算アルゴリズムを外から差し込む
+interface PricingPolicy {
+  calculate(basePrice: number, quantity: number): number;
 }
 
-class StripeGateway implements PaymentGateway {
-  async charge(amount: number, currency: string): Promise<void> {
-    // Stripe API に委譲
+class StandardPricing implements PricingPolicy {
+  calculate(basePrice: number, quantity: number): number {
+    return basePrice * quantity;
   }
 }
-class PayPalGateway implements PaymentGateway {
-  async charge(amount: number, currency: string): Promise<void> {
-    // PayPal API に委譲
+class BulkDiscountPricing implements PricingPolicy {
+  calculate(basePrice: number, quantity: number): number {
+    // 10 個以上は 10% オフ
+    const subtotal = basePrice * quantity;
+    return quantity >= 10 ? subtotal * 0.9 : subtotal;
+  }
+}
+class MemberPricing implements PricingPolicy {
+  calculate(basePrice: number, quantity: number): number {
+    // 会員は常に 5% オフ
+    return basePrice * quantity * 0.95;
   }
 }
 
-// DI で受け取った実装だけを使う（中身は関知しない）
-class CheckoutService {
-  constructor(private gateway: PaymentGateway) {}
+// DI で受け取ったポリシーだけを使う（中身は関知しない）
+class CartService {
+  constructor(private pricing: PricingPolicy) {}
 
-  async checkout(amount: number, currency: string): Promise<void> {
-    await this.gateway.charge(amount, currency);
+  totalFor(basePrice: number, quantity: number): number {
+    return this.pricing.calculate(basePrice, quantity);
   }
 }
 ```
@@ -107,7 +121,7 @@ class ConsoleLogger implements Logger {
   }
 }
 class NoopLogger implements Logger {
-  info(): void {} // テスト環境では何もしない
+  info(_msg: string): void {} // テスト環境では何もしない
 }
 
 // 環境ごとの生成判断はここだけ。呼び出し側は Logger の形だけ知ればよい
@@ -136,20 +150,20 @@ interface DbDriver {
 // Postgres 向け：プレースホルダは $1, $2, ...
 class PostgresDriver implements DbDriver {
   createConnection(): Connection {
-    return new PostgresConnection();
+    return new PostgresConnection(); // 実装クラス本体は省略
   }
   createQueryBuilder(): QueryBuilder {
-    return new PostgresQueryBuilder();
+    return new PostgresQueryBuilder(); // 実装クラス本体は省略
   }
 }
 
 // MySQL 向け：プレースホルダは ?, ?, ...
 class MysqlDriver implements DbDriver {
   createConnection(): Connection {
-    return new MysqlConnection();
+    return new MysqlConnection(); // 実装クラス本体は省略
   }
   createQueryBuilder(): QueryBuilder {
-    return new MysqlQueryBuilder();
+    return new MysqlQueryBuilder(); // 実装クラス本体は省略
   }
 }
 ```
@@ -161,6 +175,8 @@ class MysqlDriver implements DbDriver {
 ## Template Method
 
 [Template Method](https://en.wikipedia.org/wiki/Template_method_pattern) は、処理の骨格（手順）を固定し、特定のステップだけサブクラスに委ねる形です。Strategy がどのアルゴリズムを使うかを外から差し込むのに対し、こちらは「この順序で実行する」という流れ自体をコードに固め、穴になる場所だけを開けておきます。
+
+Strategy / Factory と比べるときの決定的な違いは制御の所在です。Strategy / Factory はクライアント側が実装を選んで注入するのに対し、Template Method は親クラスが描いた骨格の穴をサブクラスが埋めます。表での列の置き方の理由は、拡張点の見取り図セクション末の※注を参照してください。
 
 ```typescript
 abstract class ReportJob {
@@ -209,6 +225,7 @@ Strategy と悩む場面では、アルゴリズム全体を外から差し込�
 [Decorator](https://en.wikipedia.org/wiki/Decorator_pattern) は、本体の処理や interface を固定したまま、外側から責務を足すやり方です。ラッパーを順に重ねることで、本体に触れずに横断的な処理を差し込めます。
 
 ```typescript
+// Node.js 環境を想定
 import { readFile } from "node:fs/promises";
 
 interface DataSource {
@@ -231,7 +248,7 @@ class CachingDataSource implements DataSource {
   async read(key: string): Promise<string> {
     const hit = this.cache.get(key);
     if (hit !== undefined) return hit;
-    const value = await this.inner.read(key); // 必ず inner を呼ぶ
+    const value = await this.inner.read(key); // キャッシュミス時のみ inner を呼ぶ
     this.cache.set(key, value);
     return value;
   }
@@ -255,7 +272,7 @@ const ds: DataSource = new LoggingDataSource(
 
 ログ・キャッシュ・計測のように、本体のコードに触れずに横断的な処理を足したいときに向きます。同じ interface を保ったまま外側から包めるので、呼び出し元は何層に包まれているかを意識せずに済みます。
 
-Chain of Responsibility と混同されやすいですが、違いは止めるかどうかです。Decorator は必ず内側を呼びます。Chain of Responsibility は途中で止められます。条件によってここで止めるという分岐が生まれた時点で、それはもう Decorator ではなく Chain of Responsibility の仕事になっています。
+Chain of Responsibility と混同されやすいですが、本質的な違いは「同じ interface を保って包む」のが Decorator、「次に渡すかを各段が判断する」のが Chain of Responsibility です。包むことが主目的の Decorator にも、上のキャッシュ例のように内側の呼び出しを省くケースはあります。一方、CoR では「打ち切るか通すか」の判断がパターンの中核になります。
 
 ラップが深くなるほどスタックトレースは読みにくくなります。クラスの粒度・ログの粒度・ラップ順序のルールはチームで最初に決めておくと、あとから増える局面でも一貫して運用できます。
 
@@ -311,6 +328,8 @@ const app = buildChain([logging, auth], handler);
 
 [Registry](https://martinfowler.com/eaaCatalog/registry.html) は、キーと実装の対応を登録し、あとからキーで引いて呼び出す仕組みです。Strategy が同じ interface の差し替えだとすれば、Registry は種別を増やしても dispatch 側のコードを触らないための形です。
 
+Martin Fowler の原典では Registry は「共通のオブジェクトやサービスを見つけるための、よく知られた参照点」を指しますが、本記事ではそれを広く取って、キーで実装を引く登録表（dispatch table）として扱います。
+
 ```typescript
 // 拡張子をユニオン型で宣言（typo やリネーム漏れをコンパイルで検出できる）
 type Extension = "json" | "csv" | "yaml";
@@ -336,7 +355,9 @@ export function parse(extension: Extension, content: string): unknown {
 // 種別を増やしても parse のコードには触れない
 register("json", { parse: (c) => JSON.parse(c) });
 register("csv", { parse: (c) => c.split("\n").map((row) => row.split(",")) });
-register("yaml", { parse: (c) => parseYaml(c) });
+register("yaml", {
+  parse: (c) => parseYaml(c), // parseYaml は外部ライブラリ（例: yaml）を想定
+});
 
 const data = parse("json", '{"name":"Alice"}');
 ```
@@ -351,10 +372,13 @@ const data = parse("json", '{"name":"Alice"}');
 
 [Observer](https://en.wikipedia.org/wiki/Observer_pattern) は、ひとつのイベント（状態変化）に対して複数の独立した購読者を後から足す仕組みです。Registry が 1 キー＝1 ハンドラなのに対し、Observer は 1 イベント＝ N 個のリスナです。
 
+古典的な Observer は、subject が observer のリストを保持して状態変化を通知する 1 対多の関係を指しますが、本記事ではそれを広く取って、in-process の event bus 的な実装まで含めて扱います。
+
 ```typescript
 type Listener<T> = (payload: T) => void;
 
 class EventBus<Events extends Record<string, unknown>> {
+  // 内部表現は any、外向きの on/emit で型安全を担保
   private listeners = new Map<keyof Events & string, Listener<any>[]>();
 
   // 購読者はいつでも後から追加できる
@@ -363,7 +387,7 @@ class EventBus<Events extends Record<string, unknown>> {
     this.listeners.set(event, [...list, fn]);
   }
 
-  // 発火すると登録された全購読者が呼ばれる（止められない）
+  // 発火すると登録された全購読者が呼ばれる（このバスでは止められない設計）
   emit<K extends keyof Events & string>(event: K, payload: Events[K]): void {
     for (const fn of this.listeners.get(event) ?? []) fn(payload);
   }
@@ -390,9 +414,9 @@ bus.on("employee.created", ({ name }) => {
 bus.emit("employee.created", { employeeId: "emp-001", name: "山田 太郎" });
 ```
 
-ひとつの変化に対して複数の独立した反応（メール通知・監査ログ・キャッシュ破棄など）を後から足したい場面が典型です。従業員が作成されたとき、どのチームが何をするかを emit 側は知らなくてよく、購読者が増えても発火側のコードは変わりません。Registry が種別 → 実装を 1:1 で引くのに対し、Observer は 1 イベントに対して N 個の独立した反応が成立する、というのが両者の違いです。
+ひとつの変化に対して複数の独立した反応（メール通知・監査ログ・キャッシュ破棄など）を後から足したい場面が典型です。従業員が作成されたとき、どのチームが何をするかを emit 側は知らなくてよく、購読者が増えても発火側のコードは変わりません。Registry が種別 → 実装を 1:1 で引くのに対し、Observer は 1 イベントに対して N 個の独立した反応が成立する、というのが両者の違いです。なお、購読者間で伝播を止められるかどうかは実装の設計次第で、本記事の EventBus はあえて止められない（全員に届く）方針にしています。
 
-ただ、通知順に依存する実装が紛れ込むと、購読者が増えた段階で予期しない挙動が出ることがあります。どの順で呼ばれても結果が同じになる設計を前提にしておくのが安全で、順序の制御が必要な処理は Chain of Responsibility で明示的に扱うほうが向きます。社外の開発者にも参加を開きたいなら、Plugin が次の検討先です。
+ただ、通知順に依存する実装が紛れ込むと、購読者が増えた段階で予期しない挙動が出ることがあります。どの順で呼ばれても結果が同じになる設計を前提にしておくのが安全で、順序の制御が必要な処理は Chain of Responsibility で明示的に扱うほうが向きます。社外の開発者にも参加を開きたいなら、外部公開を視野に入れたうえで Plugin が次の検討先です。
 
 ## Plugin と SPI
 
@@ -426,7 +450,7 @@ async function loadPlugins(
 }
 ```
 
-ESLint・Prettier・VS Code のように、第三者が拡張を持ち寄るプロダクトで真価を発揮します。社内では気軽に壊せる API も、外部に公開した途端に互換を守り続ける義務が生まれ、ドキュメントの維持や破壊的変更への対処が継続的なコストになります。そのコストに見合わない社内ツールでは、Observer や Registry で十分なことがほとんどです。
+ESLint・Prettier・VS Code のように、第三者が拡張を持ち寄るプロダクトで真価を発揮します。社内では気軽に壊せる API も、外部に公開した途端に互換を守り続ける義務が生まれ、ドキュメントの維持や破壊的変更への対処が継続的なコストになります。負債になるのは公開 API の互換だけではありません。Plugin をどう発見させるか、ホストと Provider のバージョン整合をどう取るか、ロード・初期化・失敗時の取り扱いをどうするかまで含めて、運用し続ける覚悟が必要です。そのコストに見合わない社内ツールでは、Observer や Registry で十分なことがほとんどです。
 
 Registry や Observer が組織内での参加者追加だとすれば、Plugin は境界の外へ拡張を開く、性質の違う選択です。社外向けの公開 API になると、ドキュメントに書いた契約だけでなく、実際に観測できる挙動まで依存されやすくなります（[Hyrum's Law](https://www.hyrumslaw.com/)）。設計パターンというより、公開プラットフォームを運営する判断に近いです。
 
