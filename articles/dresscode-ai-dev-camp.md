@@ -1,5 +1,5 @@
 ---
-title: "2 日間の AI 開発合宿で、普段の開発文化が見えた"
+title: "AI 開発合宿で見えたのは、合宿そのものより普段の開発文化だった"
 emoji: "🏕️"
 type: "idea"
 topics: ["開発文化", "Dress Code", "AI", "合宿"]
