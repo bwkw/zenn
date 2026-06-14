@@ -21,7 +21,7 @@ publication_name: "dress_code"
 
 <!-- textlint-enable -->
 
-![宿泊先のホテル](/images/ai-dev-camp/lodging.jpg)
+![宿泊先のホテル](/images/dresscode-ai-dev-camp/lodging.jpg)
 _宿泊先のホテル_
 
 # なぜ「AI 開発合宿」だったのか
@@ -73,15 +73,15 @@ _宿泊先のホテル_
 
 キックオフで目標とスケジュールを再確認したあと、事前に検証していたメンバーが AWS Bedrock の接続まわりの知見を全体に共有しました。接続の前提を揃えたうえで、各チームは設計の議論に入っていきました。
 
-![Bedrock の共有](/images/ai-dev-camp/bedrock-share.jpg)
+![Bedrock の共有](/images/dresscode-ai-dev-camp/bedrock-share.jpg)
 
 午前は設計と開発に集中し、随時江尻と壁打ちを挟みました。「どう作るか」だけでなく「その機能がどんな価値を顧客に届けるのか」まで踏み込んだやり取りになりました。
 
-![1 日目の開発の様子](/images/ai-dev-camp/day1-dev.jpg)
+![1 日目の開発の様子](/images/dresscode-ai-dev-camp/day1-dev.jpg)
 
 12 時過ぎには会場近くのハンバーガー屋でランチを取り、少しリフレッシュしました。
 
-![ランチの様子](/images/ai-dev-camp/lunch.jpg)
+![ランチの様子](/images/dresscode-ai-dev-camp/lunch.jpg)
 
 午後も開発と設計を続け、17 時から 1 日目の中間報告に入りました。
 
@@ -89,7 +89,7 @@ _宿泊先のホテル_
 
 中間報告を終えたあと、宿泊先へ移動してチェックインしました。1 日目を締めくくる乾杯もありました。
 
-![1 日目の乾杯](/images/ai-dev-camp/cheers.jpg)
+![1 日目の乾杯](/images/dresscode-ai-dev-camp/cheers.jpg)
 
 その後は各自部屋に戻り、自由行動に。開発を続ける人、キャリアを語り合う人など、思い思いに 1 日目を過ごしました。
 
@@ -115,7 +115,7 @@ _宿泊先のホテル_
 
 <!-- textlint-enable ja-technical-writing/ja-no-mixed-period -->
 
-![成果発表会の様子](/images/ai-dev-camp/presentation.jpg)
+![成果発表会の様子](/images/dresscode-ai-dev-camp/presentation.jpg)
 
 # 合宿で見えた 3 本柱
 
@@ -194,4 +194,4 @@ https://speakerdeck.com/kawauso/dokiyumentohaainowei-fang-sutatoatupunoaziyairuw
 
 <!-- textlint-enable -->
 
-![参加メンバーの集合写真](/images/ai-dev-camp/group.jpg)
+![参加メンバーの集合写真](/images/dresscode-ai-dev-camp/group.jpg)
