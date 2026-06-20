@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#fcfcfd; --surface:#ffffff; --muted-surface:#e0e0e3;
+    --ink:#1f1f22; --muted:#646467; --border:#bbbbbf;
+    --primary:#00082c;
+    --st1:#1a2348; --st2:#344484; --st3:#5566a6;
+    --success-bg:#e7f2ec; --success:#137047;
+    --warning-bg:#fbf0db; --warning:#915930; --warning-fill:#ffba1a;
+    --teal:#22a397; --orange:#c2410c; --error:#d6282d;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body {
+    width:1200px; height:1010px; background:var(--bg); color:var(--ink);
+    font-family:"Open Sans","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",sans-serif;
+    -webkit-font-smoothing:antialiased; letter-spacing:.03em; font-feature-settings:"palt";
+  }
+  .page { width:1200px; height:1010px; padding:44px 52px 36px; display:flex; flex-direction:column; }
+
+  .kicker { font-size:18px; font-weight:700; color:var(--muted); letter-spacing:.14em; margin-bottom:11px; }
+  h1 { font-size:46px; line-height:1.18; font-weight:700; color:var(--ink); letter-spacing:.01em; }
+  h1 .accent { color:var(--error); }
+  .lead { margin-top:13px; font-size:19px; line-height:1.5; color:#3a4252; white-space:nowrap; }
+  .lead b { color:var(--ink); }
+
+  .flow { display:flex; align-items:stretch; gap:12px; margin:20px 0 18px; }
+  .stage { flex:1; text-align:center; border-radius:10px; color:#fff; padding:12px 0 10px; }
+  .stage .lbl { font-size:25px; font-weight:700; }
+  .stage .en { font-size:12px; font-weight:600; opacity:.85; letter-spacing:.16em; margin-top:4px; }
+  .st1 { background:var(--st1); } .st2 { background:var(--st2); } .st3 { background:var(--st3); }
+  .arrow { align-self:center; font-size:28px; color:var(--border); font-weight:700; }
+
+  .cards { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    padding:18px 24px 20px; box-shadow:0 1px 2px rgba(31,31,34,.06); display:flex; flex-direction:column; position:relative; overflow:hidden; }
+  .card::before { content:""; position:absolute; left:0; top:0; bottom:0; width:5px; background:var(--c); }
+  .card.fmt { --c:var(--primary); } .card.deliver { --c:var(--teal); }
+  .card.corrupt { --c:var(--orange); } .card.attack { --c:var(--error); }
+
+  .ctop { display:flex; align-items:center; gap:12px; }
+  .phase { font-size:13px; font-weight:700; color:var(--muted); letter-spacing:.1em; }
+  .ctitle { font-size:24px; font-weight:700; color:var(--ink); margin-top:2px; }
+  .verdict { margin-left:auto; display:flex; align-items:center; gap:5px; font-size:14px; font-weight:700;
+    padding:6px 12px; border-radius:9999px; white-space:nowrap; }
+  .verdict .mk { font-size:16px; }
+  .ok { background:var(--success-bg); color:var(--success); }
+  .warn { background:var(--warning-bg); color:var(--warning); }
+
+  .line { margin-top:11px; display:flex; gap:9px; font-size:17px; line-height:1.45; color:#2c3344; }
+  .tag { flex:none; font-size:13px; font-weight:700; padding:2px 9px; border-radius:5px; height:fit-content; margin-top:2px; }
+  .tag.trap { background:#f1eef0; color:var(--error); }
+  .tag.fix { background:var(--success-bg); color:var(--success); }
+  .card.corrupt .tag.fix { background:var(--warning-bg); color:var(--warning); }
+
+  .chips { margin-top:13px; display:flex; flex-wrap:wrap; gap:8px; }
+  .chip { font-size:15.5px; font-weight:600; background:var(--muted-surface); color:var(--ink);
+    padding:5px 11px; border-radius:5px; }
+
+  .foot { margin-top:18px; background:var(--primary); color:#fff; border-radius:12px;
+    padding:16px 30px; text-align:center; }
+  .foot .ft { font-size:22px; font-weight:600; line-height:1.4; letter-spacing:.02em; }
+  .foot b { color:var(--warning-fill); font-weight:700; }
+</style>
+</head>
+<body>
+  <div class="page">
+    <div class="kicker">CSV EXPORT — 罠と防御の見取り図</div>
+    <h1>CSV を顧客に配るのは、<span class="accent">想像よりずっと難しい</span></h1>
+    <div class="lead">罠は <b>作る → 配る → 開かれる</b> のどこで起きるか。段が分かれば、対処も自然に決まる。</div>
+
+    <div class="flow">
+      <div class="stage st1"><div class="lbl">作る</div><div class="en">FORMAT</div></div>
+      <div class="arrow">→</div>
+      <div class="stage st2"><div class="lbl">配る</div><div class="en">DELIVER</div></div>
+      <div class="arrow">→</div>
+      <div class="stage st3"><div class="lbl">開かれる</div><div class="en">OPEN IN EXCEL</div></div>
+    </div>
+
+    <div class="cards">
+      <div class="card fmt">
+        <div class="ctop"><div><div class="phase">作る</div><div class="ctitle">フォーマット</div></div>
+          <span class="verdict ok"><span class="mk">◎</span>生成側で直す</span></div>
+        <div class="line"><span class="tag trap">罠</span><span>カンマ・引用符・改行・改行コードで列がずれ、出力もブレる</span></div>
+        <div class="line"><span class="tag fix">防御</span><span>全セルクォート＋CRLF で一意化。同じ入力なら毎回同じバイト列</span></div>
+        <div class="chips"><span class="chip">RFC 4180</span><span class="chip">全セルクォート</span><span class="chip">往復不変</span><span class="chip">byte-identical</span></div>
+      </div>
+
+      <div class="card deliver">
+        <div class="ctop"><div><div class="phase">配る</div><div class="ctitle">配信</div></div>
+          <span class="verdict ok"><span class="mk">◎</span>ヘッダで防ぐ</span></div>
+        <div class="line"><span class="tag trap">罠</span><span>HTTP で返す一歩が攻撃面。RFD・MIME 誤認・ファイル名インジェクション</span></div>
+        <div class="line"><span class="tag fix">防御</span><span>attachment＋RFC 5987 でファイル名を安全に。URL は短命に</span></div>
+        <div class="chips"><span class="chip">attachment</span><span class="chip">RFD 対策</span><span class="chip">RFC 5987</span><span class="chip">短命 URL</span></div>
+      </div>
+
+      <div class="card corrupt">
+        <div class="ctop"><div><div class="phase">開かれる</div><div class="ctitle">データ破損</div></div>
+          <span class="verdict warn"><span class="mk">△</span>仕様で伝える</span></div>
+        <div class="line"><span class="tag trap">罠</span><span>先頭ゼロ消失・長桁の指数化・日付化、ID の SYLK 誤認、BOM 無しで文字化け</span></div>
+        <div class="line"><span class="tag fix">防御</span><span>多くは取り込み設定で案内。SYLK と文字化けは全セルクォート＋条件付き BOM で防げる</span></div>
+        <div class="chips"><span class="chip">先頭ゼロ</span><span class="chip">指数化</span><span class="chip">日付化</span><span class="chip">SYLK</span><span class="chip">文字化け</span></div>
+      </div>
+
+      <div class="card attack">
+        <div class="ctop"><div><div class="phase">開かれる</div><div class="ctitle">数式インジェクション</div></div>
+          <span class="verdict ok"><span class="mk">◎</span>無害化する</span></div>
+        <div class="line"><span class="tag trap">罠</span><span>= + - @・先頭空白・全角で数式実行。正しい CSV でも開いた瞬間に発火</span></div>
+        <div class="line"><span class="tag fix">防御</span><span>「何を × どこで」を分け、人が開く終端で行の値だけに ' を前置</span></div>
+        <div class="chips"><span class="chip">先頭空白</span><span class="chip">全角トリガ</span><span class="chip">人が開く終端</span><span class="chip">数値は素通し</span></div>
+      </div>
+    </div>
+
+    <div class="foot">
+      <div class="ft">貫く軸は「<b>最終的に誰がどう開くか</b>」</div>
+    </div>
+  </div>
+</body>
+</html>
