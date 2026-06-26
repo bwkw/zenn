@@ -1,5 +1,5 @@
 ---
-title: "遅いのは SQL だと思ったら、呼び出し方とプランナの読み違えだった"
+title: "遅いのは SQL だと思ったら、別のところにあった"
 emoji: "🐘"
 type: "tech"
 topics: ["postgresql", "performance", "sql", "database"]
@@ -13,7 +13,7 @@ publication_name: "dress_code"
 
 # はじめに
 
-この記事は [Dress Code Advent Calendar 2026/07](https://marmalade-aardwolf-939.notion.site/Dress-Code-Advent-Calendar-2026-07-e07f067a594f4401a707c2de1ba805b4) の 1 日目の記事です！
+この記事は [Dress Code Advent Calendar 2026/07](https://marmalade-aardwolf-939.notion.site/Dress-Code-Advent-Calendar-2026-07-e07f067a594f4401a707c2de1ba805b4) の 1 日目の記事です。
 
 こんにちは、Dress Code でプロダクトエンジニアをしている [ないとー](https://x.com/_bwkw_) です！
 
@@ -250,7 +250,7 @@ https://www.postgresql.org/message-id/CAApHDvpbJHwMZ1U-nzU0kBxu0kwMpBvyL+AFWvFAm
 
 集計の遅延を分解してみて、手元に残ったのは3つの学びでした。
 
-1つ目は、遅さは遅そうな場所にいるとは限らないということ。数十秒のクエリを見て真っ先に SQL を疑いましたが、実際に効いたのは SQL の外側でした。直列 `await` を並列にしたことと、全行を取ってきて数えるのをやめたことです。クエリを賢くする前に呼ばれ方と転送量を見るだけで、桁が変わることがあります。
+1つ目は、遅さは遅そうな場所にいるとは限らないということ。数十秒のクエリを見て真っ先に SQL を疑いましたが、まず効いたのは SQL の外側でした。直列 `await` を並列にしたことと、全行を取ってきて数えるのをやめたことです。このあと見るクエリ本体の書き換えも同じくらい効きましたが、その前に呼ばれ方と転送量を見直すだけで桁が変わることもあります。
 
 2つ目は、`EXPLAIN` の見積りと実測のギャップを読むこと。桁違いの誤推定の手前にはたいてい `DISTINCT` やサブクエリがいて、`rows=200`（`DEFAULT_NUM_DISTINCT`）は派生リレーションに統計がないというサインです。そこに結合をぶら下げると nested loop が牙を剥きます。列の取得を `EXISTS` の存在判定に変えれば誤推定のサブクエリを駆動表から外せますが、すべてが hash になる魔法ではなく、効き幅もデータ規模で変わります。
 
