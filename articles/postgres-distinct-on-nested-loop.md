@@ -14,9 +14,9 @@ published_at: 2026-07-01 11:00
 
 # はじめに
 
-この記事は [Dress Code Advent Calendar 2026/07](https://marmalade-aardwolf-939.notion.site/Dress-Code-Advent-Calendar-2026-07-e07f067a594f4401a707c2de1ba805b4) の 1 日目です。
+こんにちは、Dress Code でプロダクトエンジニアをしている [ないとー](https://x.com/_bwkw_) です！
 
-こんにちは、Dress Code でプロダクトエンジニアをしている [ないとー](https://x.com/_bwkw_) です！今月は、Dress Code Advent Calendar 2026/07 と題して PdM とエンジニアのメンバーで、日々の設計・開発で得た知見やハマったこと、入社エントリやチームの工夫まで、技術・プロダクト問わずいろいろ持ち寄っていきます。読んだ方の「明日の仕事がちょっと楽になる」きっかけになれば嬉しいです。
+Dress Code の技術力・思想・カルチャーを外に発信していくため、この7月にテックブログのアドベントカレンダー [Dress Code Advent Calendar 2026/07](https://marmalade-aardwolf-939.notion.site/Dress-Code-Advent-Calendar-2026-07-e07f067a594f4401a707c2de1ba805b4) を開催します🎉 本記事はその1日目です。PdM とエンジニアのメンバーで、日々の設計・開発で得た知見やハマったこと、入社エントリやチームの工夫まで、技術・プロダクト問わず持ち寄っていきます。
 
 私たちは [DRESS CODE](https://www.dress-code.com/ja) という、人事労務・情報システム・総務などを横断する Workforce Management プロダクトを開発しています。扱うのは「人」が中心で、従業員・業務委託・役員・社外協力者といった多様な人員データを日々大量に集計しています。
 
