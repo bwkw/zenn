@@ -17,7 +17,7 @@ publication_name: "dress_code"
 - 型を厳しくすればよいわけでもない。効くのは型パズルではなく、名前が付いていて局所で読めて、エラーメッセージが直す場所を指す**素直な型**である。型で書けない規約は lint に落とす。
 - 型が減らすのはレビューで確かめる項目の数であって、**レビューそのものではない**。有効な状態の中の計算違いは型では止まらない。
 
-![tl;dr](/images/loose-types-and-dead-branches/tldr.png)
+![tl;dr](/images/loose-types-and-dead-branches/tldr.jpeg)
 
 # はじめに
 
