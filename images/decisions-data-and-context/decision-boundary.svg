@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="660" viewBox="0 0 840 660">
+  <title>ADRに採用した方式と、それを選んだ条件、見直す条件を残す</title>
+  <desc>同期処理を選ぶ架空のADR。少量の処理と短い待ち時間という前提の内側で選択し、その前提から外れたら自動的に別方式にせず、再検討する。</desc>
+  <rect width="840" height="660" rx="20" fill="#f7f8f6"/>
+  <g font-family="Hiragino Sans, Hiragino Kaku Gothic ProN, sans-serif" fill="#243936">
+    <text x="48" y="67" font-size="30" font-weight="600">選んだ方式に、成立する範囲を添える</text>
+    <text x="48" y="110" font-size="24" fill="#63736f">架空の ADR：申請の実行方式を選ぶ</text>
+    <rect x="48" y="147" width="744" height="329" rx="16" fill="#edf3ee" stroke="#9ebdaf" stroke-width="2"/>
+    <text x="78" y="194" font-size="26" font-weight="600" fill="#226b5d">この判断を支える条件</text>
+    <text x="78" y="242" font-size="28">処理量が少なく、待ち時間が許容範囲にある</text>
+    <path d="M78 270 H762" stroke="#c8d8ce" stroke-width="2"/>
+    <text x="78" y="318" font-size="26" fill="#63736f">選んだ方式</text>
+    <text x="78" y="365" font-size="34" font-weight="600">同期処理にする</text>
+    <text x="78" y="423" font-size="26">構成を簡単に保つ代わりに、処理が長くなると</text>
+    <text x="78" y="459" font-size="26">利用者を待たせるリスクを受け入れる。</text>
+    <path d="M420 476 V521 M413 513 L420 522 L427 513" stroke="#a18755" stroke-width="2" fill="none"/>
+    <text x="48" y="562" font-size="28" font-weight="600" fill="#755c31">待ち時間や処理量が、想定から外れたら</text>
+    <text x="48" y="605" font-size="28" fill="#755c31">実測をもとに、実行方式を検討し直す。</text>
+    <text x="48" y="644" font-size="24" fill="#63736f">見直す条件は、別方式への自動切り替え条件ではない。</text>
+  </g>
+</svg>

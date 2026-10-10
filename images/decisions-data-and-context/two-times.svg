@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="610" viewBox="0 0 840 610">
+  <title>同じ4/5の所属でも、現在の正式な履歴と当時システムが知っていた情報は異なる</title>
+  <desc>4/1付の異動を4/10に登録した例。登録後の正式な履歴では4/1から新部門だが、当時のシステムの認識は4/10まで旧部門だった。</desc>
+  <rect width="840" height="610" rx="20" fill="#f7f8f6"/>
+  <g font-family="Hiragino Sans, Hiragino Kaku Gothic ProN, sans-serif" fill="#243936">
+    <text x="48" y="67" font-size="30" font-weight="600">同じ 4/5 に、二つの答えがある</text>
+    <text x="48" y="110" font-size="24" fill="#63736f">4/1 付の異動を、4/10 に登録した場合</text>
+    <path d="M120 178 V188 M120 296 V319 M120 435 V445 M650 178 V188 M650 296 V319 M650 435 V445" stroke="#d3dcd6" stroke-width="2"/>
+    <path d="M390 178 V188 M390 296 V319 M390 435 V487" stroke="#a18755" stroke-width="2" stroke-dasharray="5 7"/>
+    <g font-size="28" text-anchor="middle" font-weight="600">
+      <text x="120" y="161">4/1</text>
+      <text x="390" y="161" fill="#755c31">4/5</text>
+      <text x="650" y="161">4/10</text>
+    </g>
+    <text x="48" y="215" font-size="27" font-weight="600">今の記録で見た、正式な所属</text>
+    <rect x="120" y="236" width="658" height="60" rx="8" fill="#226b5d"/>
+    <text x="449" y="277" font-size="29" text-anchor="middle" fill="#ffffff">新部門</text>
+    <text x="48" y="354" font-size="27" font-weight="600">当時、システムが把握していた所属</text>
+    <rect x="120" y="375" width="530" height="60" rx="8" fill="#dce4df"/>
+    <path d="M650 375 H770 Q778 375 778 383 V427 Q778 435 770 435 H650 Z" fill="#226b5d"/>
+    <text x="385" y="416" font-size="29" text-anchor="middle">旧部門</text>
+    <text x="714" y="416" font-size="29" text-anchor="middle" fill="#ffffff">新部門</text>
+    <circle cx="390" cy="486" r="8" fill="#a18755"/>
+    <text x="650" y="471" font-size="24" text-anchor="middle" fill="#63736f">ここで登録</text>
+    <text x="48" y="539" font-size="28" font-weight="600" fill="#755c31">過去の所属は訂正できる。</text>
+    <text x="48" y="580" font-size="28" fill="#755c31">その日に何を知っていたかは、書き換わらない。</text>
+  </g>
+</svg>

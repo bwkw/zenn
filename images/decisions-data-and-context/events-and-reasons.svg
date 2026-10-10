@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="510" viewBox="0 0 840 510">
+  <title>出来事の順序と承認の根拠は別の情報</title>
+  <desc>申請された、承認された、実行されたという三つのイベントの列。承認に適用した規則、参照した証拠、例外の条件は、この列だけでは分からない。</desc>
+  <rect width="840" height="510" rx="20" fill="#f7f8f6"/>
+  <g font-family="Hiragino Sans, Hiragino Kaku Gothic ProN, sans-serif" fill="#243936">
+    <text x="48" y="66" font-size="30" font-weight="600">出来事の順序と、承認の根拠は別の情報</text>
+    <text x="48" y="111" font-size="24" fill="#63736f">このイベントの列に記録されていること</text>
+    <g fill="#edf3ee" stroke="#9ebdaf" stroke-width="2">
+      <rect x="48" y="144" width="216" height="92" rx="14"/>
+      <rect x="312" y="144" width="216" height="92" rx="14"/>
+      <rect x="576" y="144" width="216" height="92" rx="14"/>
+    </g>
+    <g font-size="28" font-weight="600" text-anchor="middle">
+      <text x="156" y="201">申請された</text>
+      <text x="420" y="201">承認された</text>
+      <text x="684" y="201">実行された</text>
+    </g>
+    <g stroke="#63736f" stroke-width="2" fill="none">
+      <path d="M274 190 H300 M292 182 L300 190 L292 198"/>
+      <path d="M538 190 H564 M556 182 L564 190 L556 198"/>
+    </g>
+    <path d="M420 236 V280" stroke="#a18755" stroke-width="2" stroke-dasharray="5 5"/>
+    <rect x="48" y="280" width="744" height="160" rx="14" fill="#eee7d9"/>
+    <text x="76" y="324" font-size="26" font-weight="600" fill="#755c31">承認の根拠を知るには、別の情報が必要</text>
+    <g font-size="24" fill="#755c31">
+      <text x="76" y="374">適用した規則</text>
+      <text x="322" y="374">参照した証拠</text>
+      <text x="568" y="374">例外の条件</text>
+    </g>
+    <text x="76" y="416" font-size="22" fill="#63736f">イベントに含めるか、関連する記録へつなぐ。</text>
+    <text x="48" y="482" font-size="24" fill="#63736f">何が起きたかを追えることと、なぜ認めたかが分かることは違う。</text>
+  </g>
+</svg>

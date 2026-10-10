@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="540" viewBox="0 0 840 540">
+  <title>結論が残る期間と、その前提が成立している期間は同じとは限らない</title>
+  <desc>結論の横棒は右端まで続くが、前提の横棒は途中で終わる。その後は結論を自動的に使い続けず、見直す必要があるかを確かめる。</desc>
+  <rect width="840" height="540" rx="20" fill="#f7f8f6"/>
+  <g font-family="Hiragino Sans, Hiragino Kaku Gothic ProN, sans-serif" fill="#243936">
+    <text x="48" y="67" font-size="30" font-weight="600">結論は、その前提より長く生きることがある</text>
+    <text x="48" y="110" font-size="24" fill="#63736f">ある判断を、時間の経過とともに見た例</text>
+    <rect x="466" y="148" width="326" height="252" rx="12" fill="#eee6d7"/>
+    <text x="48" y="188" font-size="28" font-weight="600">結論が参照される期間</text>
+    <rect x="48" y="211" width="744" height="45" rx="8" fill="#226b5d"/>
+    <text x="48" y="312" font-size="28" font-weight="600">前提が成立する期間</text>
+    <rect x="48" y="335" width="418" height="45" rx="8" fill="#9ebdaf"/>
+    <path d="M466 143 V410" fill="none" stroke="#a18755" stroke-width="2" stroke-dasharray="6 7"/>
+    <text x="629" y="305" text-anchor="middle" font-size="27" fill="#755c31">再検討が必要か</text>
+    <text x="629" y="346" text-anchor="middle" font-size="27" fill="#755c31">確認する期間</text>
+    <path d="M48 422 H792 M782 416 L792 422 L782 428" fill="none" stroke="#94a29c" stroke-width="2"/>
+    <text x="48" y="462" font-size="24" fill="#63736f">判断したとき</text>
+    <text x="466" y="462" text-anchor="middle" font-size="24" fill="#755c31">規模・規則などの変化</text>
+    <text x="792" y="462" text-anchor="end" font-size="24" fill="#63736f">時間</text>
+    <text x="48" y="510" font-size="27" font-weight="600">結論が残っていること ≠ 今も使ってよいこと</text>
+  </g>
+</svg>
