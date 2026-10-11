@@ -1,6 +1,6 @@
 ---
 title: "判断を閉じるためのデータと開き直すための記録"
-emoji: "🧭"
+emoji: "🗂️"
 type: "idea"
 topics: ["設計", "データモデリング", "ADR", "システム思考", "AI"]
 published: true
