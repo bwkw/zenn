@@ -3,7 +3,9 @@ title: "判断を閉じるためのデータと開き直すための記録"
 emoji: "🧭"
 type: "idea"
 topics: ["設計", "データモデリング", "ADR", "システム思考", "AI"]
-published: false
+published: true
+published_at: 2026-10-13 11:00
+publication_name: "dress_code"
 ---
 
 # TL;DR
